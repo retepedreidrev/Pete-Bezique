@@ -2,14 +2,14 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Pete Bezique</title>
   <style>
     :root{
       --bg:#0b1020;
       --panel:#141c36;
       --panel2:#0f1730;
-      --panel3:#0c1328;
+      --panel3:#0b1328;
       --line:rgba(255,255,255,.12);
       --text:#eef3ff;
       --muted:#aab7df;
@@ -18,42 +18,95 @@
       --warn:#c98617;
       --danger:#c04444;
       --select:#ffd34d;
+      --turnGlow:rgba(255,235,150,.95);
+
+      --card-w:96px;
+      --card-h:132px;
+      --card-small-w:74px;
+      --card-small-h:102px;
+      --overlap:-38px;
+      --overlap-small:-24px;
     }
+
+    @media (max-width: 900px){
+      :root{
+        --card-w:72px;
+        --card-h:99px;
+        --card-small-w:56px;
+        --card-small-h:77px;
+        --overlap:-28px;
+        --overlap-small:-18px;
+      }
+    }
+
+    @media (max-width: 420px){
+      :root{
+        --card-w:62px;
+        --card-h:85px;
+        --card-small-w:48px;
+        --card-small-h:66px;
+        --overlap:-24px;
+        --overlap-small:-15px;
+      }
+    }
+
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
       background:var(--bg);
       color:var(--text);
+      overflow:hidden;
     }
-    .wrap{max-width:1480px;margin:0 auto;padding:14px}
+
+    .wrap{
+      max-width:1480px;
+      margin:0 auto;
+      padding:10px;
+      height:100dvh;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
     .topbar{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:12px;
+      gap:10px;
       flex-wrap:wrap;
-      margin-bottom:14px;
+      flex:0 0 auto;
     }
-    .brand h1{margin:0;font-size:30px}
+
+    .brand h1{margin:0;font-size:28px;line-height:1}
     .brand small{color:var(--muted)}
     .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .split{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:6px 10px;border-radius:999px;
-      background:rgba(255,255,255,.05);border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--line);
       font-size:13px;
     }
+
     .dot{width:10px;height:10px;border-radius:50%;background:#6ff0a6}
+
     .panel{
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:16px;
-      padding:16px;
+      padding:12px;
+      min-height:0;
     }
+
     .hidden{display:none !important}
     h2,h3,h4{margin-top:0}
+    .muted,.tiny,.label{color:var(--muted)}
+    .tiny,.label{font-size:12px}
+
     input{
       width:100%;
       padding:12px;
@@ -63,6 +116,7 @@
       color:var(--text);
       font:inherit;
     }
+
     button{
       padding:10px 14px;
       border-radius:12px;
@@ -71,6 +125,7 @@
       color:var(--text);
       cursor:pointer;
       font:inherit;
+      white-space:nowrap;
     }
     button:hover{filter:brightness(1.08)}
     button.primary{background:linear-gradient(180deg,#2a7cff 0%,#195ce3 100%)}
@@ -87,9 +142,25 @@
       padding:10px 12px;
       margin-bottom:12px;
     }
-    .muted,.tiny,.label{color:var(--muted)}
-    .tiny,.label{font-size:12px}
-    .players,.history{display:flex;flex-direction:column;gap:8px}
+
+    .layout{
+      display:grid;
+      grid-template-columns:300px 1fr;
+      gap:12px;
+      min-height:0;
+      flex:1 1 auto;
+    }
+
+    @media (max-width: 980px){
+      .layout{grid-template-columns:1fr}
+    }
+
+    .players,.history{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
     .player,.history-item{
       background:var(--panel3);
       border:1px solid var(--line);
@@ -97,31 +168,74 @@
       padding:10px;
     }
 
-    .layout{
-      display:grid;
-      grid-template-columns:320px 1fr;
-      gap:16px;
+    .separator{
+      height:1px;
+      background:var(--line);
+      margin:10px 0;
     }
-    @media (max-width:1020px){
-      .layout{grid-template-columns:1fr}
+
+    .main-stage{
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .match-shell{
+      min-height:0;
+      flex:1 1 auto;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .top-actions{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      flex:0 0 auto;
     }
 
     .table-layout{
       display:grid;
-      grid-template-columns:1fr 320px 1fr;
-      gap:14px;
-      align-items:start;
+      grid-template-columns:1fr 280px 1fr;
+      gap:10px;
+      min-height:0;
+      flex:1 1 auto;
     }
-    @media (max-width:1180px){
-      .table-layout{grid-template-columns:1fr}
+
+    @media (max-width: 980px){
+      .table-layout{
+        grid-template-columns:1fr;
+        grid-template-rows:auto auto auto;
+        gap:8px;
+      }
+      .opponent-side{order:1}
+      .table-center{order:2}
+      .my-side{order:3}
     }
 
     .player-side,.table-center{
       background:var(--panel2);
       border:1px solid var(--line);
       border-radius:16px;
-      padding:14px;
-      min-height:300px;
+      padding:10px;
+      min-height:0;
+      overflow:hidden;
+    }
+
+    .player-side{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      transition:border-color .15s ease, box-shadow .15s ease;
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    .player-side.active-turn{
+      border-color:var(--turnGlow);
+      box-shadow:0 0 0 2px rgba(255,235,150,.22), 0 0 18px rgba(255,235,150,.18) inset;
     }
 
     .player-header{
@@ -129,35 +243,31 @@
       justify-content:space-between;
       align-items:flex-start;
       gap:8px;
-      margin-bottom:10px;
     }
+
     .player-name{
       font-size:22px;
       font-weight:700;
       line-height:1.1;
     }
-    .turn-badge{
-      background:#ffd479;
-      color:#111;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:700;
-      white-space:nowrap;
+
+    @media (max-width: 900px){
+      .player-name{font-size:18px}
     }
 
     .score-box{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:8px;
-      margin-bottom:10px;
     }
+
     .score-cell{
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
       border-radius:12px;
-      padding:8px 10px;
+      padding:8px;
     }
+
     .score-big{
       font-size:28px;
       font-weight:800;
@@ -165,69 +275,124 @@
       margin-top:2px;
     }
 
+    @media (max-width: 900px){
+      .score-big{font-size:22px}
+    }
+
     .meld-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:8px;
-      margin-bottom:12px;
+      gap:6px;
     }
+
     .meld-item{
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
-      border-radius:12px;
-      padding:8px 10px;
+      border-radius:10px;
+      padding:6px 8px;
       display:flex;
       justify-content:space-between;
-      align-items:center;
-      gap:8px;
-      font-size:13px;
+      gap:6px;
+      font-size:12px;
     }
 
-    .separator{height:1px;background:var(--line);margin:12px 0}
-    .cards{display:flex;flex-wrap:wrap;gap:8px}
+    @media (max-width: 900px){
+      .meld-item{font-size:11px;padding:5px 6px}
+    }
+
     .section-title{
-      margin-bottom:8px;
-      font-size:13px;
+      margin-bottom:2px;
+      font-size:12px;
       color:var(--muted);
+    }
+
+    .cards{
+      display:flex;
+      align-items:flex-start;
+      flex-wrap:nowrap;
+      min-height:calc(var(--card-h) + 4px);
+      overflow:hidden;
+      padding:2px 0;
+    }
+
+    .cards.small-row{
+      min-height:calc(var(--card-small-h) + 4px);
+    }
+
+    .cards .card{
+      flex:0 0 auto;
+      margin-right:var(--overlap);
+    }
+
+    .cards.small-row .card{
+      margin-right:var(--overlap-small);
+    }
+
+    .cards .card:last-child{
+      margin-right:0;
     }
 
     .table-center{
       display:flex;
       flex-direction:column;
-      gap:12px;
-      justify-content:flex-start;
-      align-items:stretch;
+      justify-content:space-between;
+      gap:10px;
     }
+
     .status-box{
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
       border-radius:12px;
       padding:10px;
+      flex:0 0 auto;
     }
+
     .center-top{
       display:flex;
       justify-content:center;
+      align-items:center;
       gap:24px;
-      align-items:flex-start;
-      flex-wrap:wrap;
+      flex:0 0 auto;
     }
-    .stack-area{
-      text-align:center;
+
+    .stack-wrap{
+      position:relative;
+      width:calc(var(--card-w) + 24px);
+      height:calc(var(--card-h) + 24px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .stack-area .label{
-      margin-bottom:6px;
-      display:block;
+
+    .deck-base{
+      position:relative;
+      z-index:2;
     }
+
+    .trump-under{
+      position:absolute;
+      z-index:1;
+      left:50%;
+      top:50%;
+      transform:translate(-24%, -50%) rotate(90deg);
+      transform-origin:center center;
+      opacity:1;
+      pointer-events:none;
+    }
+
     .trick-row{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:16px;
+      gap:10px;
+      flex:1 1 auto;
+      min-height:0;
     }
+
     .trick-slot{
-      min-height:180px;
-      border:1px dashed rgba(255,255,255,.15);
+      min-height:160px;
+      border:1px dashed rgba(255,255,255,.14);
       border-radius:14px;
-      padding:10px;
+      padding:8px;
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -236,16 +401,21 @@
       background:rgba(255,255,255,.02);
     }
 
+    @media (max-width:900px){
+      .trick-slot{min-height:120px}
+    }
+
     .action-row{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
       justify-content:center;
+      flex:0 0 auto;
     }
 
     .card{
-      width:110px;
-      height:150px;
+      width:var(--card-w);
+      height:var(--card-h);
       border-radius:10px;
       background-image:url('cards-atlas.jpeg');
       background-repeat:no-repeat;
@@ -255,18 +425,24 @@
       cursor:default;
       position:relative;
       overflow:hidden;
-      flex:0 0 auto;
     }
+
     .card.small{
-      width:82px;
-      height:112px;
+      width:var(--card-small-w);
+      height:var(--card-small-h);
       background-size:1145px 763px;
     }
+
     .card.back{
       background:linear-gradient(180deg,#274e9b 0%,#18335f 100%);
-      display:flex;align-items:center;justify-content:center;
-      font-size:36px;color:#fff;border-color:rgba(255,255,255,.15);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:36px;
+      color:#fff;
+      border-color:rgba(255,255,255,.15);
     }
+
     .card.playable{cursor:pointer}
     .card.playable:hover{transform:translateY(-3px)}
     .card.selectable{cursor:pointer}
@@ -274,23 +450,36 @@
       border-color:var(--select);
       box-shadow:0 0 0 2px rgba(255,211,77,.35),0 4px 12px rgba(0,0,0,.25);
     }
+
     .card.from-hand::after{
       content:"HAND";
-      position:absolute;left:4px;bottom:4px;
-      font-size:10px;font-weight:700;
-      color:#111;background:rgba(255,255,255,.8);
-      border-radius:6px;padding:2px 5px;
+      position:absolute;
+      left:4px;
+      bottom:4px;
+      font-size:10px;
+      font-weight:700;
+      color:#111;
+      background:rgba(255,255,255,.8);
+      border-radius:6px;
+      padding:2px 5px;
     }
+
     .card.from-exposed::after{
       content:"BORD";
-      position:absolute;left:4px;bottom:4px;
-      font-size:10px;font-weight:700;
-      color:#111;background:rgba(255,255,255,.8);
-      border-radius:6px;padding:2px 5px;
+      position:absolute;
+      left:4px;
+      bottom:4px;
+      font-size:10px;
+      font-weight:700;
+      color:#111;
+      background:rgba(255,255,255,.8);
+      border-radius:6px;
+      padding:2px 5px;
     }
 
     .overlay{
-      position:fixed;inset:0;
+      position:fixed;
+      inset:0;
       background:rgba(0,0,0,.55);
       display:none;
       align-items:center;
@@ -298,7 +487,9 @@
       padding:16px;
       z-index:50;
     }
+
     .overlay.show{display:flex}
+
     .modal{
       width:min(520px,100%);
       background:var(--panel);
@@ -306,6 +497,7 @@
       border-radius:18px;
       padding:20px;
     }
+
     .countdown-big{
       font-size:42px;
       font-weight:800;
@@ -359,13 +551,13 @@
         <div id="historyBox" class="history"></div>
       </aside>
 
-      <main class="panel">
+      <main class="panel main-stage">
         <div id="noMatchBox" class="notice">
           Välj en spelare i lobbyn och tryck <strong>Utmana</strong>.
         </div>
 
-        <div id="gameBox" class="hidden">
-          <div class="split" style="margin-bottom:12px">
+        <div id="gameBox" class="match-shell hidden">
+          <div class="top-actions">
             <div class="row">
               <span class="pill">Trumf: <strong id="trumpLabel">-</strong></span>
               <span class="pill">Kort kvar: <strong id="drawCountLabel">0</strong></span>
@@ -381,13 +573,12 @@
           </div>
 
           <div class="table-layout">
-            <section class="player-side">
+            <section id="opponentSide" class="player-side opponent-side">
               <div class="player-header">
                 <div>
                   <div class="player-name" id="opponentNameLarge">-</div>
                   <div class="tiny" id="opponentMeta">-</div>
                 </div>
-                <span id="opponentTurnBadge" class="turn-badge hidden">Tur</span>
               </div>
 
               <div class="score-box">
@@ -405,24 +596,23 @@
 
               <div class="separator"></div>
               <div class="section-title">Hand</div>
-              <div id="opponentHand" class="cards"></div>
+              <div id="opponentHand" class="cards small-row"></div>
 
               <div class="separator"></div>
               <div class="section-title">Utlagda kort</div>
-              <div id="opponentExposed" class="cards"></div>
+              <div id="opponentExposed" class="cards small-row"></div>
             </section>
 
             <section class="table-center">
               <div class="status-box" id="matchStatusLabel">-</div>
 
               <div class="center-top">
-                <div class="stack-area">
-                  <span class="label">Draghög</span>
-                  <div id="drawPileBox"></div>
-                </div>
-                <div class="stack-area">
-                  <span class="label">Trumfkort</span>
-                  <div id="trumpCardBox"></div>
+                <div>
+                  <div class="label" style="text-align:center;margin-bottom:6px;">Kortstapel</div>
+                  <div class="stack-wrap">
+                    <div id="trumpUnderBox" class="trump-under"></div>
+                    <div id="drawPileBox" class="deck-base"></div>
+                  </div>
                 </div>
               </div>
 
@@ -443,13 +633,12 @@
               </div>
             </section>
 
-            <section class="player-side">
+            <section id="mySide" class="player-side my-side">
               <div class="player-header">
                 <div>
                   <div class="player-name" id="myNameLarge">-</div>
                   <div class="tiny" id="myMeta">-</div>
                 </div>
-                <span id="myTurnBadge" class="turn-badge hidden">Tur</span>
               </div>
 
               <div class="score-box">
@@ -494,7 +683,7 @@
   <div id="disconnectOverlay" class="overlay">
     <div class="modal">
       <h2>Anslutningen bröts</h2>
-      <p>Försöker återansluta. Om anslutningen inte kommer tillbaka avbryts omgången.</p>
+      <p>Försöker återansluta. Om anslutningen inte kommer tillbaka avbryts given och du återgår till lobbyn.</p>
       <div class="countdown-big" id="disconnectCountdown">60</div>
       <div class="tiny" id="disconnectStatusText">Väntar på kontakt…</div>
     </div>
@@ -549,12 +738,13 @@
     const noMatchBox = document.getElementById("noMatchBox");
     const gameBox = document.getElementById("gameBox");
 
+    const mySide = document.getElementById("mySide");
+    const opponentSide = document.getElementById("opponentSide");
+
     const myNameLarge = document.getElementById("myNameLarge");
     const opponentNameLarge = document.getElementById("opponentNameLarge");
     const myMetaEl = document.getElementById("myMeta");
     const opponentMetaEl = document.getElementById("opponentMeta");
-    const myTurnBadgeEl = document.getElementById("myTurnBadge");
-    const opponentTurnBadgeEl = document.getElementById("opponentTurnBadge");
     const myScoreBig = document.getElementById("myScoreBig");
     const opponentScoreBig = document.getElementById("opponentScoreBig");
     const myVictoriesBig = document.getElementById("myVictoriesBig");
@@ -571,7 +761,7 @@
     const myExposedEl = document.getElementById("myExposed");
     const opponentExposedEl = document.getElementById("opponentExposed");
     const drawPileBox = document.getElementById("drawPileBox");
-    const trumpCardBoxEl = document.getElementById("trumpCardBox");
+    const trumpUnderBox = document.getElementById("trumpUnderBox");
     const leadCardBoxEl = document.getElementById("leadCardBox");
     const replyCardBoxEl = document.getElementById("replyCardBox");
     const leadPlayerLabelEl = document.getElementById("leadPlayerLabel");
@@ -642,14 +832,12 @@
     function atlasPos(rank, suit){
       const X = [20, 149, 278, 397, 524, 652, 784, 913, 1042, 1171, 1300, 1429];
       const Y = [28, 190, 351, 542, 700, 860];
-
       const map = {
         H: { A:[0,0], "7":[3,0], "8":[4,0], "9":[5,0], "10":[4,1], J:[0,2], Q:[1,2], K:[2,2] },
         D: { A:[6,0], "7":[7,1], "8":[8,1], "9":[9,1], "10":[10,1], J:[6,2], Q:[7,2], K:[8,2] },
         C: { A:[0,3], "7":[3,4], "8":[4,4], "9":[5,4], "10":[4,5], J:[0,5], Q:[1,5], K:[2,5] },
         S: { A:[6,3], "7":[7,4], "8":[8,4], "9":[9,4], "10":[10,4], J:[6,5], Q:[7,5], K:[8,5] }
       };
-
       const pos = map[suit]?.[rank];
       if (!pos) return { x: X[0], y: Y[0] };
       return { x: X[pos[0]], y: Y[pos[1]] };
@@ -790,6 +978,7 @@
 
     function detectMeld(match, cards){
       if (!cards || !cards.length) return null;
+
       const trump = match.trumpSuit;
       const byRS = countByRankSuit(cards);
       const byR = countByRank(cards);
@@ -907,12 +1096,7 @@
         swappedTrumpThisWin: false,
         declaredThisWin: false,
         lastTrickWinner: null,
-        winnerUid: null,
-        logs: [
-          `Ny giv startad. Givare: ${dealer === playerA.uid ? playerA.name : playerB.name}.`,
-          `Trumf är ${SUIT_NAME[trumpCard.suit]}.`,
-          `${nonDealer === playerA.uid ? playerA.name : playerB.name} börjar.`
-        ]
+        winnerUid: null
       };
     }
 
@@ -1012,20 +1196,19 @@
     }
 
     function startDisconnectCountdown(){
-      if (!currentMatchId) return;
-      if (disconnectTimer) return;
+      if (!currentMatchId || disconnectTimer) return;
       disconnectRemaining = 60;
       disconnectCountdownEl.textContent = String(disconnectRemaining);
       disconnectStatusText.textContent = "Väntar på kontakt…";
       disconnectOverlay.classList.add("show");
 
-      disconnectTimer = setInterval(() => {
+      disconnectTimer = setInterval(async () => {
         disconnectRemaining -= 1;
         disconnectCountdownEl.textContent = String(disconnectRemaining);
         if (disconnectRemaining <= 0) {
           clearInterval(disconnectTimer);
           disconnectTimer = null;
-          leaveCurrentMatch();
+          await abortRoundAndReturnToLobby();
         }
       }, 1000);
     }
@@ -1036,6 +1219,42 @@
         disconnectTimer = null;
       }
       disconnectOverlay.classList.remove("show");
+    }
+
+    async function abortRoundAndReturnToLobby(){
+      if (!currentMatchId) {
+        enterLobbyView();
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "matches", currentMatchId));
+        if (snap.exists()) {
+          const match = { id:snap.id, ...snap.data() };
+          const uids = Object.keys(match.players);
+          const reset = makeInitialRound(
+            match.id,
+            { uid: uids[0], name: match.players[uids[0]].name },
+            { uid: uids[1], name: match.players[uids[1]].name },
+            match.victoryPoints,
+            match.scores
+          );
+          await setDoc(doc(db, "matches", currentMatchId), reset, { merge:false });
+        }
+      } catch (e) {
+        console.error("abortRoundAndReturnToLobby failed:", e);
+      }
+
+      stopDisconnectCountdown();
+      selectedCards = [];
+      currentMatchId = null;
+      localStorage.removeItem("pete_bezique_matchId");
+
+      if (currentMatchUnsub) {
+        currentMatchUnsub();
+        currentMatchUnsub = null;
+      }
+      enterLobbyView();
     }
 
     function subscribePlayers(){
@@ -1111,7 +1330,6 @@
 
     function subscribeChallenges(){
       if (challengesUnsub) challengesUnsub();
-
       const q = query(
         collection(db, "challenges"),
         where("toUid","==",me.uid),
@@ -1217,7 +1435,6 @@
 
     function subscribeOutgoingChallenges(){
       if (outgoingChallengesUnsub) outgoingChallengesUnsub();
-
       const q = query(collection(db, "challenges"), where("fromUid", "==", me.uid));
 
       outgoingChallengesUnsub = onSnapshot(q, snap => {
@@ -1281,6 +1498,7 @@
     function subscribeHistory(){
       if (historyUnsub) historyUnsub();
       const q = query(collection(db, "matches"));
+
       historyUnsub = onSnapshot(q, snap => {
         const matches = [];
         snap.forEach(d => {
@@ -1324,14 +1542,23 @@
 
     function openMatch(matchId){
       if (currentMatchUnsub) currentMatchUnsub();
-      currentMatchUnsub = onSnapshot(doc(db, "matches", matchId), snap => {
-        if (!snap.exists()) {
-          enterLobbyView();
-          return;
+
+      currentMatchUnsub = onSnapshot(
+        doc(db, "matches", matchId),
+        snap => {
+          stopDisconnectCountdown();
+          if (!snap.exists()) {
+            enterLobbyView();
+            return;
+          }
+          const match = { id:snap.id, ...snap.data() };
+          renderMatch(match);
+        },
+        err => {
+          console.error("match snapshot error:", err);
+          startDisconnectCountdown();
         }
-        const match = { id:snap.id, ...snap.data() };
-        renderMatch(match);
-      });
+      );
     }
 
     function renderMatch(match){
@@ -1362,8 +1589,8 @@
       trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
       drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
 
-      myTurnBadgeEl.classList.toggle("hidden", match.turn !== me.uid);
-      opponentTurnBadgeEl.classList.toggle("hidden", match.turn !== opponentUid);
+      mySide.classList.toggle("active-turn", match.turn === me.uid);
+      opponentSide.classList.toggle("active-turn", match.turn === opponentUid);
 
       let status = "";
       if (match.winnerUid) {
@@ -1371,11 +1598,11 @@
       } else if (match.pendingWinnerActionUid === me.uid) {
         if (match.swappedTrumpThisWin) status = "Du har bytt trumfsjua. Klicka nu på högen för att dra kort.";
         else if (match.declaredThisWin) status = "Du har lagt ut en kombination. Klicka nu på högen för att dra kort.";
-        else status = "Du vann sticket. Klicka kort för kombination, byt trumfsjua eller klicka på högen för att dra.";
+        else status = "Du vann sticket. Markera kort för kombination, byt trumfsjua eller klicka på högen för att dra.";
       } else if (match.pendingWinnerActionUid === opponentUid) {
         status = `${getPlayerName(match, opponentUid)} vann sticket och måste lägga ut, byta trumf eller dra.`;
       } else {
-        status = `Tur: ${getPlayerName(match, match.turn)}. Dubbelklicka på ett handkort för att spela.`;
+        status = `Dubbelklicka på ett handkort för att spela.`;
       }
       if (ensureArray(match.drawPile).length === 0) {
         status += " Slutfas: följ färg, annars trumf om möjligt.";
@@ -1389,6 +1616,7 @@
         const selectable = match.pendingWinnerActionUid === me.uid;
         const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "hand");
+
         const el = renderSpriteCard(card, {
           selectable,
           playable,
@@ -1409,7 +1637,9 @@
       });
 
       opponentHandEl.innerHTML = "";
-      for (let i = 0; i < oppHand.length; i++) opponentHandEl.appendChild(renderBackCard());
+      oppHand.slice().sort(sortCardsForUi).forEach(() => {
+        opponentHandEl.appendChild(renderBackCard());
+      });
 
       myExposedEl.innerHTML = "";
       myExposed.slice().sort(sortCardsForUi).forEach(card => {
@@ -1431,7 +1661,7 @@
 
       opponentExposedEl.innerHTML = "";
       oppExposed.slice().sort(sortCardsForUi).forEach(card => {
-        opponentExposedEl.appendChild(renderSpriteCard(card));
+        opponentExposedEl.appendChild(renderSpriteCard(card, { small:true }));
       });
 
       drawPileBox.innerHTML = "";
@@ -1444,17 +1674,21 @@
       }
       drawPileBox.appendChild(drawEl);
 
-      trumpCardBoxEl.innerHTML = "";
-      if (match.trumpCard) trumpCardBoxEl.appendChild(renderSpriteCard(match.trumpCard));
+      trumpUnderBox.innerHTML = "";
+      if (match.trumpCard) {
+        trumpUnderBox.appendChild(renderSpriteCard(match.trumpCard));
+      }
 
       leadCardBoxEl.innerHTML = "";
       replyCardBoxEl.innerHTML = "";
+
       if (match.trick?.[0]) {
         leadPlayerLabelEl.textContent = getPlayerName(match, match.trick[0].uid);
         leadCardBoxEl.appendChild(renderSpriteCard(match.trick[0].card));
       } else {
         leadPlayerLabelEl.textContent = "Första kort";
       }
+
       if (match.trick?.[1]) {
         replyPlayerLabelEl.textContent = getPlayerName(match, match.trick[1].uid);
         replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
@@ -1610,7 +1844,6 @@
 
       next.scores[me.uid] = (next.scores[me.uid] || 0) + meld.points;
       next.declaredThisWin = true;
-
       selectedCards = [];
 
       await updateDoc(doc(db, "matches", next.id), {
@@ -1692,6 +1925,7 @@
         match.victoryPoints,
         match.scores
       );
+
       await setDoc(doc(db, "matches", currentMatchId), next, { merge:false });
       selectedCards = [];
     }
@@ -1710,20 +1944,9 @@
         match.victoryPoints,
         { [uids[0]]:0, [uids[1]]:0 }
       );
+
       await setDoc(doc(db, "matches", currentMatchId), next, { merge:false });
       selectedCards = [];
-    }
-
-    function leaveCurrentMatch(){
-      stopDisconnectCountdown();
-      selectedCards = [];
-      currentMatchId = null;
-      localStorage.removeItem("pete_bezique_matchId");
-      if (currentMatchUnsub) {
-        currentMatchUnsub();
-        currentMatchUnsub = null;
-      }
-      enterLobbyView();
     }
 
     saveNameBtn.addEventListener("click", saveMyProfile);
@@ -1736,7 +1959,7 @@
     clearSelectionBtn.addEventListener("click", clearSelection);
     newRoundBtn.addEventListener("click", startNewDeal);
     newMatchBtn.addEventListener("click", startNewMatch);
-    leaveMatchBtn.addEventListener("click", leaveCurrentMatch);
+    leaveMatchBtn.addEventListener("click", abortRoundAndReturnToLobby);
 
     window.addEventListener("offline", () => {
       if (currentMatchId) startDisconnectCountdown();
