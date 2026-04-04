@@ -1,1 +1,1458 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pete Bezique</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#141c36;
+      --panel2:#0f1730;
+      --line:rgba(255,255,255,.12);
+      --text:#eef3ff;
+      --muted:#aab7df;
+      --accent:#2a7cff;
+      --good:#1fa866;
+      --warn:#c98617;
+      --danger:#c04444;
+      --select:#ffd34d;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      background:#0b1020;
+      color:var(--text);
+    }
+    .wrap{max-width:1400px;margin:0 auto;padding:16px}
+    .topbar{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .brand h1{margin:0;font-size:30px}
+    .brand small{color:var(--muted)}
+    .grid{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:16px;
+    }
+    @media (max-width:980px){
+      .grid{grid-template-columns:1fr}
+    }
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+    }
+    h2,h3{margin-top:0}
+    .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .split{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.05);border:1px solid var(--line);
+      font-size:13px;
+    }
+    .dot{width:10px;height:10px;border-radius:50%;background:#6ff0a6}
+    input{
+      width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);
+      background:#0d1430;color:var(--text);font:inherit;
+    }
+    button{
+      padding:10px 14px;border-radius:12px;border:1px solid var(--line);
+      background:#1d2a56;color:var(--text);cursor:pointer;font:inherit;
+    }
+    button:hover{filter:brightness(1.08)}
+    button.primary{background:linear-gradient(180deg,#2a7cff 0%,#195ce3 100%)}
+    button.good{background:linear-gradient(180deg,#1da764 0%,#168451 100%)}
+    button.warn{background:linear-gradient(180deg,#cb8d21 0%,#9d6b13 100%)}
+    button.danger{background:linear-gradient(180deg,#ca4b4b 0%,#a53636 100%)}
+    button.ghost{background:transparent}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    .notice{
+      background:rgba(124,199,255,.08);
+      border-left:4px solid #7cc7ff;
+      border-radius:10px;
+      padding:10px 12px;
+      margin-bottom:12px;
+    }
+    .muted,.tiny,.label{color:var(--muted)}
+    .tiny,.label{font-size:12px}
+    .players,.log{display:flex;flex-direction:column;gap:8px}
+    .player,.log-item{
+      background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;
+    }
+    .game.hidden{display:none}
+    .scoreboard{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    @media (max-width:900px){
+      .scoreboard{grid-template-columns:1fr}
+    }
+    .scorecard,.centerbox,.zone{
+      background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px;
+    }
+    .bigscore{font-size:34px;font-weight:700}
+    .table{
+      display:grid;grid-template-columns:1fr 260px 1fr;gap:14px;
+    }
+    @media (max-width:1100px){
+      .table{grid-template-columns:1fr}
+    }
+    .separator{height:1px;background:var(--line);margin:12px 0}
+    .cards{display:flex;flex-wrap:wrap;gap:8px}
+    .badge{
+      background:#ffd479;color:#111;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;
+    }
 
+    .card{
+      width:96px;height:132px;border-radius:10px;
+      background-image:url('cards-atlas.jpg');
+      background-repeat:no-repeat;
+      background-size:1536px 1243px;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);
+      border:2px solid transparent;
+      cursor:default;
+      position:relative;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .card.small{width:72px;height:99px;background-size:1152px 932.25px}
+    .card.back{
+      background:linear-gradient(180deg,#274e9b 0%,#18335f 100%);
+      display:flex;align-items:center;justify-content:center;
+      font-size:36px;color:#fff;border-color:rgba(255,255,255,.15);
+    }
+    .card.playable{cursor:pointer}
+    .card.playable:hover{transform:translateY(-3px)}
+    .card.selectable{cursor:pointer}
+    .card.selected{border-color:var(--select);box-shadow:0 0 0 2px rgba(255,211,77,.35),0 4px 12px rgba(0,0,0,.25)}
+    .card.from-hand::after{
+      content:"HAND";
+      position:absolute;left:4px;bottom:4px;
+      font-size:10px;font-weight:700;
+      color:#111;background:rgba(255,255,255,.8);
+      border-radius:6px;padding:2px 5px;
+    }
+    .card.from-exposed::after{
+      content:"BORD";
+      position:absolute;left:4px;bottom:4px;
+      font-size:10px;font-weight:700;
+      color:#111;background:rgba(255,255,255,.8);
+      border-radius:6px;padding:2px 5px;
+    }
+    .trickslot{
+      min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    }
+    .overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,.55);
+      display:none;align-items:center;justify-content:center;padding:16px;z-index:50;
+    }
+    .overlay.show{display:flex}
+    .modal{
+      width:min(520px,100%);
+      background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Pete Bezique</h1>
+        <small>Webbläsarversion med Firebase och kortbild som sprite sheet</small>
+      </div>
+      <div class="row">
+        <span class="pill"><span class="dot"></span><span id="authState">Startar…</span></span>
+        <span class="pill">UID: <span id="uidLabel">-</span></span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <aside class="panel">
+        <h2>Lobby</h2>
+        <div class="notice">
+          Skriv ditt namn. Två öppna sidor kan sedan utmana varandra.
+        </div>
+
+        <div class="row" style="margin-bottom:12px">
+          <input id="displayNameInput" type="text" maxlength="24" placeholder="Ditt spelarnamn">
+          <button id="saveNameBtn" class="primary">Spara namn</button>
+        </div>
+
+        <div class="split">
+          <span class="pill">Du: <strong id="meName">-</strong></span>
+          <button id="refreshPlayersBtn" class="ghost">Uppdatera</button>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="split">
+          <h3 style="margin:0">Online-spelare</h3>
+          <span class="tiny">senaste 2 min</span>
+        </div>
+        <div id="playersList" class="players"></div>
+
+        <div class="separator"></div>
+
+        <h3>Historik</h3>
+        <div id="historyBox" class="log"></div>
+      </aside>
+
+      <main class="panel">
+        <h2>Match</h2>
+
+        <div id="noMatchBox" class="notice">
+          Välj en spelare i lobbyn och tryck <strong>Utmana</strong>.
+        </div>
+
+        <div id="gameBox" class="game hidden">
+          <div class="scoreboard">
+            <div class="scorecard">
+              <div class="label">Spelare 1</div>
+              <div><strong id="p1Name">-</strong></div>
+              <div class="bigscore" id="p1Score">0</div>
+              <div class="tiny">Segerpoäng: <span id="p1Victories">0</span></div>
+            </div>
+
+            <div class="centerbox">
+              <div class="label">Matchstatus</div>
+              <div id="matchStatusLabel" style="margin-bottom:8px">-</div>
+              <div class="row">
+                <span class="pill">Trumf: <strong id="trumpLabel">-</strong></span>
+                <span class="pill">Kort kvar: <strong id="drawCountLabel">0</strong></span>
+              </div>
+              <div class="row" style="margin-top:10px">
+                <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
+                <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
+                <button id="clearSelectionBtn" class="ghost">Rensa markering</button>
+              </div>
+              <div class="row" style="margin-top:10px">
+                <button id="newRoundBtn" class="warn">Ny giv</button>
+                <button id="newMatchBtn" class="danger">Ny match</button>
+              </div>
+            </div>
+
+            <div class="scorecard">
+              <div class="label">Spelare 2</div>
+              <div><strong id="p2Name">-</strong></div>
+              <div class="bigscore" id="p2Score">0</div>
+              <div class="tiny">Segerpoäng: <span id="p2Victories">0</span></div>
+            </div>
+          </div>
+
+          <div class="table">
+            <section class="zone">
+              <h3>Motståndare <span id="opponentTurnBadge" class="badge" style="display:none">Tur</span></h3>
+              <div id="opponentMeta" class="label">-</div>
+              <div class="separator"></div>
+
+              <div class="label">Hand</div>
+              <div id="opponentHand" class="cards"></div>
+
+              <div class="separator"></div>
+
+              <div class="label">Utlagda kort på bordet</div>
+              <div id="opponentExposed" class="cards"></div>
+            </section>
+
+            <section class="zone">
+              <h3>Bord</h3>
+
+              <div class="row" style="justify-content:center">
+                <div>
+                  <div class="label" style="text-align:center">Draghög</div>
+                  <div id="drawPileBox"></div>
+                </div>
+                <div>
+                  <div class="label" style="text-align:center">Trumfkort</div>
+                  <div id="trumpCardBox"></div>
+                </div>
+              </div>
+
+              <div class="separator"></div>
+
+              <div class="split">
+                <div class="trickslot">
+                  <div class="label" id="leadPlayerLabel">Första kort</div>
+                  <div id="leadCardBox"></div>
+                </div>
+                <div class="trickslot">
+                  <div class="label" id="replyPlayerLabel">Andra kort</div>
+                  <div id="replyCardBox"></div>
+                </div>
+              </div>
+
+              <div class="separator"></div>
+
+              <div class="label">Valda kort</div>
+              <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
+
+              <div class="separator"></div>
+
+              <div class="label">Logg</div>
+              <div id="logBox" class="log"></div>
+            </section>
+
+            <section class="zone">
+              <h3>Du <span id="myTurnBadge" class="badge" style="display:none">Tur</span></h3>
+              <div id="myMeta" class="label">-</div>
+              <div class="separator"></div>
+
+              <div class="label">Din hand</div>
+              <div id="myHand" class="cards"></div>
+
+              <div class="separator"></div>
+
+              <div class="label">Dina utlagda kort på bordet</div>
+              <div id="myExposed" class="cards"></div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="challengeOverlay" class="overlay">
+    <div class="modal">
+      <h2>Utmaning</h2>
+      <p id="challengeText">En spelare vill spela mot dig.</p>
+      <div class="row">
+        <button id="acceptChallengeBtn" class="good">Acceptera</button>
+        <button id="declineChallengeBtn" class="danger">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      signInAnonymously,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      updateDoc,
+      serverTimestamp,
+      collection,
+      query,
+      where,
+      onSnapshot,
+      addDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD5G83HIkMGJJPZla2LyYhGU4rZUJqXnGs",
+      authDomain: "pete-bezique.firebaseapp.com",
+      projectId: "pete-bezique",
+      storageBucket: "pete-bezique.firebasestorage.app",
+      messagingSenderId: "918033844317",
+      appId: "1:918033844317:web:13e8308e9e3619f8f525b4",
+      measurementId: "G-QLERPDKL6N"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const authStateEl = document.getElementById("authState");
+    const uidLabelEl = document.getElementById("uidLabel");
+    const displayNameInput = document.getElementById("displayNameInput");
+    const saveNameBtn = document.getElementById("saveNameBtn");
+    const meNameEl = document.getElementById("meName");
+    const playersListEl = document.getElementById("playersList");
+    const refreshPlayersBtn = document.getElementById("refreshPlayersBtn");
+    const historyBoxEl = document.getElementById("historyBox");
+
+    const noMatchBox = document.getElementById("noMatchBox");
+    const gameBox = document.getElementById("gameBox");
+
+    const p1NameEl = document.getElementById("p1Name");
+    const p2NameEl = document.getElementById("p2Name");
+    const p1ScoreEl = document.getElementById("p1Score");
+    const p2ScoreEl = document.getElementById("p2Score");
+    const p1VictoriesEl = document.getElementById("p1Victories");
+    const p2VictoriesEl = document.getElementById("p2Victories");
+    const matchStatusLabelEl = document.getElementById("matchStatusLabel");
+    const trumpLabelEl = document.getElementById("trumpLabel");
+    const drawCountLabelEl = document.getElementById("drawCountLabel");
+
+    const myHandEl = document.getElementById("myHand");
+    const opponentHandEl = document.getElementById("opponentHand");
+    const myExposedEl = document.getElementById("myExposed");
+    const opponentExposedEl = document.getElementById("opponentExposed");
+    const drawPileBox = document.getElementById("drawPileBox");
+    const trumpCardBoxEl = document.getElementById("trumpCardBox");
+    const leadCardBoxEl = document.getElementById("leadCardBox");
+    const replyCardBoxEl = document.getElementById("replyCardBox");
+    const leadPlayerLabelEl = document.getElementById("leadPlayerLabel");
+    const replyPlayerLabelEl = document.getElementById("replyPlayerLabel");
+    const myMetaEl = document.getElementById("myMeta");
+    const opponentMetaEl = document.getElementById("opponentMeta");
+    const myTurnBadgeEl = document.getElementById("myTurnBadge");
+    const opponentTurnBadgeEl = document.getElementById("opponentTurnBadge");
+    const logBoxEl = document.getElementById("logBox");
+    const selectedInfoEl = document.getElementById("selectedInfo");
+
+    const declareMeldBtn = document.getElementById("declareMeldBtn");
+    const swapTrumpBtn = document.getElementById("swapTrumpBtn");
+    const clearSelectionBtn = document.getElementById("clearSelectionBtn");
+    const newRoundBtn = document.getElementById("newRoundBtn");
+    const newMatchBtn = document.getElementById("newMatchBtn");
+
+    const challengeOverlay = document.getElementById("challengeOverlay");
+    const challengeText = document.getElementById("challengeText");
+    const acceptChallengeBtn = document.getElementById("acceptChallengeBtn");
+    const declineChallengeBtn = document.getElementById("declineChallengeBtn");
+
+    let me = null;
+    let meName = localStorage.getItem("pete_bezique_name") || "";
+    let currentMatchId = localStorage.getItem("pete_bezique_matchId") || null;
+    let currentMatchUnsub = null;
+    let playersUnsub = null;
+    let challengesUnsub = null;
+    let historyUnsub = null;
+    let heartbeatTimer = null;
+    let pendingChallenge = null;
+    let pendingChallengeId = null;
+
+    let selectedCards = []; // [{id, source:'hand'|'exposed'}]
+
+    displayNameInput.value = meName;
+
+    const SUITS = ["S","H","D","C"];
+    const RANKS = ["7","8","9","10","J","Q","K","A"];
+    const SUIT_LABEL = { S:"♠", H:"♥", D:"♦", C:"♣" };
+    const SUIT_NAME = { S:"Spader", H:"Hjärter", D:"Ruter", C:"Klöver" };
+    const RANK_NAME = { J:"Knekt", Q:"Dam", K:"Kung", A:"Ess" };
+    const CARD_POINTS_IN_TRICK = new Set(["A","10"]);
+
+    const ATLAS = {
+      X_LEFT: [42,186,330,474,618],
+      X_RIGHT: [804,948,1092,1236,1380],
+      Y_TOP: [153,329,504],
+      Y_BOTTOM: [713,883,1053]
+    };
+
+    function atlasPos(rank, suit){
+      const pipCols = ["A","2","3","4","5"];
+      const pipCols2 = ["6","7","8","9","10"];
+      const faceCols = ["J","Q","K"];
+
+      if (suit === "H") {
+        if (pipCols.includes(rank)) return {x: ATLAS.X_LEFT[pipCols.indexOf(rank)], y: ATLAS.Y_TOP[0]};
+        if (pipCols2.includes(rank)) return {x: ATLAS.X_LEFT[pipCols2.indexOf(rank)], y: ATLAS.Y_TOP[1]};
+        if (faceCols.includes(rank)) return {x: ATLAS.X_LEFT[faceCols.indexOf(rank)], y: ATLAS.Y_TOP[2]};
+      }
+      if (suit === "D") {
+        if (pipCols.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols.indexOf(rank)], y: ATLAS.Y_TOP[0]};
+        if (pipCols2.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols2.indexOf(rank)], y: ATLAS.Y_TOP[1]};
+        if (faceCols.includes(rank)) return {x: ATLAS.X_RIGHT[faceCols.indexOf(rank)], y: ATLAS.Y_TOP[2]};
+      }
+      if (suit === "C") {
+        if (pipCols.includes(rank)) return {x: ATLAS.X_LEFT[pipCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[0]};
+        if (pipCols2.includes(rank)) return {x: ATLAS.X_LEFT[pipCols2.indexOf(rank)], y: ATLAS.Y_BOTTOM[1]};
+        if (faceCols.includes(rank)) return {x: ATLAS.X_LEFT[faceCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[2]};
+      }
+      if (suit === "S") {
+        if (pipCols.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[0]};
+        if (pipCols2.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols2.indexOf(rank)], y: ATLAS.Y_BOTTOM[1]};
+        if (faceCols.includes(rank)) return {x: ATLAS.X_RIGHT[faceCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[2]};
+      }
+      return {x:42,y:153};
+    }
+
+    function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
+    function ensureArray(v){ return Array.isArray(v) ? v : []; }
+    function sortedPair(a,b){ return [a,b].sort(); }
+    function matchIdFor(a,b){ const p=sortedPair(a,b); return `match_${p[0]}_${p[1]}`; }
+    function shortTimeAgo(ts){
+      const d = Math.floor((Date.now()-ts)/1000);
+      if (d < 60) return `${d}s sedan`;
+      if (d < 3600) return `${Math.floor(d/60)}m sedan`;
+      return `${Math.floor(d/3600)}h sedan`;
+    }
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function cardText(c){ return `${c.rank}${SUIT_LABEL[c.suit]}`; }
+    function cardDisplayName(c){ return `${RANK_NAME[c.rank] || c.rank} ${SUIT_NAME[c.suit]}`; }
+
+    function shuffle(arr){
+      const a = [...arr];
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+      return a;
+    }
+
+    function createDeck(){
+      const deck = [];
+      let n = 0;
+      for(let d=0; d<2; d++){
+        for(const s of SUITS){
+          for(const r of RANKS){
+            deck.push({ id:`c${n++}`, rank:r, suit:s });
+          }
+        }
+      }
+      return shuffle(deck);
+    }
+
+    function cardValue(rank){
+      return {
+        "7":1,
+        "8":2,
+        "9":3,
+        "J":4,
+        "Q":5,
+        "K":6,
+        "10":7,
+        "A":8
+      }[rank] ?? 0;
+    }
+
+    function isLegalResponse(hand, leadCard, playCard, trumpSuit){
+      const sameSuit = hand.filter(c => c.suit === leadCard.suit);
+      if (sameSuit.length > 0) {
+        const higher = sameSuit.filter(c => cardValue(c.rank) > cardValue(leadCard.rank));
+        if (higher.length > 0) return higher.some(c => c.id === playCard.id);
+        return sameSuit.some(c => c.id === playCard.id);
+      }
+      const trumps = hand.filter(c => c.suit === trumpSuit);
+      if (trumps.length > 0) return trumps.some(c => c.id === playCard.id);
+      return true;
+    }
+
+    function determineTrickWinner(firstCard, secondCard, leaderUid, followerUid, trumpSuit){
+      let winnerUid = leaderUid;
+      const secondBeats =
+        (secondCard.suit === firstCard.suit && cardValue(secondCard.rank) > cardValue(firstCard.rank)) ||
+        (secondCard.suit === trumpSuit && firstCard.suit !== trumpSuit);
+
+      if (secondBeats) winnerUid = followerUid;
+      return winnerUid;
+    }
+
+    function renderSpriteCard(card, opts = {}){
+      const el = document.createElement("div");
+      el.className = `card ${opts.small ? "small" : ""} ${opts.playable ? "playable" : ""} ${opts.selectable ? "selectable" : ""} ${opts.selected ? "selected" : ""} ${opts.source === "hand" ? "from-hand" : ""} ${opts.source === "exposed" ? "from-exposed" : ""}`;
+      const pos = atlasPos(card.rank, card.suit);
+      const scale = opts.small ? 0.75 : 1;
+      el.style.backgroundPosition = `-${pos.x * scale}px -${pos.y * scale}px`;
+      el.title = cardDisplayName(card);
+      return el;
+    }
+
+    function renderBackCard(){
+      const el = document.createElement("div");
+      el.className = "card back";
+      el.textContent = "🂠";
+      return el;
+    }
+
+    function getOpponentUid(match){
+      return Object.keys(match.players).find(uid => uid !== me.uid);
+    }
+    function getPlayerName(match, uid){
+      return match.players?.[uid]?.name || "Spelare";
+    }
+
+    function getUsage(match, uid, cardId){
+      return match.meldUsage?.[uid]?.[cardId] || {};
+    }
+
+    function markUsage(match, uid, cardId, typeKey){
+      if (!match.meldUsage) match.meldUsage = {};
+      if (!match.meldUsage[uid]) match.meldUsage[uid] = {};
+      if (!match.meldUsage[uid][cardId]) match.meldUsage[uid][cardId] = {};
+      match.meldUsage[uid][cardId][typeKey] = (match.meldUsage[uid][cardId][typeKey] || 0) + 1;
+    }
+
+    function incMeldCount(match, uid, typeKey){
+      if (!match.meldCounts) match.meldCounts = {};
+      if (!match.meldCounts[uid]) match.meldCounts[uid] = {};
+      match.meldCounts[uid][typeKey] = (match.meldCounts[uid][typeKey] || 0) + 1;
+    }
+
+    function hasTypeUsage(match, uid, selectedCardsResolved, typeKey){
+      return selectedCardsResolved.some(c => (getUsage(match, uid, c.id)[typeKey] || 0) > 0);
+    }
+
+    function sameSuit(cards){
+      return cards.every(c => c.suit === cards[0].suit);
+    }
+
+    function countByRank(cards){
+      const m = {};
+      for (const c of cards) m[c.rank] = (m[c.rank] || 0) + 1;
+      return m;
+    }
+
+    function countByRankSuit(cards){
+      const m = {};
+      for (const c of cards) {
+        const k = `${c.rank}_${c.suit}`;
+        m[k] = (m[k] || 0) + 1;
+      }
+      return m;
+    }
+
+    function detectMeld(match, cards){
+      if (!cards || !cards.length) return null;
+
+      const trump = match.trumpSuit;
+      const byRS = countByRankSuit(cards);
+      const byR = countByRank(cards);
+
+      if (cards.length === 2) {
+        if (cards.some(c=>c.rank==="K") && cards.some(c=>c.rank==="Q") && sameSuit(cards)) {
+          const suit = cards[0].suit;
+          const typeKey = `marriage_${suit}`;
+          return {
+            typeKey,
+            label: suit === trump ? "Mariage i trumf" : "Mariage",
+            points: suit === trump ? 40 : 20
+          };
+        }
+        if ((byRS["J_D"] || 0) === 1 && (byRS["Q_S"] || 0) === 1) {
+          return { typeKey: "bezique", label: "Bezique", points: 40 };
+        }
+      }
+
+      if (cards.length === 4) {
+        if ((byRS["J_D"] || 0) === 2 && (byRS["Q_S"] || 0) === 2) {
+          return { typeKey: "doubleBezique", label: "Dubbel Bezique", points: 500 };
+        }
+        if ((byR["A"] || 0) === 4) return { typeKey: "fourAces", label: "4 ess", points: 100 };
+        if ((byR["K"] || 0) === 4) return { typeKey: "fourKings", label: "4 kungar", points: 80 };
+        if ((byR["Q"] || 0) === 4) return { typeKey: "fourQueens", label: "4 damer", points: 60 };
+        if ((byR["J"] || 0) === 4) return { typeKey: "fourJacks", label: "4 knektar", points: 40 };
+      }
+
+      if (cards.length === 5) {
+        const need = ["A","10","K","Q","J"];
+        const ok = need.every(r => cards.some(c => c.rank === r && c.suit === trump));
+        if (ok) {
+          return { typeKey: `sequence_${trump}`, label: "Sequence", points: 250 };
+        }
+      }
+
+      return null;
+    }
+
+    function sortCardsForUi(a,b){
+      const suitOrder = { S:0,H:1,D:2,C:3 };
+      const rankOrder = { A:8,"10":7,K:6,Q:5,J:4,"9":3,"8":2,"7":1 };
+      if (a.suit !== b.suit) return suitOrder[a.suit] - suitOrder[b.suit];
+      return rankOrder[b.rank] - rankOrder[a.rank];
+    }
+
+    function selectedSummary(currentMatch){
+      if (!selectedCards.length) return "Inga kort markerade.";
+      const allMine = getAllMyAvailableCards(currentMatch);
+      const chosen = selectedCards.map(sel => allMine.find(c => c.id === sel.id)).filter(Boolean);
+      const names = chosen.map(cardText).join(", ");
+      const hasHand = selectedCards.some(s => s.source === "hand");
+      return `${names}${hasHand ? "" : " — minst ett kort måste komma från handen."}`;
+    }
+
+    function getAllMyAvailableCards(match){
+      return [
+        ...ensureArray(match.hands?.[me.uid]),
+        ...ensureArray(match.exposed?.[me.uid])
+      ];
+    }
+
+    function clearSelection(){
+      selectedCards = [];
+      if (currentMatchId) {
+        getDoc(doc(db, "matches", currentMatchId)).then(snap => {
+          if (snap.exists()) renderMatch({id:snap.id, ...snap.data()});
+        });
+      }
+    }
+
+    function toggleSelected(card, source){
+      const i = selectedCards.findIndex(x => x.id === card.id && x.source === source);
+      if (i >= 0) selectedCards.splice(i,1);
+      else selectedCards.push({id:card.id, source});
+    }
+
+    function makeInitialRound(matchId, playerA, playerB, victoryPoints = null, scores = null){
+      const deck = createDeck();
+      const dealer = Math.random() < 0.5 ? playerA.uid : playerB.uid;
+      const nonDealer = dealer === playerA.uid ? playerB.uid : playerA.uid;
+
+      const handA = deck.splice(0,8);
+      const handB = deck.splice(0,8);
+      const trumpCard = deck.shift();
+
+      return {
+        id: matchId,
+        matchKey: sortedPair(playerA.uid, playerB.uid).join("_"),
+        players: {
+          [playerA.uid]: { uid:playerA.uid, name:playerA.name },
+          [playerB.uid]: { uid:playerB.uid, name:playerB.name }
+        },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        dealer,
+        turn: nonDealer,
+        leader: nonDealer,
+        trick: [],
+        drawPile: deck,
+        trumpCard,
+        trumpSuit: trumpCard.suit,
+        hands: {
+          [playerA.uid]: handA,
+          [playerB.uid]: handB
+        },
+        exposed: {
+          [playerA.uid]: [],
+          [playerB.uid]: []
+        },
+        scores: scores || { [playerA.uid]:0, [playerB.uid]:0 },
+        victoryPoints: victoryPoints || { [playerA.uid]:0, [playerB.uid]:0 },
+        meldUsage: {
+          [playerA.uid]: {},
+          [playerB.uid]: {}
+        },
+        meldCounts: {
+          [playerA.uid]: {},
+          [playerB.uid]: {}
+        },
+        pendingWinnerActionUid: null,
+        swappedTrumpThisWin: false,
+        declaredThisWin: false,
+        lastTrickWinner: null,
+        winnerUid: null,
+        logs: [
+          `Ny giv startad. Givare: ${dealer === playerA.uid ? playerA.name : playerB.name}.`,
+          `Trumf är ${SUIT_NAME[trumpCard.suit]}.`,
+          `${nonDealer === playerA.uid ? playerA.name : playerB.name} börjar.`
+        ]
+      };
+    }
+
+    function targetHandSize(match, uid){
+      const exposedCount = ensureArray(match.exposed?.[uid]).length;
+      return Math.max(0, 8 - exposedCount);
+    }
+
+    function refillAfterWin(match){
+      const winnerUid = match.pendingWinnerActionUid;
+      if (!winnerUid) return;
+      const otherUid = Object.keys(match.players).find(uid => uid !== winnerUid);
+
+      function drawToTarget(uid){
+        while (ensureArray(match.hands[uid]).length < targetHandSize(match, uid) && ensureArray(match.drawPile).length > 0) {
+          match.hands[uid].push(match.drawPile.shift());
+        }
+      }
+
+      drawToTarget(winnerUid);
+      drawToTarget(otherUid);
+
+      match.pendingWinnerActionUid = null;
+      match.turn = winnerUid;
+      match.leader = winnerUid;
+      match.swappedTrumpThisWin = false;
+      match.declaredThisWin = false;
+      match.trick = [];
+    }
+
+    function endRoundIfNeeded(match){
+      const uids = Object.keys(match.players);
+      const handsEmpty = uids.every(uid => ensureArray(match.hands[uid]).length === 0);
+      if (ensureArray(match.drawPile).length === 0 && handsEmpty && ensureArray(match.trick).length === 0) {
+        if (match.lastTrickWinner) {
+          match.scores[match.lastTrickWinner] = (match.scores[match.lastTrickWinner] || 0) + 10;
+          match.logs.push(`${getPlayerName(match, match.lastTrickWinner)} får 10 poäng för sista sticket.`);
+          match.lastTrickWinner = null;
+        }
+        const maybeWinner = uids.find(uid => (match.scores[uid] || 0) >= 1000);
+        if (maybeWinner && !match.winnerUid) {
+          match.winnerUid = maybeWinner;
+          match.victoryPoints[maybeWinner] = (match.victoryPoints[maybeWinner] || 0) + 1;
+          match.logs.push(`${getPlayerName(match, maybeWinner)} når ${match.scores[maybeWinner]} poäng och vinner matchen!`);
+        } else if (!maybeWinner) {
+          match.logs.push("Given är slut. Tryck Ny giv för att fortsätta mot 1000 poäng.");
+        }
+      }
+    }
+
+    async function ensureSignedIn(){
+      await signInAnonymously(auth);
+    }
+
+    async function saveMyProfile(){
+      if (!me) return;
+      meName = (displayNameInput.value || "").trim() || `Spelare-${me.uid.slice(0,4)}`;
+      localStorage.setItem("pete_bezique_name", meName);
+      meNameEl.textContent = meName;
+      await setDoc(doc(db, "players", me.uid), {
+        uid: me.uid,
+        name: meName,
+        online: true,
+        lastSeen: Date.now(),
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+    }
+
+    async function heartbeat(){
+      if (!me) return;
+      await setDoc(doc(db, "players", me.uid), {
+        uid: me.uid,
+        name: meName || `Spelare-${me.uid.slice(0,4)}`,
+        online: true,
+        lastSeen: Date.now(),
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+    }
+
+    function subscribePlayers(){
+      if (playersUnsub) playersUnsub();
+      const q = query(collection(db, "players"));
+      playersUnsub = onSnapshot(q, snap => {
+        const players = [];
+        snap.forEach(d => players.push(d.data()));
+        const active = players
+          .filter(p => p.uid !== me.uid && p.lastSeen && Date.now() - p.lastSeen < 120000)
+          .sort((a,b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+
+        playersListEl.innerHTML = "";
+        if (!active.length) {
+          playersListEl.innerHTML = `<div class="muted">Inga andra spelare online just nu.</div>`;
+          return;
+        }
+
+        active.forEach(player => {
+          const row = document.createElement("div");
+          row.className = "player";
+          row.innerHTML = `
+            <div>
+              <div><strong>${escapeHtml(player.name || "Okänd")}</strong></div>
+              <div class="tiny">Aktiv ${shortTimeAgo(player.lastSeen || Date.now())}</div>
+            </div>
+          `;
+          const btn = document.createElement("button");
+          btn.className = "primary";
+          btn.textContent = "Utmana";
+          btn.onclick = () => challengePlayer(player);
+          row.appendChild(btn);
+          playersListEl.appendChild(row);
+        });
+      });
+    }
+
+    async function challengePlayer(player){
+      if (!meName) {
+        alert("Spara ditt namn först.");
+        return;
+      }
+      const matchId = matchIdFor(me.uid, player.uid);
+      await addDoc(collection(db, "challenges"), {
+        fromUid: me.uid,
+        fromName: meName,
+        toUid: player.uid,
+        toName: player.name || "Spelare",
+        status: "pending",
+        matchId,
+        createdAtMs: Date.now(),
+        createdAt: serverTimestamp()
+      });
+      alert(`Utmaning skickad till ${player.name}.`);
+    }
+
+    function subscribeChallenges(){
+      if (challengesUnsub) challengesUnsub();
+      const q = query(
+        collection(db, "challenges"),
+        where("toUid","==",me.uid),
+        where("status","==","pending")
+      );
+      challengesUnsub = onSnapshot(q, snap => {
+        const docs = [];
+        snap.forEach(d => docs.push({id:d.id, ...d.data()}));
+        docs.sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
+
+        if (docs.length) {
+          pendingChallenge = docs[0];
+          pendingChallengeId = docs[0].id;
+          challengeText.textContent = `${pendingChallenge.fromName} vill spela Bezique mot dig.`;
+          challengeOverlay.classList.add("show");
+        } else {
+          pendingChallenge = null;
+          pendingChallengeId = null;
+          challengeOverlay.classList.remove("show");
+        }
+      });
+    }
+
+    async function acceptChallenge(){
+      if (!pendingChallengeId || !pendingChallenge) return;
+
+      await updateDoc(doc(db, "challenges", pendingChallengeId), {
+        status: "accepted",
+        acceptedAtMs: Date.now(),
+        acceptedAt: serverTimestamp()
+      });
+
+      const opponentUid = pendingChallenge.fromUid;
+      const opponentName = pendingChallenge.fromName;
+      const id = matchIdFor(me.uid, opponentUid);
+      currentMatchId = id;
+      localStorage.setItem("pete_bezique_matchId", currentMatchId);
+
+      const matchRef = doc(db, "matches", id);
+      const existing = await getDoc(matchRef);
+      if (!existing.exists()) {
+        const match = makeInitialRound(
+          id,
+          { uid:me.uid, name:meName },
+          { uid:opponentUid, name:opponentName }
+        );
+        await setDoc(matchRef, match);
+      }
+      openMatch(id);
+    }
+
+    async function declineChallenge(){
+      if (!pendingChallengeId) return;
+      await updateDoc(doc(db, "challenges", pendingChallengeId), {
+        status: "declined",
+        declinedAtMs: Date.now(),
+        declinedAt: serverTimestamp()
+      });
+    }
+
+    function subscribeHistory(){
+      if (historyUnsub) historyUnsub();
+      const q = query(collection(db, "matches"));
+      historyUnsub = onSnapshot(q, snap => {
+        const matches = [];
+        snap.forEach(d => {
+          const data = d.data();
+          if (data.players && data.players[me.uid]) matches.push({id:d.id, ...data});
+        });
+
+        matches.sort((a,b) => {
+          const av = a.updatedAt?.seconds || 0;
+          const bv = b.updatedAt?.seconds || 0;
+          return bv - av;
+        });
+
+        historyBoxEl.innerHTML = "";
+        if (!matches.length) {
+          historyBoxEl.innerHTML = `<div class="muted">Ingen historik ännu.</div>`;
+          return;
+        }
+
+        matches.forEach(m => {
+          const opp = Object.values(m.players).find(p => p.uid !== me.uid);
+          const div = document.createElement("div");
+          div.className = "log-item";
+          div.style.cursor = "pointer";
+          div.innerHTML = `
+            <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
+            <div class="tiny">
+              Poäng: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
+              · Segerpoäng: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
+            </div>
+          `;
+          div.onclick = () => {
+            currentMatchId = m.id;
+            localStorage.setItem("pete_bezique_matchId", currentMatchId);
+            openMatch(currentMatchId);
+          };
+          historyBoxEl.appendChild(div);
+        });
+      });
+    }
+
+    function openMatch(matchId){
+      if (currentMatchUnsub) currentMatchUnsub();
+      currentMatchUnsub = onSnapshot(doc(db, "matches", matchId), snap => {
+        if (!snap.exists()) {
+          noMatchBox.style.display = "";
+          gameBox.classList.add("hidden");
+          return;
+        }
+        const match = { id:snap.id, ...snap.data() };
+        renderMatch(match);
+      });
+    }
+
+    function renderLogs(lines){
+      logBoxEl.innerHTML = "";
+      (lines || []).slice().reverse().forEach(line => {
+        const item = document.createElement("div");
+        item.className = "log-item";
+        item.textContent = line;
+        logBoxEl.appendChild(item);
+      });
+    }
+
+    function renderMatch(match){
+      noMatchBox.style.display = "none";
+      gameBox.classList.remove("hidden");
+      currentMatchId = match.id;
+      localStorage.setItem("pete_bezique_matchId", currentMatchId);
+
+      const opponentUid = getOpponentUid(match);
+      const uids = Object.keys(match.players);
+      const p1 = match.players[uids[0]];
+      const p2 = match.players[uids[1]];
+
+      p1NameEl.textContent = p1.name;
+      p2NameEl.textContent = p2.name;
+      p1ScoreEl.textContent = match.scores?.[p1.uid] || 0;
+      p2ScoreEl.textContent = match.scores?.[p2.uid] || 0;
+      p1VictoriesEl.textContent = match.victoryPoints?.[p1.uid] || 0;
+      p2VictoriesEl.textContent = match.victoryPoints?.[p2.uid] || 0;
+
+      trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
+      drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
+
+      myTurnBadgeEl.style.display = match.turn === me.uid ? "inline-block" : "none";
+      opponentTurnBadgeEl.style.display = match.turn === opponentUid ? "inline-block" : "none";
+
+      const myHand = ensureArray(match.hands?.[me.uid]);
+      const myExposed = ensureArray(match.exposed?.[me.uid]);
+      const oppHand = ensureArray(match.hands?.[opponentUid]);
+      const oppExposed = ensureArray(match.exposed?.[opponentUid]);
+
+      myMetaEl.textContent = `Poäng: ${match.scores?.[me.uid] || 0} · Segerpoäng: ${match.victoryPoints?.[me.uid] || 0} · Kort totalt: ${myHand.length + myExposed.length}`;
+      opponentMetaEl.textContent = `Poäng: ${match.scores?.[opponentUid] || 0} · Segerpoäng: ${match.victoryPoints?.[opponentUid] || 0} · Kort totalt: ${oppHand.length + oppExposed.length}`;
+
+      let status = "";
+      if (match.winnerUid) {
+        status = `${getPlayerName(match, match.winnerUid)} har vunnit matchen.`;
+      } else if (match.pendingWinnerActionUid === me.uid) {
+        if (match.swappedTrumpThisWin) status = "Du har bytt trumfsjua. Klicka nu på högen för att dra kort.";
+        else if (match.declaredThisWin) status = "Du har lagt ut en kombination. Klicka nu på högen för att dra kort.";
+        else status = "Du vann sticket. Markera kort och lägg ut kombination, byt trumfsjua eller klicka på högen för att dra.";
+      } else if (match.pendingWinnerActionUid === opponentUid) {
+        status = `${getPlayerName(match, opponentUid)} vann sticket och måste först lägga ut, byta trumf eller dra.`;
+      } else {
+        status = `Tur: ${getPlayerName(match, match.turn)}`;
+      }
+      if (ensureArray(match.drawPile).length === 0) {
+        status += " Slutfas: följ färg, annars trumf om möjligt.";
+      }
+      matchStatusLabelEl.textContent = status;
+
+      selectedInfoEl.textContent = selectedSummary(match);
+
+      myHandEl.innerHTML = "";
+      myHand.slice().sort(sortCardsForUi).forEach(card => {
+        const selectable = match.pendingWinnerActionUid === me.uid;
+        const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.winnerUid;
+        const isSelected = selectedCards.some(x => x.id === card.id && x.source === "hand");
+        const el = renderSpriteCard(card, {
+          selectable,
+          playable,
+          selected: isSelected,
+          source: "hand"
+        });
+        if (selectable) {
+          el.onclick = () => {
+            toggleSelected(card, "hand");
+            renderMatch(match);
+          };
+        } else if (playable) {
+          el.onclick = () => playCard(match, card.id);
+        }
+        myHandEl.appendChild(el);
+      });
+
+      opponentHandEl.innerHTML = "";
+      for (let i = 0; i < oppHand.length; i++) opponentHandEl.appendChild(renderBackCard());
+
+      myExposedEl.innerHTML = "";
+      myExposed.slice().sort(sortCardsForUi).forEach(card => {
+        const selectable = match.pendingWinnerActionUid === me.uid;
+        const isSelected = selectedCards.some(x => x.id === card.id && x.source === "exposed");
+        const el = renderSpriteCard(card, {
+          selectable,
+          selected: isSelected,
+          source: "exposed"
+        });
+        if (selectable) {
+          el.onclick = () => {
+            toggleSelected(card, "exposed");
+            renderMatch(match);
+          };
+        }
+        myExposedEl.appendChild(el);
+      });
+
+      opponentExposedEl.innerHTML = "";
+      oppExposed.slice().sort(sortCardsForUi).forEach(card => {
+        opponentExposedEl.appendChild(renderSpriteCard(card));
+      });
+
+      drawPileBox.innerHTML = "";
+      const drawEl = renderBackCard();
+      if (ensureArray(match.drawPile).length === 0) drawEl.style.opacity = "0.35";
+      if (match.pendingWinnerActionUid === me.uid && !match.winnerUid) {
+        drawEl.classList.add("playable");
+        drawEl.title = "Dra kort";
+        drawEl.onclick = () => drawFromPile(match);
+      }
+      drawPileBox.appendChild(drawEl);
+
+      trumpCardBoxEl.innerHTML = "";
+      if (match.trumpCard) trumpCardBoxEl.appendChild(renderSpriteCard(match.trumpCard));
+
+      leadCardBoxEl.innerHTML = "";
+      replyCardBoxEl.innerHTML = "";
+      if (match.trick?.[0]) {
+        leadPlayerLabelEl.textContent = getPlayerName(match, match.trick[0].uid);
+        leadCardBoxEl.appendChild(renderSpriteCard(match.trick[0].card));
+      } else {
+        leadPlayerLabelEl.textContent = "Första kort";
+      }
+      if (match.trick?.[1]) {
+        replyPlayerLabelEl.textContent = getPlayerName(match, match.trick[1].uid);
+        replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
+      } else {
+        replyPlayerLabelEl.textContent = "Andra kort";
+      }
+
+      declareMeldBtn.disabled = !(match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
+      swapTrumpBtn.disabled = !canSwapTrump(match, me.uid);
+
+      renderLogs(match.logs || []);
+    }
+
+    function canSwapTrump(match, uid){
+      if (match.pendingWinnerActionUid !== uid) return false;
+      if (match.declaredThisWin) return false;
+      if (match.swappedTrumpThisWin) return false;
+      if (!match.trumpCard) return false;
+      if (ensureArray(match.drawPile).length === 0) return false;
+      const hand = ensureArray(match.hands?.[uid]);
+      return hand.some(c => c.rank === "7" && c.suit === match.trumpSuit);
+    }
+
+    async function playCard(match, cardId){
+      if (match.turn !== me.uid) return;
+      if (match.pendingWinnerActionUid) return;
+      if (match.winnerUid) return;
+
+      const next = deepClone(match);
+      const hand = ensureArray(next.hands[me.uid]);
+      const card = hand.find(c => c.id === cardId);
+      if (!card) return;
+
+      const opponentUid = getOpponentUid(next);
+      const drawPileEmpty = ensureArray(next.drawPile).length === 0;
+      if (drawPileEmpty && ensureArray(next.trick).length === 1) {
+        const leadCard = next.trick[0].card;
+        if (!isLegalResponse(hand, leadCard, card, next.trumpSuit)) {
+          alert("Du måste följa färg eller lägga trumf om möjligt.");
+          return;
+        }
+      }
+
+      next.hands[me.uid] = hand.filter(c => c.id !== cardId);
+      next.trick.push({ uid:me.uid, card });
+      next.logs.push(`${meName} spelar ${cardText(card)}.`);
+
+      if (next.trick.length === 1) {
+        next.turn = opponentUid;
+        await updateDoc(doc(db, "matches", next.id), {
+          hands: next.hands,
+          trick: next.trick,
+          turn: next.turn,
+          updatedAt: serverTimestamp(),
+          logs: next.logs.slice(-100)
+        });
+        return;
+      }
+
+      const leaderUid = next.trick[0].uid;
+      const followerUid = next.trick[1].uid;
+      const firstCard = next.trick[0].card;
+      const secondCard = next.trick[1].card;
+      const winnerUid = determineTrickWinner(firstCard, secondCard, leaderUid, followerUid, next.trumpSuit);
+
+      let trickPoints = 0;
+      if (CARD_POINTS_IN_TRICK.has(firstCard.rank)) trickPoints += 10;
+      if (CARD_POINTS_IN_TRICK.has(secondCard.rank)) trickPoints += 10;
+      next.scores[winnerUid] = (next.scores[winnerUid] || 0) + trickPoints;
+
+      next.lastTrickWinner = winnerUid;
+      next.turn = winnerUid;
+      next.leader = winnerUid;
+      next.pendingWinnerActionUid = winnerUid;
+      next.swappedTrumpThisWin = false;
+      next.declaredThisWin = false;
+      next.logs.push(`${getPlayerName(next, winnerUid)} vinner sticket${trickPoints ? ` och får ${trickPoints} poäng` : ""}.`);
+
+      const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
+      const handsEmpty = ensureArray(next.hands[winnerUid]).length === 0 && ensureArray(next.hands[otherUid]).length === 0;
+      if (ensureArray(next.drawPile).length === 0 && handsEmpty) {
+        next.pendingWinnerActionUid = null;
+        next.trick = [];
+        endRoundIfNeeded(next);
+      }
+
+      await updateDoc(doc(db, "matches", next.id), {
+        hands: next.hands,
+        trick: next.trick,
+        turn: next.turn,
+        leader: next.leader,
+        pendingWinnerActionUid: next.pendingWinnerActionUid,
+        swappedTrumpThisWin: next.swappedTrumpThisWin,
+        declaredThisWin: next.declaredThisWin,
+        scores: next.scores,
+        lastTrickWinner: next.lastTrickWinner,
+        updatedAt: serverTimestamp(),
+        logs: next.logs.slice(-100),
+        winnerUid: next.winnerUid || null,
+        victoryPoints: next.victoryPoints
+      });
+    }
+
+    async function declareSelectedMeld(){
+      if (!currentMatchId) return;
+      const snap = await getDoc(doc(db, "matches", currentMatchId));
+      if (!snap.exists()) return;
+      const match = { id:snap.id, ...snap.data() };
+
+      if (match.pendingWinnerActionUid !== me.uid) {
+        alert("Du kan bara lägga ut efter att du vunnit ett stick och innan du dragit.");
+        return;
+      }
+      if (match.swappedTrumpThisWin) {
+        alert("Du har redan bytt trumfsjua i detta läge och får då inte lägga ut kombination.");
+        return;
+      }
+      if (match.declaredThisWin) {
+        alert("Du har redan lagt ut en kombination i detta läge. Klicka på högen för att dra.");
+        return;
+      }
+      if (!selectedCards.length) {
+        alert("Markera kort först.");
+        return;
+      }
+      if (!selectedCards.some(x => x.source === "hand")) {
+        alert("Minst ett av de markerade korten måste komma från handen.");
+        return;
+      }
+
+      const allMy = getAllMyAvailableCards(match);
+      const chosen = selectedCards.map(s => allMy.find(c => c.id === s.id)).filter(Boolean);
+      if (chosen.length !== selectedCards.length) {
+        alert("Kunde inte hitta alla markerade kort.");
+        return;
+      }
+
+      const meld = detectMeld(match, chosen);
+      if (!meld) {
+        alert("De markerade korten bildar ingen giltig kombination.");
+        return;
+      }
+      if (hasTypeUsage(match, me.uid, chosen, meld.typeKey)) {
+        alert("Minst ett av de markerade korten har redan använts i just den här typen av kombination.");
+        return;
+      }
+
+      const next = deepClone(match);
+      const handIds = new Set(selectedCards.filter(x => x.source === "hand").map(x => x.id));
+
+      const handCards = ensureArray(next.hands[me.uid]);
+      const exposedCards = ensureArray(next.exposed[me.uid]);
+      const moveFromHand = handCards.filter(c => handIds.has(c.id));
+      next.hands[me.uid] = handCards.filter(c => !handIds.has(c.id));
+      next.exposed[me.uid] = [...exposedCards, ...moveFromHand];
+
+      chosen.forEach(card => markUsage(next, me.uid, card.id, meld.typeKey));
+      incMeldCount(next, me.uid, meld.typeKey);
+
+      next.scores[me.uid] = (next.scores[me.uid] || 0) + meld.points;
+      next.declaredThisWin = true;
+      next.logs.push(`${meName} lägger ut ${meld.label} (${meld.points} poäng).`);
+
+      selectedCards = [];
+      endRoundIfNeeded(next);
+
+      await updateDoc(doc(db, "matches", next.id), {
+        hands: next.hands,
+        exposed: next.exposed,
+        meldUsage: next.meldUsage,
+        meldCounts: next.meldCounts,
+        scores: next.scores,
+        declaredThisWin: next.declaredThisWin,
+        updatedAt: serverTimestamp(),
+        logs: next.logs.slice(-100),
+        winnerUid: next.winnerUid || null,
+        victoryPoints: next.victoryPoints
+      });
+    }
+
+    async function swapTrump(){
+      if (!currentMatchId) return;
+      const snap = await getDoc(doc(db, "matches", currentMatchId));
+      if (!snap.exists()) return;
+      const match = { id:snap.id, ...snap.data() };
+
+      if (!canSwapTrump(match, me.uid)) {
+        alert("Du kan inte byta trumfsjua nu.");
+        return;
+      }
+
+      const next = deepClone(match);
+      const hand = ensureArray(next.hands[me.uid]);
+      const idx = hand.findIndex(c => c.rank === "7" && c.suit === next.trumpSuit);
+      const seven = hand[idx];
+      const oldTrump = next.trumpCard;
+
+      hand.splice(idx,1,oldTrump);
+      next.trumpCard = seven;
+      next.swappedTrumpThisWin = true;
+      next.declaredThisWin = false;
+      next.logs.push(`${meName} byter trumfsjua mot trumfkortet ${cardText(oldTrump)}.`);
+
+      await updateDoc(doc(db, "matches", next.id), {
+        hands: next.hands,
+        trumpCard: next.trumpCard,
+        swappedTrumpThisWin: true,
+        updatedAt: serverTimestamp(),
+        logs: next.logs.slice(-100)
+      });
+    }
+
+    async function drawFromPile(match){
+      if (match.pendingWinnerActionUid !== me.uid) return;
+
+      const next = deepClone(match);
+      refillAfterWin(next);
+      next.logs.push(`${meName} drar kort. Båda spelarna fyller upp till totalt 8 kort (hand + bord).`);
+      endRoundIfNeeded(next);
+
+      await updateDoc(doc(db, "matches", next.id), {
+        hands: next.hands,
+        drawPile: next.drawPile,
+        trick: next.trick,
+        turn: next.turn,
+        leader: next.leader,
+        pendingWinnerActionUid: next.pendingWinnerActionUid,
+        swappedTrumpThisWin: next.swappedTrumpThisWin,
+        declaredThisWin: next.declaredThisWin,
+        scores: next.scores,
+        updatedAt: serverTimestamp(),
+        logs: next.logs.slice(-100),
+        winnerUid: next.winnerUid || null,
+        victoryPoints: next.victoryPoints,
+        lastTrickWinner: next.lastTrickWinner
+      });
+    }
+
+    async function startNewDeal(){
+      if (!currentMatchId) return;
+      const snap = await getDoc(doc(db, "matches", currentMatchId));
+      if (!snap.exists()) return;
+      const match = { id:snap.id, ...snap.data() };
+      const uids = Object.keys(match.players);
+
+      const next = makeInitialRound(
+        match.id,
+        { uid:uids[0], name:match.players[uids[0]].name },
+        { uid:uids[1], name:match.players[uids[1]].name },
+        match.victoryPoints,
+        match.scores
+      );
+      await setDoc(doc(db, "matches", currentMatchId), next, { merge:false });
+      selectedCards = [];
+    }
+
+    async function startNewMatch(){
+      if (!currentMatchId) return;
+      const snap = await getDoc(doc(db, "matches", currentMatchId));
+      if (!snap.exists()) return;
+      const match = { id:snap.id, ...snap.data() };
+      const uids = Object.keys(match.players);
+
+      const next = makeInitialRound(
+        match.id,
+        { uid:uids[0], name:match.players[uids[0]].name },
+        { uid:uids[1], name:match.players[uids[1]].name },
+        match.victoryPoints,
+        { [uids[0]]:0, [uids[1]]:0 }
+      );
+      next.logs.unshift("Ny match startad. Spelpoängen är nollställda.");
+      await setDoc(doc(db, "matches", currentMatchId), next, { merge:false });
+      selectedCards = [];
+    }
+
+    saveNameBtn.addEventListener("click", saveMyProfile);
+    refreshPlayersBtn.addEventListener("click", heartbeat);
+    acceptChallengeBtn.addEventListener("click", acceptChallenge);
+    declineChallengeBtn.addEventListener("click", declineChallenge);
+    declareMeldBtn.addEventListener("click", declareSelectedMeld);
+    swapTrumpBtn.addEventListener("click", swapTrump);
+    clearSelectionBtn.addEventListener("click", clearSelection);
+    newRoundBtn.addEventListener("click", startNewDeal);
+    newMatchBtn.addEventListener("click", startNewMatch);
+
+    window.addEventListener("beforeunload", async () => {
+      try {
+        if (me) {
+          await updateDoc(doc(db, "players", me.uid), {
+            online: false,
+            lastSeen: Date.now()
+          });
+        }
+      } catch (e) {}
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        me = user;
+        uidLabelEl.textContent = user.uid.slice(0,8);
+        authStateEl.textContent = "Inloggad";
+        meNameEl.textContent = meName || `Spelare-${user.uid.slice(0,4)}`;
+
+        await saveMyProfile();
+        await heartbeat();
+
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
+        heartbeatTimer = setInterval(heartbeat, 30000);
+
+        subscribePlayers();
+        subscribeChallenges();
+        subscribeHistory();
+
+        if (currentMatchId) openMatch(currentMatchId);
+      } else {
+        authStateEl.textContent = "Loggar in…";
+      }
+    });
+
+    ensureSignedIn().catch(err => {
+      console.error(err);
+      authStateEl.textContent = "Kunde inte logga in";
+      alert("Firebase-inloggning misslyckades. Kontrollera config, Firestore och Anonymous Auth.");
+    });
+  </script>
+</body>
+</html>
