@@ -864,7 +864,6 @@
       });
     }
 
-
 async function challengePlayer(player){
   if (!meName) {
     alert("Spara ditt namn först.");
@@ -899,8 +898,12 @@ async function challengePlayer(player){
   acceptChallengeBtn.style.display = "none";
   declineChallengeBtn.style.display = "none";
   cancelChallengeBtn.style.display = "inline-block";
-  challengeOverlay.classList.add("show");player.name}.`);
-    }
+  challengeOverlay.classList.add("show");
+}
+
+
+    
+
 
 function subscribeChallenges(){
   if (challengesUnsub) challengesUnsub();
