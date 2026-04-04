@@ -700,7 +700,7 @@
       <aside id="lobbyPanel" class="panel">
         <h2 style="margin:0 0 10px 0">Lobby</h2>
         <div class="notice">
-          Skriv ditt namn. Utmana sedan andra spelare.
+          Skriv ditt namn. Två öppna sidor kan sedan utmana varandra.
         </div>
 
         <div class="row" style="margin-bottom:10px">
@@ -961,11 +961,7 @@
     const opponentLeftOkBtn = document.getElementById("opponentLeftOkBtn");
 
     let me = null;
-    function generateLobbyName(){
-      return `Spelare-${Math.floor(1000 + Math.random()*9000)}`;
-    }
-
-    let meName = localStorage.getItem("pete_bezique_name") || generateLobbyName();
+    let meName = localStorage.getItem("pete_bezique_name") || "";
     let currentMatchId = null;
     let currentMatchUnsub = null;
     let playersUnsub = null;
@@ -986,10 +982,7 @@
     let previousMyHandIds = [];
     let opponentLeftNoticeShown = false;
 
-    localStorage.setItem("pete_bezique_name", meName);
     displayNameInput.value = meName;
-    displayNameInput.disabled = false;
-    displayNameInput.readOnly = false;
 
     const SUITS = ["S","H","D","C"];
     const RANKS = ["7","8","9","10","J","Q","K","A"];
@@ -1462,7 +1455,7 @@
 
     async function saveMyProfile(){
       if (!me) return;
-      meName = (displayNameInput.value || "").trim() || meName || localStorage.getItem("pete_bezique_name") || generateLobbyName();
+      meName = (displayNameInput.value || "").trim() || `Spelare-${me.uid.slice(0,4)}`;
       localStorage.setItem("pete_bezique_name", meName);
       meNameEl.textContent = meName;
       await setDoc(doc(db, "players", me.uid), {
@@ -1478,7 +1471,7 @@
       if (!me) return;
       await setDoc(doc(db, "players", me.uid), {
         uid: me.uid,
-        name: meName || localStorage.getItem("pete_bezique_name") || generateLobbyName(),
+        name: meName || `Spelare-${me.uid.slice(0,4)}`,
         online: true,
         lastSeen: Date.now(),
         updatedAt: serverTimestamp()
@@ -2414,11 +2407,7 @@
         me = user;
         uidLabelEl.textContent = user.uid.slice(0,8);
         authStateEl.textContent = "Inloggad";
-        meName = localStorage.getItem("pete_bezique_name") || meName || generateLobbyName();
-        displayNameInput.disabled = false;
-        displayNameInput.readOnly = false;
-        displayNameInput.value = meName;
-        meNameEl.textContent = meName;
+        meNameEl.textContent = meName || `Spelare-${user.uid.slice(0,4)}`;
 
         await saveMyProfile();
         await heartbeat();
