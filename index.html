@@ -110,19 +110,29 @@
       background:#ffd479;color:#111;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;
     }
 
-    .card{
-      width:96px;height:132px;border-radius:10px;
-      background-image:url('cards-atlas.jpeg');
-      background-repeat:no-repeat;
-      background-size:1536px 1243px;
-      box-shadow:0 4px 12px rgba(0,0,0,.25);
-      border:2px solid transparent;
-      cursor:default;
-      position:relative;
-      overflow:hidden;
-      flex:0 0 auto;
-    }
-    .card.small{width:72px;height:99px;background-size:1152px 932.25px}
+.card{
+  width:110px;
+  height:150px;
+  border-radius:10px;
+  background-image:url('cards-atlas.jpeg');
+  background-repeat:no-repeat;
+  background-size:1536px 1024px;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+  border:2px solid transparent;
+  cursor:default;
+  position:relative;
+  overflow:hidden;
+  flex:0 0 auto;
+}
+
+.card.small{
+  width:82px;
+  height:112px;
+  background-size:1145px 763px;
+}
+
+    
+ 
     .card.back{
       background:linear-gradient(180deg,#274e9b 0%,#18335f 100%);
       display:flex;align-items:center;justify-content:center;
@@ -439,41 +449,71 @@
     const RANK_NAME = { J:"Knekt", Q:"Dam", K:"Kung", A:"Ess" };
     const CARD_POINTS_IN_TRICK = new Set(["A","10"]);
 
-    const ATLAS = {
-      X_LEFT: [42,186,330,474,618],
-      X_RIGHT: [804,948,1092,1236,1380],
-      Y_TOP: [153,329,504],
-      Y_BOTTOM: [713,883,1053]
-    };
+const ATLAS = {
+  X_LEFT: [42,186,330,474,618],
+  X_RIGHT: [804,948,1092,1236,1380],
+  Y_TOP: [153,329,504],
+  Y_BOTTOM: [713,883,1053]
+};
 
-    function atlasPos(rank, suit){
-      const pipCols = ["A","2","3","4","5"];
-      const pipCols2 = ["6","7","8","9","10"];
-      const faceCols = ["J","Q","K"];
+function atlasPos(rank, suit){
+  const X = [20, 149, 278, 397, 524, 652, 784, 913, 1042, 1171, 1300, 1429];
+  const Y = [28, 190, 351, 542, 700, 860];
 
-      if (suit === "H") {
-        if (pipCols.includes(rank)) return {x: ATLAS.X_LEFT[pipCols.indexOf(rank)], y: ATLAS.Y_TOP[0]};
-        if (pipCols2.includes(rank)) return {x: ATLAS.X_LEFT[pipCols2.indexOf(rank)], y: ATLAS.Y_TOP[1]};
-        if (faceCols.includes(rank)) return {x: ATLAS.X_LEFT[faceCols.indexOf(rank)], y: ATLAS.Y_TOP[2]};
-      }
-      if (suit === "D") {
-        if (pipCols.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols.indexOf(rank)], y: ATLAS.Y_TOP[0]};
-        if (pipCols2.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols2.indexOf(rank)], y: ATLAS.Y_TOP[1]};
-        if (faceCols.includes(rank)) return {x: ATLAS.X_RIGHT[faceCols.indexOf(rank)], y: ATLAS.Y_TOP[2]};
-      }
-      if (suit === "C") {
-        if (pipCols.includes(rank)) return {x: ATLAS.X_LEFT[pipCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[0]};
-        if (pipCols2.includes(rank)) return {x: ATLAS.X_LEFT[pipCols2.indexOf(rank)], y: ATLAS.Y_BOTTOM[1]};
-        if (faceCols.includes(rank)) return {x: ATLAS.X_LEFT[faceCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[2]};
-      }
-      if (suit === "S") {
-        if (pipCols.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[0]};
-        if (pipCols2.includes(rank)) return {x: ATLAS.X_RIGHT[pipCols2.indexOf(rank)], y: ATLAS.Y_BOTTOM[1]};
-        if (faceCols.includes(rank)) return {x: ATLAS.X_RIGHT[faceCols.indexOf(rank)], y: ATLAS.Y_BOTTOM[2]};
-      }
-      return {x:42,y:153};
+  const map = {
+    H: {
+      A: [0, 0],
+      "7": [3, 0],
+      "8": [4, 0],
+      "9": [5, 0],
+      "10": [4, 1],
+      J: [0, 2],
+      Q: [1, 2],
+      K: [2, 2]
+    },
+    D: {
+      A: [6, 0],
+      "7": [7, 1],
+      "8": [8, 1],
+      "9": [9, 1],
+      "10": [10, 1],
+      J: [6, 2],
+      Q: [7, 2],
+      K: [8, 2]
+    },
+    C: {
+      A: [0, 3],
+      "7": [3, 4],
+      "8": [4, 4],
+      "9": [5, 4],
+      "10": [4, 5],
+      J: [0, 5],
+      Q: [1, 5],
+      K: [2, 5]
+    },
+    S: {
+      A: [6, 3],
+      "7": [7, 4],
+      "8": [8, 4],
+      "9": [9, 4],
+      "10": [10, 4],
+      J: [6, 5],
+      Q: [7, 5],
+      K: [8, 5]
     }
+  };
 
+  const pos = map[suit]?.[rank];
+  if (!pos) return { x: X[0], y: Y[0] };
+
+  return {
+    x: X[pos[0]],
+    y: Y[pos[1]]
+  };
+}
+
+    
+    
     function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
     function ensureArray(v){ return Array.isArray(v) ? v : []; }
     function sortedPair(a,b){ return [a,b].sort(); }
@@ -552,15 +592,19 @@
       return winnerUid;
     }
 
-    function renderSpriteCard(card, opts = {}){
-      const el = document.createElement("div");
-      el.className = `card ${opts.small ? "small" : ""} ${opts.playable ? "playable" : ""} ${opts.selectable ? "selectable" : ""} ${opts.selected ? "selected" : ""} ${opts.source === "hand" ? "from-hand" : ""} ${opts.source === "exposed" ? "from-exposed" : ""}`;
-      const pos = atlasPos(card.rank, card.suit);
-      const scale = opts.small ? 0.75 : 1;
-      el.style.backgroundPosition = `-${pos.x * scale}px -${pos.y * scale}px`;
-      el.title = cardDisplayName(card);
-      return el;
-    }
+function renderSpriteCard(card, opts = {}){
+  const el = document.createElement("div");
+  el.className = `card ${opts.small ? "small" : ""} ${opts.playable ? "playable" : ""} ${opts.selectable ? "selectable" : ""} ${opts.selected ? "selected" : ""} ${opts.source === "hand" ? "from-hand" : ""} ${opts.source === "exposed" ? "from-exposed" : ""}`;
+
+  const pos = atlasPos(card.rank, card.suit);
+  const scale = opts.small ? 0.746 : 1;
+
+  el.style.backgroundPosition = `-${pos.x * scale}px -${pos.y * scale}px`;
+  el.title = cardDisplayName(card);
+  return el;
+}
+      
+    
 
     function renderBackCard(){
       const el = document.createElement("div");
@@ -893,9 +937,8 @@ async function challengePlayer(player){
     status: "pending",
     matchId
   };
-
-  challengeText.textContent = `Väntar på att ${player.name} ska acceptera utmaningen.`;
-  acceptChallengeBtn.style.display = "none";
+challengeText.textContent = `Väntar på att ${(player.name || "spelaren")} ska acceptera utmaningen.`;
+    acceptChallengeBtn.style.display = "none";
   declineChallengeBtn.style.display = "none";
   cancelChallengeBtn.style.display = "inline-block";
   challengeOverlay.classList.add("show");
