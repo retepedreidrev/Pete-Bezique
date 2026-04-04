@@ -19,20 +19,20 @@
       --select:#ffd34d;
       --turnGlow:rgba(255,235,150,.92);
 
-      --card-w:48px;
-      --card-h:68px;
-      --card-small-w:36px;
-      --card-small-h:52px;
+      --card-w:58px;
+      --card-h:82px;
+      --card-small-w:48px;
+      --card-small-h:69px;
       --overlap:-12px;
       --overlap-small:-8px;
     }
 
     @media (min-width: 700px){
       :root{
-        --card-w:56px;
-        --card-h:78px;
-        --card-small-w:40px;
-        --card-small-h:58px;
+        --card-w:70px;
+        --card-h:96px;
+        --card-small-w:48px;
+        --card-small-h:69px;
         --overlap:-16px;
         --overlap-small:-10px;
       }
@@ -226,7 +226,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,0.96fr) 148px minmax(0,0.76fr);
+      grid-template-rows:minmax(0,0.54fr) 170px minmax(0,0.92fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -323,7 +323,7 @@
 
     .table-center{
       display:grid;
-      grid-template-rows:auto 1fr auto;
+      grid-template-rows:auto auto auto;
       gap:6px;
       align-content:start;
     }
@@ -337,11 +337,20 @@
       min-height:0;
     }
 
+    .center-play-row{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      min-height:118px;
+      overflow:visible;
+    }
+
     .center-top{
       display:flex;
       justify-content:center;
       align-items:center;
-      min-height:78px;
+      min-height:0;
     }
 
     .stack-wrap{
@@ -351,6 +360,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      flex:0 0 auto;
     }
 
     .deck-base{
@@ -365,16 +375,19 @@
       top:50%;
       transform:translate(10%, -50%) rotate(90deg);
       transform-origin:center center;
-      pointer-events:none;
       opacity:.98;
     }
 
-    .trick-stage{
+        .trick-stage{
       position:relative;
-      min-height:88px;
+      width:190px;
+      height:calc(var(--card-h) + 24px);
+      min-height:calc(var(--card-h) + 24px);
       border:1px dashed rgba(255,255,255,.12);
       border-radius:12px;
       background:rgba(255,255,255,.02);
+      flex:0 0 auto;
+      overflow:visible;
     }
 
     .trick-card{
@@ -383,30 +396,29 @@
       min-width:var(--card-w);
       min-height:var(--card-h);
       pointer-events:none;
+      z-index:2;
     }
 
-    .trick-card.upper{
-      top:8px;
-      left:calc(50% - 34px);
-      z-index:2;
+        .trick-card.upper{
+      top:6px;
+      left:18px;
     }
 
     .trick-card.lower{
-      top:34px;
-      left:calc(50% - 34px);
-      z-index:2;
+      top:24px;
+      left:32px;
     }
 
     .trick-card.upper.overlap{
-      top:16px;
-      left:calc(50% - 8px);
-      z-index:3;
+      top:6px;
+      left:56px;
+      z-index:4;
     }
 
     .trick-card.lower.overlap{
-      top:26px;
-      left:calc(50% - 8px);
-      z-index:3;
+      top:24px;
+      left:70px;
+      z-index:4;
     }
 
     .card{
@@ -511,6 +523,27 @@
       animation:pileBounce .7s cubic-bezier(.18,.85,.25,1);
     }
 
+    .stack-wrap.draw-attention{
+      filter:drop-shadow(0 0 14px rgba(255,235,150,.35));
+    }
+
+    .stack-wrap.draw-attention .deck-base .card,
+    .stack-wrap.draw-attention .trump-under .card{
+      box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.18), 0 3px 10px rgba(0,0,0,.24);
+    }
+
+    .stack-wrap.draw-attention .deck-base .card,
+    .stack-wrap.draw-attention .trump-under .card{
+      animation:drawPromptHop 3s ease-in-out infinite;
+    }
+
+    @keyframes drawPromptHop{
+      0%, 78%, 100%{ transform:translateY(0) scale(1); }
+      84%{ transform:translateY(-17px) scale(1.045); }
+      90%{ transform:translateY(0) scale(1); }
+      95%{ transform:translateY(-7px) scale(1.02); }
+    }
+
     @keyframes dealPulse{
       0%{ transform:translateY(-18px) scale(.86) rotate(-8deg); opacity:.2; filter:blur(1px); }
       45%{ transform:translateY(4px) scale(1.05) rotate(2deg); opacity:1; filter:blur(0); }
@@ -523,6 +556,29 @@
       100%{ transform:translateY(0) scale(1); }
     }
 
+
+    .card.new-drawn{
+      animation:newDrawSettle 2s ease forwards;
+      transform-origin:center bottom;
+      z-index:9;
+      box-shadow:0 0 0 3px rgba(255,235,150,.35), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
+    }
+
+    @keyframes newDrawSettle{
+      0%{ transform:scale(1.30) rotate(-7deg); box-shadow:0 0 0 3px rgba(255,235,150,.42), 0 0 22px rgba(255,235,150,.28), 0 3px 10px rgba(0,0,0,.24); }
+      14%{ transform:scale(1.22) rotate(6deg); }
+      28%{ transform:scale(1.16) rotate(-4deg); }
+      42%{ transform:scale(1.11) rotate(3deg); }
+      58%{ transform:scale(1.06) rotate(-2deg); box-shadow:0 0 0 3px rgba(255,235,150,.32), 0 0 16px rgba(255,235,150,.18), 0 3px 10px rgba(0,0,0,.24); }
+      100%{ transform:scale(1) rotate(0deg); box-shadow:0 3px 10px rgba(0,0,0,.24); }
+    }
+
+    .next-trick-wrap{
+      display:flex;
+      justify-content:center;
+      padding-top:6px;
+    }
+
     .my-actions{
       display:flex;
       gap:6px;
@@ -533,8 +589,39 @@
       flex:0 0 auto;
     }
 
+    .my-bottom-info{
+      margin-top:6px;
+      padding-top:2px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+
+    .my-bottom-main{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      min-width:0;
+    }
+
+    .my-bottom-main .player-name{
+      max-width:none;
+    }
+
+    #mySide{
+      margin-top:10px;
+    }
+
     #myHand{ margin-top:-8px; }
     #myExposed{ min-height:calc(var(--card-h) + 2px); margin-bottom:-2px; }
+
+    .floating-card{
+      position:fixed;
+      z-index:80;
+      transition:left .65s ease, top .65s ease, transform .65s ease, opacity .45s ease;
+      pointer-events:none;
+    }
 
     .overlay{
       position:fixed;
@@ -582,17 +669,18 @@
       .player-name{ font-size:16px; max-width:130px; }
       .player-points{ font-size:16px; }
       .victory-inline{ font-size:11px; }
-      .board-layout{ grid-template-rows:minmax(0,0.9fr) 134px minmax(0,0.84fr); }
+      .board-layout{ grid-template-rows:minmax(0,0.68fr) 148px minmax(0,0.92fr); }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
         font-size:13px;
         line-height:1.1;
       }
-      .trick-card.upper{ top:6px; }
-      .trick-card.lower{ top:30px; }
-      .trick-card.upper.overlap{ top:14px; }
-      .trick-card.lower.overlap{ top:22px; }
+      .trick-card.upper{ top:10px; left:14px; }
+      .trick-card.lower{ top:28px; left:28px; }
+      .trick-card.upper.overlap{ top:10px; left:50px; }
+.trick-card.lower.overlap{ top:28px; left:64px; }
+      #mySide{ margin-top:6px; }
     }
   </style>
 </head>
@@ -612,7 +700,7 @@
       <aside id="lobbyPanel" class="panel">
         <h2 style="margin:0 0 10px 0">Lobby</h2>
         <div class="notice">
-          Skriv ditt namn. Två öppna sidor kan sedan utmana varandra.
+          Skriv ditt namn. Utmana sedan andra spelare.
         </div>
 
         <div class="row" style="margin-bottom:10px">
@@ -673,33 +761,30 @@
             </section>
 
             <section class="table-center">
-              <div class="center-top">
-                <div class="stack-wrap">
-                  <div id="trumpUnderBox" class="trump-under"></div>
-                  <div id="drawPileBox" class="deck-base"></div>
+              <div class="center-play-row">
+                <div class="center-top">
+                  <div class="stack-wrap">
+                    <div id="trumpUnderBox" class="trump-under"></div>
+                    <div id="drawPileBox" class="deck-base"></div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="trick-stage">
-                <div id="leadCardBox" class="trick-card"></div>
-                <div id="replyCardBox" class="trick-card"></div>
+                <div class="trick-stage">
+                  <div id="leadCardBox" class="trick-card"></div>
+                  <div id="replyCardBox" class="trick-card"></div>
+                </div>
               </div>
 
               <div class="status-box">
                 <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
               </div>
+
+              <div class="next-trick-wrap">
+                <button id="nextTrickBtn" class="primary hidden">Nästa</button>
+              </div>
             </section>
 
             <section id="mySide" class="player-side">
-              <div class="single-line-header">
-                <div class="player-line">
-                  <span class="player-name" id="myNameLarge">-</span>
-                  <span class="player-points"><strong id="myScoreBig">0</strong></span>
-                </div>
-                <div class="victory-inline">VP <strong id="myVictoryInline">0</strong></div>
-              </div>
-
-              <div class="separator"></div>
               <div id="myExposed" class="cards"></div>
 
               <div class="separator"></div>
@@ -708,6 +793,14 @@
               <div class="my-actions">
                 <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
                 <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
+              </div>
+
+              <div class="my-bottom-info">
+                <div class="my-bottom-main">
+                  <span class="player-name" id="myNameLarge">-</span>
+                  <span class="player-points"><strong id="myScoreBig">0</strong></span>
+                </div>
+                <div class="victory-inline">VP <strong id="myVictoryInline">0</strong></div>
               </div>
             </section>
           </div>
@@ -748,6 +841,16 @@
     </div>
   </div>
 
+  <div id="opponentLeftOverlay" class="overlay">
+    <div class="modal">
+      <h2>Motståndaren lämnade</h2>
+      <p>Omgången avbryts och du går tillbaka till lobbyn.</p>
+      <div class="row">
+        <button id="opponentLeftOkBtn" class="primary">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -767,7 +870,8 @@
       query,
       where,
       onSnapshot,
-      addDoc
+      addDoc,
+      deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -834,6 +938,7 @@
     const leadCardBoxEl = document.getElementById("leadCardBox");
     const replyCardBoxEl = document.getElementById("replyCardBox");
     const selectedInfoEl = document.getElementById("selectedInfo");
+    const nextTrickBtn = document.getElementById("nextTrickBtn");
 
     const declareMeldBtn = document.getElementById("declareMeldBtn");
     const swapTrumpBtn = document.getElementById("swapTrumpBtn");
@@ -852,6 +957,8 @@
     const leaveConfirmOverlay = document.getElementById("leaveConfirmOverlay");
     const confirmLeaveBtn = document.getElementById("confirmLeaveBtn");
     const cancelLeaveBtn = document.getElementById("cancelLeaveBtn");
+    const opponentLeftOverlay = document.getElementById("opponentLeftOverlay");
+    const opponentLeftOkBtn = document.getElementById("opponentLeftOkBtn");
 
     let me = null;
     let meName = localStorage.getItem("pete_bezique_name") || "";
@@ -872,6 +979,8 @@
     let disconnectTimer = null;
     let disconnectRemaining = 60;
     let lastVisualSignature = "";
+    let previousMyHandIds = [];
+    let opponentLeftNoticeShown = false;
 
     displayNameInput.value = meName;
 
@@ -939,10 +1048,13 @@
     function isLegalResponse(hand, leadCard, playCard, trumpSuit){
       const sameSuit = hand.filter(c => c.suit === leadCard.suit);
       if (sameSuit.length > 0) {
-        const higher = sameSuit.filter(c => cardValue(c.rank) > cardValue(leadCard.rank));
-        if (higher.length > 0) return higher.some(c => c.id === playCard.id);
+        if (leadCard.suit === trumpSuit) {
+          const higherTrump = sameSuit.filter(c => cardValue(c.rank) > cardValue(leadCard.rank));
+          if (higherTrump.length > 0) return higherTrump.some(c => c.id === playCard.id);
+        }
         return sameSuit.some(c => c.id === playCard.id);
       }
+
       const trumps = hand.filter(c => c.suit === trumpSuit);
       if (trumps.length > 0) return trumps.some(c => c.id === playCard.id);
       return true;
@@ -955,6 +1067,19 @@
         (secondCard.suit === trumpSuit && firstCard.suit !== trumpSuit);
       if (secondBeats) winnerUid = followerUid;
       return winnerUid;
+    }
+
+    function isStockClosed(match){
+      return ensureArray(match.drawPile).length === 0 && !match.trumpCard;
+    }
+
+    function canTakeAnyStockCard(match, uid){
+      return !match.winnerUid && (match.pendingWinnerActionUid === uid || match.pendingLoserDrawUid === uid);
+    }
+
+
+    function isEndgameTrickPhase(match){
+      return isStockClosed(match);
     }
 
     function renderSpriteCard(card, opts = {}){
@@ -984,6 +1109,93 @@
       el.style.background = `linear-gradient(180deg, ${colors[0]} 0%, ${colors[1]} 100%)`;
       el.innerHTML = `<div class="back-inner">${emoji}</div>`;
       return el;
+    }
+
+
+    function instructionText(currentMatch){
+      if (!currentMatch) return "";
+      if (currentMatch.winnerUid) return "Omgången är slut.";
+      if (currentMatch.pendingWinnerActionUid === me?.uid) {
+        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0
+          ? "Ta upp det uppvända trumfkortet."
+          : "Ta upp ett kort från högen.";
+      }
+      if (currentMatch.pendingLoserDrawUid === me?.uid) {
+        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0
+          ? "Ta upp det uppvända trumfkortet."
+          : "Ta upp ett kort från högen.";
+      }
+      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) {
+        return "Vänta på att nästa kort tas upp.";
+      }
+      if (currentMatch.turn === me?.uid) {
+        if (isEndgameTrickPhase(currentMatch)) return "Spela ett kort.";
+        return "Markera kort för att visa en kombination, byt trumfsjua eller spela ett kort.";
+      }
+      return "Vänta på motståndaren.";
+    }
+
+    function clearSelections(){
+      selectedCards = [];
+    }
+
+    function sleep(ms){
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function getCardRectFromHand(cardId){
+      const cards = Array.from(myHandEl.children);
+      const idx = ensureArray((window.__lastRenderedMyHand || [])).findIndex(c => c.id === cardId);
+      return idx >= 0 && cards[idx] ? cards[idx].getBoundingClientRect() : null;
+    }
+
+    function getTrumpRect(){
+      const card = trumpUnderBox.firstElementChild;
+      return card ? card.getBoundingClientRect() : null;
+    }
+
+    async function animateTrumpSwapSequence(sevenCard, trumpCard){
+      const sevenStart = getCardRectFromHand(sevenCard.id);
+      const trumpStart = getTrumpRect();
+      if (!sevenStart || !trumpStart) return;
+
+      const sevenFloat = renderSpriteCard(sevenCard);
+      sevenFloat.classList.add("floating-card");
+      sevenFloat.style.left = `${sevenStart.left}px`;
+      sevenFloat.style.top = `${sevenStart.top}px`;
+
+      const trumpFloat = renderSpriteCard(trumpCard);
+      trumpFloat.classList.add("floating-card");
+      trumpFloat.style.left = `${trumpStart.left}px`;
+      trumpFloat.style.top = `${trumpStart.top}px`;
+
+      document.body.appendChild(sevenFloat);
+      document.body.appendChild(trumpFloat);
+
+      await sleep(40);
+      sevenFloat.style.left = `${(sevenStart.left + trumpStart.left) / 2}px`;
+      sevenFloat.style.top = `${sevenStart.top - 28}px`;
+      sevenFloat.style.transform = "scale(1.03) rotate(-7deg)";
+      await sleep(650);
+
+      trumpFloat.style.left = `${trumpStart.left + 68}px`;
+      trumpFloat.style.top = `${trumpStart.top}px`;
+      trumpFloat.style.transform = "scale(1.02) rotate(6deg)";
+      await sleep(650);
+
+      sevenFloat.style.left = `${trumpStart.left}px`;
+      sevenFloat.style.top = `${trumpStart.top}px`;
+      sevenFloat.style.transform = "scale(1) rotate(0deg)";
+      trumpFloat.style.left = `${sevenStart.left}px`;
+      trumpFloat.style.top = `${sevenStart.top}px`;
+      trumpFloat.style.transform = "scale(1) rotate(0deg)";
+      await sleep(700);
+
+      sevenFloat.style.opacity = "0";
+      trumpFloat.style.opacity = "0";
+      await sleep(180);
+      sevenFloat.remove();
+      trumpFloat.remove();
     }
 
     function animateCardEntry(container){
@@ -1121,10 +1333,8 @@
     }
 
     function selectedSummary(currentMatch){
-      if (!selectedCards.length) {
-        if (currentMatch?.pendingLoserDrawUid === me?.uid) return "Du måste klicka på högen för att dra ditt kort.";
-        return "Inga kort markerade.";
-      }
+      return instructionText(currentMatch);
+    }
       const allMine = getAllMyAvailableCards(currentMatch);
       const chosen = selectedCards.map(sel => allMine.find(c => c.id === sel.id)).filter(Boolean);
       const names = chosen.map(cardText).join(", ");
@@ -1189,7 +1399,10 @@
         lastTrickWinner: null,
         winnerUid: null,
         reconnectedAfterDisconnect: false,
-        disconnectSince: null
+        disconnectSince: null,
+        backThemeSeed: `${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+        abandonedByUid: null,
+        abandonedAtMs: null
       };
     }
 
@@ -1308,6 +1521,7 @@
     async function abortRoundAndReturnToLobby(){
       stopDisconnectCountdown();
       leaveConfirmOverlay.classList.remove("show");
+      opponentLeftOverlay.classList.remove("show");
       selectedCards = [];
       currentMatchId = null;
       if (currentMatchUnsub) {
@@ -1315,6 +1529,26 @@
         currentMatchUnsub = null;
       }
       enterLobbyView();
+    }
+
+    async function leaveCurrentMatch(){
+      if (currentMatchId && me) {
+        try {
+          await updateDoc(doc(db, "matches", currentMatchId), {
+            abandonedByUid: me.uid,
+            abandonedAtMs: Date.now(),
+            updatedAt: serverTimestamp()
+          });
+        } catch (err) {
+          console.error("leaveCurrentMatch failed:", err);
+        }
+      }
+      await abortRoundAndReturnToLobby();
+    }
+
+    async function acknowledgeOpponentLeft(){
+      opponentLeftOverlay.classList.remove("show");
+      await abortRoundAndReturnToLobby();
     }
 
     function subscribePlayers(){
@@ -1575,12 +1809,30 @@
           const div = document.createElement("div");
           div.className = "history-item";
           div.innerHTML = `
-            <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
-            <div class="tiny">
-              Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
-              · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
+            <div class="split">
+              <div>
+                <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
+                <div class="tiny">
+                  Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
+                  · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
+                </div>
+              </div>
             </div>
           `;
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "ghost";
+          deleteBtn.textContent = "🗑️";
+          deleteBtn.title = "Ta bort matchhistorik";
+          deleteBtn.onclick = async () => {
+            if (!confirm("Ta bort matchen ur historiken?")) return;
+            try {
+              await deleteDoc(doc(db, "matches", m.id));
+            } catch (err) {
+              console.error("delete match failed:", err);
+              alert("Kunde inte ta bort matchen.");
+            }
+          };
+          div.querySelector('.split').appendChild(deleteBtn);
           historyBoxEl.appendChild(div);
         });
       });
@@ -1639,6 +1891,14 @@
       currentMatchId = match.id;
 
       const opponentUid = getOpponentUid(match);
+
+      if (match.abandonedByUid && match.abandonedByUid !== me.uid) {
+        opponentLeftOverlay.classList.add("show");
+        opponentLeftNoticeShown = true;
+      } else if (!match.abandonedByUid) {
+        opponentLeftOverlay.classList.remove("show");
+        opponentLeftNoticeShown = false;
+      }
       const myHand = ensureArray(match.hands?.[me.uid]);
       const myExposed = ensureArray(match.exposed?.[me.uid]);
       const oppHand = ensureArray(match.hands?.[opponentUid]);
@@ -1656,12 +1916,14 @@
       opponentSide.classList.toggle("active-turn", match.turn === opponentUid || match.pendingLoserDrawUid === opponentUid);
 
       trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
-      drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
-      selectedInfoEl.textContent = selectedSummary(match);
+      drawCountLabelEl.textContent = ensureArray(match.drawPile).length + (match.trumpCard ? 1 : 0);
+      selectedInfoEl.textContent = instructionText(match);
+
+      const newMyCardIds = myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id));
 
       myHandEl.innerHTML = "";
       myHand.slice().sort(sortCardsForUi).forEach(card => {
-        const selectable = match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid;
+        const selectable = canTakeAnyStockCard(match, me.uid);
         const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "hand");
 
@@ -1670,6 +1932,8 @@
           playable,
           selected: isSelected
         });
+
+        if (newMyCardIds.includes(card.id)) el.classList.add("new-drawn");
 
         if (selectable) {
           el.onclick = () => {
@@ -1680,30 +1944,39 @@
           el.ondblclick = () => playCard(match, card.id);
           el.onclick = () => {
             selectedCards = [{ id: card.id, source: "hand" }];
-            selectedInfoEl.textContent = selectedSummary(match);
+            selectedInfoEl.textContent = instructionText(match);
           };
         }
 
         myHandEl.appendChild(el);
       });
+      previousMyHandIds = myHand.map(c => c.id);
 
       opponentHandEl.innerHTML = "";
       oppHand.slice().sort(sortCardsForUi).forEach((_, i) => {
-        opponentHandEl.appendChild(renderBackCard(true, `opp-${oppHand.length}-${i}-${match.id}`));
+        opponentHandEl.appendChild(renderBackCard(true, `round-${match.backThemeSeed || match.id}`));
       });
 
       myExposedEl.innerHTML = "";
       myExposed.slice().sort(sortCardsForUi).forEach(card => {
-        const selectable = match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid;
+        const selectable = canTakeAnyStockCard(match, me.uid);
+        const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "exposed");
         const el = renderSpriteCard(card, {
           selectable,
+          playable,
           selected: isSelected
         });
         if (selectable) {
           el.onclick = () => {
             toggleSelected(card, "exposed");
             renderMatch(match);
+          };
+        } else if (playable) {
+          el.ondblclick = () => playCard(match, card.id);
+          el.onclick = () => {
+            selectedCards = [{ id: card.id, source: "exposed" }];
+            selectedInfoEl.textContent = instructionText(match);
           };
         }
         myExposedEl.appendChild(el);
@@ -1715,17 +1988,41 @@
       });
 
       drawPileBox.innerHTML = "";
-      const drawEl = renderBackCard(false, `pile-${ensureArray(match.drawPile).length}-${match.id}`);
-      if (ensureArray(match.drawPile).length === 0) drawEl.style.opacity = "0.35";
-      if ((match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid) && !match.winnerUid) {
-        drawEl.classList.add("playable");
-        drawEl.title = "Dra kort";
-        drawEl.onclick = () => drawFromPile(match);
-      }
-      drawPileBox.appendChild(drawEl);
-
       trumpUnderBox.innerHTML = "";
-      if (match.trumpCard) trumpUnderBox.appendChild(renderSpriteCard(match.trumpCard));
+
+      const canDrawNow = canTakeAnyStockCard(match, me.uid);
+      const stockCount = ensureArray(match.drawPile).length;
+
+      if (stockCount > 0) {
+        const drawEl = renderBackCard(false, `round-${match.backThemeSeed || match.id}`);
+        if (canDrawNow) {
+          drawEl.classList.add("playable");
+          drawEl.title = "Dra kort";
+          drawEl.onclick = () => drawFromPile(match);
+          drawPileBox.parentElement.classList.add("draw-attention");
+        } else {
+          drawPileBox.parentElement.classList.remove("draw-attention");
+        }
+        drawPileBox.appendChild(drawEl);
+      } else {
+        drawPileBox.parentElement.classList.remove("draw-attention");
+      }
+
+      if (match.trumpCard) {
+        const trumpEl = renderSpriteCard(match.trumpCard);
+        trumpUnderBox.style.pointerEvents = "none";
+        if (canDrawNow && stockCount === 0) {
+          trumpEl.classList.add("playable");
+          trumpEl.title = "Ta upp trumfkortet";
+          trumpEl.onclick = () => drawFromPile(match);
+          trumpUnderBox.style.pointerEvents = "auto";
+          drawPileBox.parentElement.classList.add("draw-attention");
+        }
+        trumpUnderBox.appendChild(trumpEl);
+      } else {
+        trumpUnderBox.style.pointerEvents = "none";
+        drawPileBox.parentElement.classList.remove("draw-attention");
+      }
 
       leadCardBoxEl.innerHTML = "";
       replyCardBoxEl.innerHTML = "";
@@ -1734,10 +2031,61 @@
       if (match.trick?.[1]) replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
       placeTrickCards(match);
 
-      declareMeldBtn.disabled = !(match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
-      swapTrumpBtn.disabled = !canSwapTrump(match, me.uid);
+      const canMeldNow = !isEndgameTrickPhase(match) && (match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
+      const canSwapNow = !isEndgameTrickPhase(match) && canSwapTrump(match, me.uid);
+      declareMeldBtn.disabled = !canMeldNow;
+      swapTrumpBtn.disabled = !canSwapNow;
+      declareMeldBtn.classList.toggle("hidden", isEndgameTrickPhase(match));
+      swapTrumpBtn.classList.toggle("hidden", isEndgameTrickPhase(match));
+
+      const showNextButton = isEndgameTrickPhase(match) && match.pendingWinnerActionUid === me.uid && ensureArray(match.trick).length === 2 && !match.winnerUid;
+      nextTrickBtn.classList.toggle("hidden", !showNextButton);
 
       maybeAnimateVisuals(match);
+    }
+
+
+    async function advanceAfterEndgameTrick(){
+      if (!currentMatchId) return;
+      const snap = await getDoc(doc(db, "matches", currentMatchId));
+      if (!snap.exists()) return;
+      const match = { id:snap.id, ...snap.data() };
+      if (!isEndgameTrickPhase(match)) return;
+      if (match.pendingWinnerActionUid !== me.uid) return;
+      if (ensureArray(match.trick).length !== 2) return;
+
+      const next = deepClone(match);
+      const uids = Object.keys(next.players);
+      const allEmpty = uids.every(uid => ensureArray(next.hands[uid]).length === 0 && ensureArray(next.exposed[uid]).length === 0);
+
+      next.trick = [];
+      next.pendingWinnerActionUid = null;
+      next.pendingLoserDrawUid = null;
+      next.turn = next.leader;
+
+      if (allEmpty) {
+        if (next.lastTrickWinner) {
+          next.scores[next.lastTrickWinner] = (next.scores[next.lastTrickWinner] || 0) + 10;
+          next.lastTrickWinner = null;
+        }
+        const maybeWinner = uids.find(uid => (next.scores[uid] || 0) >= 1000);
+        if (maybeWinner && !next.winnerUid) {
+          next.winnerUid = maybeWinner;
+          next.victoryPoints[maybeWinner] = (next.victoryPoints[maybeWinner] || 0) + 1;
+        }
+      }
+
+      await updateDoc(doc(db, "matches", next.id), {
+        trick: next.trick,
+        pendingWinnerActionUid: next.pendingWinnerActionUid,
+        pendingLoserDrawUid: next.pendingLoserDrawUid,
+        turn: next.turn,
+        scores: next.scores,
+        lastTrickWinner: next.lastTrickWinner,
+        winnerUid: next.winnerUid || null,
+        victoryPoints: next.victoryPoints,
+        updatedAt: serverTimestamp()
+      });
     }
 
     function canSwapTrump(match, uid){
@@ -1755,30 +2103,33 @@
       if (match.pendingWinnerActionUid || match.pendingLoserDrawUid) return;
       if (match.winnerUid) return;
 
-      selectedCards = [];
+      clearSelections();
 
       const next = deepClone(match);
       const hand = ensureArray(next.hands[me.uid]);
-      const card = hand.find(c => c.id === cardId);
+      const exposed = ensureArray(next.exposed[me.uid]);
+      const card = hand.find(c => c.id === cardId) || exposed.find(c => c.id === cardId);
       if (!card) return;
 
       const opponentUid = getOpponentUid(next);
-      const drawPileEmpty = ensureArray(next.drawPile).length === 0;
-      if (drawPileEmpty && ensureArray(next.trick).length === 1) {
+      if (isStockClosed(next) && ensureArray(next.trick).length === 1) {
         const leadCard = next.trick[0].card;
-        if (!isLegalResponse(hand, leadCard, card, next.trumpSuit)) {
-          alert("Du måste följa färg eller lägga trumf om möjligt.");
+        const responsePool = [...hand, ...exposed];
+        if (!isLegalResponse(responsePool, leadCard, card, next.trumpSuit)) {
+          alert("Du måste följa färg. Kan du inte det måste du trumfa. Är utspelet trumf måste du trumfa över om möjligt.");
           return;
         }
       }
 
       next.hands[me.uid] = hand.filter(c => c.id !== cardId);
+      next.exposed[me.uid] = exposed.filter(c => c.id !== cardId);
       next.trick.push({ uid:me.uid, card });
 
       if (next.trick.length === 1) {
         next.turn = opponentUid;
         await updateDoc(doc(db, "matches", next.id), {
           hands: next.hands,
+          exposed: next.exposed,
           trick: next.trick,
           turn: next.turn,
           updatedAt: serverTimestamp()
@@ -1805,28 +2156,22 @@
       next.swappedTrumpThisWin = false;
       next.declaredThisWin = false;
 
-      const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
-      const handsEmpty = ensureArray(next.hands[winnerUid]).length === 0 && ensureArray(next.hands[otherUid]).length === 0;
-      if (ensureArray(next.drawPile).length === 0 && handsEmpty) {
-        next.pendingWinnerActionUid = null;
-        next.trick = [];
-        const uids = Object.keys(next.players);
-        const allEmpty = uids.every(uid => ensureArray(next.hands[uid]).length === 0);
-        if (allEmpty) {
-          if (next.lastTrickWinner) {
-            next.scores[next.lastTrickWinner] = (next.scores[next.lastTrickWinner] || 0) + 10;
-            next.lastTrickWinner = null;
-          }
-          const maybeWinner = uids.find(uid => (next.scores[uid] || 0) >= 1000);
-          if (maybeWinner && !next.winnerUid) {
-            next.winnerUid = maybeWinner;
-            next.victoryPoints[maybeWinner] = (next.victoryPoints[maybeWinner] || 0) + 1;
-          }
+      if (!isStockClosed(next)) {
+        const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
+        const handsEmpty =
+          ensureArray(next.hands[winnerUid]).length === 0 &&
+          ensureArray(next.hands[otherUid]).length === 0 &&
+          ensureArray(next.exposed[winnerUid]).length === 0 &&
+          ensureArray(next.exposed[otherUid]).length === 0;
+        if (handsEmpty) {
+          next.pendingWinnerActionUid = null;
+          next.trick = [];
         }
       }
 
       await updateDoc(doc(db, "matches", next.id), {
         hands: next.hands,
+        exposed: next.exposed,
         trick: next.trick,
         turn: next.turn,
         leader: next.leader,
@@ -1932,6 +2277,8 @@
       const seven = hand[idx];
       const oldTrump = next.trumpCard;
 
+      await animateTrumpSwapSequence(seven, oldTrump);
+
       hand.splice(idx,1,oldTrump);
       next.trumpCard = seven;
       next.swappedTrumpThisWin = true;
@@ -1949,14 +2296,30 @@
       if (!currentMatchId) return;
       const next = deepClone(match);
       const oppUid = getOpponentUid(next);
+      clearSelections();
+
+      const stockHasCards = () => ensureArray(next.drawPile).length > 0 || !!next.trumpCard;
+
+      const drawCardFor = (uid) => {
+        if (!stockHasCards()) return false;
+        if (ensureArray(next.drawPile).length > 0) {
+          next.hands[uid].push(next.drawPile.shift());
+          return true;
+        }
+        if (next.trumpCard) {
+          next.hands[uid].push(next.trumpCard);
+          next.trumpCard = null;
+          return true;
+        }
+        return false;
+      };
 
       if (next.pendingWinnerActionUid === me.uid) {
-        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[me.uid]).length < targetHandSize(next, me.uid)) {
-          next.hands[me.uid].push(next.drawPile.shift());
-        }
+        const drew = drawCardFor(me.uid);
+        if (!drew) return;
         next.pendingWinnerActionUid = null;
 
-        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[oppUid]).length < targetHandSize(next, oppUid)) {
+        if (stockHasCards()) {
           next.pendingLoserDrawUid = oppUid;
           next.turn = oppUid;
         } else {
@@ -1965,9 +2328,8 @@
           next.trick = [];
         }
       } else if (next.pendingLoserDrawUid === me.uid) {
-        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[me.uid]).length < targetHandSize(next, me.uid)) {
-          next.hands[me.uid].push(next.drawPile.shift());
-        }
+        const drew = drawCardFor(me.uid);
+        if (!drew) return;
         next.pendingLoserDrawUid = null;
         next.turn = next.leader;
         next.trick = [];
@@ -1978,6 +2340,7 @@
       await updateDoc(doc(db, "matches", next.id), {
         hands: next.hands,
         drawPile: next.drawPile,
+        trumpCard: next.trumpCard,
         trick: next.trick,
         turn: next.turn,
         leader: next.leader,
@@ -2000,14 +2363,16 @@
     cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
     declareMeldBtn.addEventListener("click", declareSelectedMeld);
     swapTrumpBtn.addEventListener("click", swapTrump);
+    nextTrickBtn.addEventListener("click", advanceAfterEndgameTrick);
 
     leaveMatchBtn.addEventListener("click", () => {
       leaveConfirmOverlay.classList.add("show");
     });
-    confirmLeaveBtn.addEventListener("click", abortRoundAndReturnToLobby);
+    confirmLeaveBtn.addEventListener("click", leaveCurrentMatch);
     cancelLeaveBtn.addEventListener("click", () => {
       leaveConfirmOverlay.classList.remove("show");
     });
+    opponentLeftOkBtn.addEventListener("click", acknowledgeOpponentLeft);
 
     window.addEventListener("offline", async () => {
       if (currentMatchId) {
