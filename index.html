@@ -375,15 +375,14 @@
       top:50%;
       transform:translate(10%, -50%) rotate(90deg);
       transform-origin:center center;
-      pointer-events:none;
       opacity:.98;
     }
 
-    .trick-stage{
+        .trick-stage{
       position:relative;
-      width:240px;
-      height:calc(var(--card-h) + 34px);
-      min-height:calc(var(--card-h) + 34px);
+      width:190px;
+      height:calc(var(--card-h) + 24px);
+      min-height:calc(var(--card-h) + 24px);
       border:1px dashed rgba(255,255,255,.12);
       border-radius:12px;
       background:rgba(255,255,255,.02);
@@ -400,25 +399,25 @@
       z-index:2;
     }
 
-    .trick-card.upper{
-      top:8px;
-      left:22px;
+        .trick-card.upper{
+      top:6px;
+      left:18px;
     }
 
     .trick-card.lower{
-      top:30px;
-      left:42px;
+      top:24px;
+      left:32px;
     }
 
     .trick-card.upper.overlap{
-      top:8px;
-      left:118px;
+      top:6px;
+      left:56px;
       z-index:4;
     }
 
     .trick-card.lower.overlap{
-      top:30px;
-      left:138px;
+      top:24px;
+      left:70px;
       z-index:4;
     }
 
@@ -530,7 +529,7 @@
 
     .stack-wrap.draw-attention .deck-base .card,
     .stack-wrap.draw-attention .trump-under .card{
-      box-shadow:0 0 0 4px rgba(255,235,150,.38), 0 0 24px rgba(255,235,150,.24), 0 3px 10px rgba(0,0,0,.24);
+      box-shadow:0 0 0 3px rgba(255,235,150,.34), 0 0 20px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24);
     }
 
     .stack-wrap.draw-attention .deck-base .card,
@@ -562,11 +561,16 @@
       animation:newDrawSettle 2s ease forwards;
       transform-origin:center bottom;
       z-index:9;
+      box-shadow:0 0 0 3px rgba(255,235,150,.35), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
     }
 
     @keyframes newDrawSettle{
-      0%{ transform:scale(1.18); }
-      100%{ transform:scale(1); }
+      0%{ transform:scale(1.18) rotate(-6deg); box-shadow:0 0 0 3px rgba(255,235,150,.42), 0 0 22px rgba(255,235,150,.28), 0 3px 10px rgba(0,0,0,.24); }
+      14%{ transform:scale(1.13) rotate(5deg); }
+      28%{ transform:scale(1.10) rotate(-4deg); }
+      42%{ transform:scale(1.08) rotate(3deg); }
+      58%{ transform:scale(1.05) rotate(-2deg); box-shadow:0 0 0 3px rgba(255,235,150,.32), 0 0 16px rgba(255,235,150,.18), 0 3px 10px rgba(0,0,0,.24); }
+      100%{ transform:scale(1) rotate(0deg); box-shadow:0 3px 10px rgba(0,0,0,.24); }
     }
 
     .next-trick-wrap{
@@ -605,8 +609,19 @@
       max-width:none;
     }
 
+    #mySide{
+      margin-top:10px;
+    }
+
     #myHand{ margin-top:-8px; }
     #myExposed{ min-height:calc(var(--card-h) + 2px); margin-bottom:-2px; }
+
+    .floating-card{
+      position:fixed;
+      z-index:80;
+      transition:left .65s ease, top .65s ease, transform .65s ease, opacity .45s ease;
+      pointer-events:none;
+    }
 
     .overlay{
       position:fixed;
@@ -661,10 +676,11 @@
         font-size:13px;
         line-height:1.1;
       }
-      .trick-card.upper{ top:12px; left:28px; }
-      .trick-card.lower{ top:40px; left:50px; }
-      .trick-card.upper.overlap{ top:18px; left:76px; }
-      .trick-card.lower.overlap{ top:50px; left:90px; }
+      .trick-card.upper{ top:10px; left:14px; }
+      .trick-card.lower{ top:28px; left:28px; }
+      .trick-card.upper.overlap{ top:10px; left:50px; }
+.trick-card.lower.overlap{ top:28px; left:64px; }
+      #mySide{ margin-top:6px; }
     }
   </style>
 </head>
@@ -1095,6 +1111,93 @@
       return el;
     }
 
+
+    function instructionText(currentMatch){
+      if (!currentMatch) return "";
+      if (currentMatch.winnerUid) return "Omgången är slut.";
+      if (currentMatch.pendingWinnerActionUid === me?.uid) {
+        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0
+          ? "Ta upp det uppvända trumfkortet."
+          : "Ta upp ett kort från högen.";
+      }
+      if (currentMatch.pendingLoserDrawUid === me?.uid) {
+        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0
+          ? "Ta upp det uppvända trumfkortet."
+          : "Ta upp ett kort från högen.";
+      }
+      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) {
+        return "Vänta på att nästa kort tas upp.";
+      }
+      if (currentMatch.turn === me?.uid) {
+        if (isEndgameTrickPhase(currentMatch)) return "Spela ett kort.";
+        return "Markera kort för att visa en kombination, byt trumfsjua eller spela ett kort.";
+      }
+      return "Vänta på motståndaren.";
+    }
+
+    function clearSelections(){
+      clearSelections();
+    }
+
+    function sleep(ms){
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function getCardRectFromHand(cardId){
+      const cards = Array.from(myHandEl.children);
+      const idx = ensureArray((window.__lastRenderedMyHand || [])).findIndex(c => c.id === cardId);
+      return idx >= 0 && cards[idx] ? cards[idx].getBoundingClientRect() : null;
+    }
+
+    function getTrumpRect(){
+      const card = trumpUnderBox.firstElementChild;
+      return card ? card.getBoundingClientRect() : null;
+    }
+
+    async function animateTrumpSwapSequence(sevenCard, trumpCard){
+      const sevenStart = getCardRectFromHand(sevenCard.id);
+      const trumpStart = getTrumpRect();
+      if (!sevenStart || !trumpStart) return;
+
+      const sevenFloat = renderSpriteCard(sevenCard);
+      sevenFloat.classList.add("floating-card");
+      sevenFloat.style.left = `${sevenStart.left}px`;
+      sevenFloat.style.top = `${sevenStart.top}px`;
+
+      const trumpFloat = renderSpriteCard(trumpCard);
+      trumpFloat.classList.add("floating-card");
+      trumpFloat.style.left = `${trumpStart.left}px`;
+      trumpFloat.style.top = `${trumpStart.top}px`;
+
+      document.body.appendChild(sevenFloat);
+      document.body.appendChild(trumpFloat);
+
+      await sleep(40);
+      sevenFloat.style.left = `${(sevenStart.left + trumpStart.left) / 2}px`;
+      sevenFloat.style.top = `${sevenStart.top - 28}px`;
+      sevenFloat.style.transform = "scale(1.03) rotate(-7deg)";
+      await sleep(650);
+
+      trumpFloat.style.left = `${trumpStart.left + 68}px`;
+      trumpFloat.style.top = `${trumpStart.top}px`;
+      trumpFloat.style.transform = "scale(1.02) rotate(6deg)";
+      await sleep(650);
+
+      sevenFloat.style.left = `${trumpStart.left}px`;
+      sevenFloat.style.top = `${trumpStart.top}px`;
+      sevenFloat.style.transform = "scale(1) rotate(0deg)";
+      trumpFloat.style.left = `${sevenStart.left}px`;
+      trumpFloat.style.top = `${sevenStart.top}px`;
+      trumpFloat.style.transform = "scale(1) rotate(0deg)";
+      await sleep(700);
+
+      sevenFloat.style.opacity = "0";
+      trumpFloat.style.opacity = "0";
+      await sleep(180);
+      sevenFloat.remove();
+      trumpFloat.remove();
+    }
+
     function animateCardEntry(container){
       const card = container?.firstElementChild;
       if (!card) return;
@@ -1230,10 +1333,8 @@
     }
 
     function selectedSummary(currentMatch){
-      if (!selectedCards.length) {
-        if (currentMatch?.pendingLoserDrawUid === me?.uid) return currentMatch?.trumpCard && ensureArray(currentMatch?.drawPile).length === 0 ? "Du måste ta upp det uppvända trumfkortet." : "Du måste klicka på högen för att dra ditt kort.";
-        return "Inga kort markerade.";
-      }
+      return instructionText(currentMatch);
+    }
       const allMine = getAllMyAvailableCards(currentMatch);
       const chosen = selectedCards.map(sel => allMine.find(c => c.id === sel.id)).filter(Boolean);
       const names = chosen.map(cardText).join(", ");
@@ -1816,7 +1917,7 @@
 
       trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
       drawCountLabelEl.textContent = ensureArray(match.drawPile).length + (match.trumpCard ? 1 : 0);
-      selectedInfoEl.textContent = selectedSummary(match);
+      selectedInfoEl.textContent = instructionText(match);
 
       const newMyCardIds = myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id));
 
@@ -1843,7 +1944,7 @@
           el.ondblclick = () => playCard(match, card.id);
           el.onclick = () => {
             selectedCards = [{ id: card.id, source: "hand" }];
-            selectedInfoEl.textContent = selectedSummary(match);
+            selectedInfoEl.textContent = instructionText(match);
           };
         }
 
@@ -1875,7 +1976,7 @@
           el.ondblclick = () => playCard(match, card.id);
           el.onclick = () => {
             selectedCards = [{ id: card.id, source: "exposed" }];
-            selectedInfoEl.textContent = selectedSummary(match);
+            selectedInfoEl.textContent = instructionText(match);
           };
         }
         myExposedEl.appendChild(el);
@@ -1909,14 +2010,17 @@
 
       if (match.trumpCard) {
         const trumpEl = renderSpriteCard(match.trumpCard);
+        trumpUnderBox.style.pointerEvents = "none";
         if (canDrawNow && stockCount === 0) {
           trumpEl.classList.add("playable");
           trumpEl.title = "Ta upp trumfkortet";
           trumpEl.onclick = () => drawFromPile(match);
+          trumpUnderBox.style.pointerEvents = "auto";
           drawPileBox.parentElement.classList.add("draw-attention");
         }
         trumpUnderBox.appendChild(trumpEl);
       } else {
+        trumpUnderBox.style.pointerEvents = "none";
         drawPileBox.parentElement.classList.remove("draw-attention");
       }
 
@@ -1999,7 +2103,7 @@
       if (match.pendingWinnerActionUid || match.pendingLoserDrawUid) return;
       if (match.winnerUid) return;
 
-      selectedCards = [];
+      clearSelections();
 
       const next = deepClone(match);
       const hand = ensureArray(next.hands[me.uid]);
@@ -2173,6 +2277,8 @@
       const seven = hand[idx];
       const oldTrump = next.trumpCard;
 
+      await animateTrumpSwapSequence(seven, oldTrump);
+
       hand.splice(idx,1,oldTrump);
       next.trumpCard = seven;
       next.swappedTrumpThisWin = true;
@@ -2190,6 +2296,7 @@
       if (!currentMatchId) return;
       const next = deepClone(match);
       const oppUid = getOpponentUid(next);
+      clearSelections();
 
       const stockHasCards = () => ensureArray(next.drawPile).length > 0 || !!next.trumpCard;
 
