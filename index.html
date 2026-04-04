@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -226,7 +227,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,0.54fr) 170px minmax(0,0.92fr);
+      grid-template-rows:minmax(0,0.38fr) 170px minmax(0,0.92fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -378,7 +379,7 @@
       opacity:.98;
     }
 
-        .trick-stage{
+    .trick-stage{
       position:relative;
       width:190px;
       height:calc(var(--card-h) + 24px);
@@ -392,32 +393,32 @@
 
     .trick-card{
       position:absolute;
-      transition:left .55s ease, top .55s ease, transform .55s ease, opacity .55s ease;
+      transition:left .7s ease, top .7s ease, transform .7s ease, opacity .7s ease;
       min-width:var(--card-w);
       min-height:var(--card-h);
       pointer-events:none;
       z-index:2;
     }
 
-        .trick-card.upper{
-      top:6px;
+    .trick-card.upper{
+      top:calc(50% - var(--card-h) / 2 - 12px);
       left:18px;
     }
 
     .trick-card.lower{
-      top:24px;
-      left:32px;
+      top:calc(50% - var(--card-h) / 2 + 12px);
+      left:28px;
     }
 
     .trick-card.upper.overlap{
-      top:6px;
-      left:56px;
+      top:calc(50% - var(--card-h) / 2 - 12px);
+      left:46px;
       z-index:4;
     }
 
     .trick-card.lower.overlap{
-      top:24px;
-      left:70px;
+      top:calc(50% - var(--card-h) / 2 + 12px);
+      left:56px;
       z-index:4;
     }
 
@@ -524,24 +525,21 @@
     }
 
     .stack-wrap.draw-attention{
-      filter:drop-shadow(0 0 14px rgba(255,235,150,.35));
+      filter:drop-shadow(0 0 12px rgba(255,235,150,.28));
     }
 
     .stack-wrap.draw-attention .deck-base .card,
     .stack-wrap.draw-attention .trump-under .card{
-      box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.18), 0 3px 10px rgba(0,0,0,.24);
+      box-shadow:0 0 0 1.5px rgba(255,235,150,.30), 0 0 14px rgba(255,235,150,.16), 0 3px 10px rgba(0,0,0,.24);
+      animation:drawPromptWiggle 2.7s ease-in-out infinite;
     }
 
-    .stack-wrap.draw-attention .deck-base .card,
-    .stack-wrap.draw-attention .trump-under .card{
-      animation:drawPromptHop 3s ease-in-out infinite;
-    }
-
-    @keyframes drawPromptHop{
-      0%, 78%, 100%{ transform:translateY(0) scale(1); }
-      84%{ transform:translateY(-17px) scale(1.045); }
-      90%{ transform:translateY(0) scale(1); }
-      95%{ transform:translateY(-7px) scale(1.02); }
+    @keyframes drawPromptWiggle{
+      0%, 76%, 100%{ transform:translateY(0) rotate(0deg) scale(1); }
+      81%{ transform:translateY(-9px) rotate(-5deg) scale(1.02); }
+      86%{ transform:translateY(-2px) rotate(4deg) scale(1.01); }
+      91%{ transform:translateY(-7px) rotate(-3deg) scale(1.02); }
+      96%{ transform:translateY(0) rotate(0deg) scale(1); }
     }
 
     @keyframes dealPulse{
@@ -555,7 +553,6 @@
       45%{ transform:translateY(3px) scale(1.03); }
       100%{ transform:translateY(0) scale(1); }
     }
-
 
     .card.new-drawn{
       animation:newDrawSettle 2s ease forwards;
@@ -611,6 +608,7 @@
 
     #mySide{
       margin-top:10px;
+      justify-content:flex-start;
     }
 
     #myHand{ margin-top:-8px; }
@@ -669,17 +667,17 @@
       .player-name{ font-size:16px; max-width:130px; }
       .player-points{ font-size:16px; }
       .victory-inline{ font-size:11px; }
-      .board-layout{ grid-template-rows:minmax(0,0.68fr) 148px minmax(0,0.92fr); }
+      .board-layout{ grid-template-rows:minmax(0,0.48fr) 148px minmax(0,0.92fr); }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
         font-size:13px;
         line-height:1.1;
       }
-      .trick-card.upper{ top:10px; left:14px; }
-      .trick-card.lower{ top:28px; left:28px; }
-      .trick-card.upper.overlap{ top:10px; left:50px; }
-.trick-card.lower.overlap{ top:28px; left:64px; }
+      .trick-card.upper{ top:calc(50% - var(--card-h) / 2 - 10px); left:12px; }
+      .trick-card.lower{ top:calc(50% - var(--card-h) / 2 + 10px); left:22px; }
+      .trick-card.upper.overlap{ top:calc(50% - var(--card-h) / 2 - 10px); left:40px; }
+      .trick-card.lower.overlap{ top:calc(50% - var(--card-h) / 2 + 10px); left:48px; }
       #mySide{ margin-top:6px; }
     }
   </style>
@@ -852,7 +850,6 @@
   </div>
 
   <script type="module">
-    
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getAuth,
@@ -1003,14 +1000,8 @@
       return `${Math.floor(d/3600)}h sedan`;
     }
     function escapeHtml(s){
-      return String(s)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+      return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
     }
-    function cardText(c){ return `${c.rank}${SUIT_LABEL[c.suit]}`; }
     function cardDisplayName(c){ return `${RANK_NAME[c.rank] || c.rank} ${SUIT_NAME[c.suit]}`; }
     function cardColorClass(suit){ return suit === "H" || suit === "D" ? "red" : "black"; }
     function hashNum(str){
@@ -1054,7 +1045,6 @@
         }
         return sameSuit.some(c => c.id === playCard.id);
       }
-
       const trumps = hand.filter(c => c.suit === trumpSuit);
       if (trumps.length > 0) return trumps.some(c => c.id === playCard.id);
       return true;
@@ -1077,7 +1067,6 @@
       return !match.winnerUid && (match.pendingWinnerActionUid === uid || match.pendingLoserDrawUid === uid);
     }
 
-
     function isEndgameTrickPhase(match){
       return isStockClosed(match);
     }
@@ -1086,15 +1075,12 @@
       const el = document.createElement("div");
       el.className = `card ${opts.small ? "small" : ""} ${cardColorClass(card.suit)} ${opts.playable ? "playable" : ""} ${opts.selectable ? "selectable" : ""} ${opts.selected ? "selected" : ""}`;
       el.title = cardDisplayName(card);
-
       const corner = document.createElement("div");
       corner.className = "card-corner";
       corner.innerHTML = `<div>${escapeHtml(card.rank)}</div><div>${SUIT_LABEL[card.suit]}</div>`;
-
       const center = document.createElement("div");
       center.className = "card-center";
       center.textContent = SUIT_LABEL[card.suit];
-
       el.appendChild(corner);
       el.appendChild(center);
       return el;
@@ -1111,23 +1097,13 @@
       return el;
     }
 
-
     function instructionText(currentMatch){
       if (!currentMatch) return "";
       if (currentMatch.winnerUid) return "Omgången är slut.";
-      if (currentMatch.pendingWinnerActionUid === me?.uid) {
-        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0
-          ? "Ta upp det uppvända trumfkortet."
-          : "Ta upp ett kort från högen.";
+      if (currentMatch.pendingWinnerActionUid === me?.uid || currentMatch.pendingLoserDrawUid === me?.uid) {
+        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0 ? "Ta upp det uppvända trumfkortet." : "Ta upp ett kort från högen.";
       }
-      if (currentMatch.pendingLoserDrawUid === me?.uid) {
-        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0
-          ? "Ta upp det uppvända trumfkortet."
-          : "Ta upp ett kort från högen.";
-      }
-      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) {
-        return "Vänta på att nästa kort tas upp.";
-      }
+      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) return "Vänta på att nästa kort tas upp.";
       if (currentMatch.turn === me?.uid) {
         if (isEndgameTrickPhase(currentMatch)) return "Spela ett kort.";
         return "Markera kort för att visa en kombination, byt trumfsjua eller spela ett kort.";
@@ -1135,68 +1111,7 @@
       return "Vänta på motståndaren.";
     }
 
-    function clearSelections(){
-      selectedCards = [];
-    }
-
-    function sleep(ms){
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    function getCardRectFromHand(cardId){
-      const cards = Array.from(myHandEl.children);
-      const idx = ensureArray((window.__lastRenderedMyHand || [])).findIndex(c => c.id === cardId);
-      return idx >= 0 && cards[idx] ? cards[idx].getBoundingClientRect() : null;
-    }
-
-    function getTrumpRect(){
-      const card = trumpUnderBox.firstElementChild;
-      return card ? card.getBoundingClientRect() : null;
-    }
-
-    async function animateTrumpSwapSequence(sevenCard, trumpCard){
-      const sevenStart = getCardRectFromHand(sevenCard.id);
-      const trumpStart = getTrumpRect();
-      if (!sevenStart || !trumpStart) return;
-
-      const sevenFloat = renderSpriteCard(sevenCard);
-      sevenFloat.classList.add("floating-card");
-      sevenFloat.style.left = `${sevenStart.left}px`;
-      sevenFloat.style.top = `${sevenStart.top}px`;
-
-      const trumpFloat = renderSpriteCard(trumpCard);
-      trumpFloat.classList.add("floating-card");
-      trumpFloat.style.left = `${trumpStart.left}px`;
-      trumpFloat.style.top = `${trumpStart.top}px`;
-
-      document.body.appendChild(sevenFloat);
-      document.body.appendChild(trumpFloat);
-
-      await sleep(40);
-      sevenFloat.style.left = `${(sevenStart.left + trumpStart.left) / 2}px`;
-      sevenFloat.style.top = `${sevenStart.top - 28}px`;
-      sevenFloat.style.transform = "scale(1.03) rotate(-7deg)";
-      await sleep(650);
-
-      trumpFloat.style.left = `${trumpStart.left + 68}px`;
-      trumpFloat.style.top = `${trumpStart.top}px`;
-      trumpFloat.style.transform = "scale(1.02) rotate(6deg)";
-      await sleep(650);
-
-      sevenFloat.style.left = `${trumpStart.left}px`;
-      sevenFloat.style.top = `${trumpStart.top}px`;
-      sevenFloat.style.transform = "scale(1) rotate(0deg)";
-      trumpFloat.style.left = `${sevenStart.left}px`;
-      trumpFloat.style.top = `${sevenStart.top}px`;
-      trumpFloat.style.transform = "scale(1) rotate(0deg)";
-      await sleep(700);
-
-      sevenFloat.style.opacity = "0";
-      trumpFloat.style.opacity = "0";
-      await sleep(180);
-      sevenFloat.remove();
-      trumpFloat.remove();
-    }
+    function clearSelections(){ selectedCards = []; }
 
     function animateCardEntry(container){
       const card = container?.firstElementChild;
@@ -1224,6 +1139,7 @@
       const sig = JSON.stringify({
         trick: ensureArray(match.trick).map(t => t.card?.id),
         draw: ensureArray(match.drawPile).length,
+        trump: match.trumpCard?.id || null,
         myHand: ensureArray(match.hands?.[me?.uid]).length,
         oppHand: ensureArray(match.hands?.[getOpponentUid(match)]).length,
         pendingLoserDrawUid: match.pendingLoserDrawUid || null
@@ -1236,17 +1152,9 @@
       lastVisualSignature = sig;
     }
 
-    function getOpponentUid(match){
-      return Object.keys(match.players).find(uid => uid !== me.uid);
-    }
-
-    function getPlayerName(match, uid){
-      return match.players?.[uid]?.name || "Spelare";
-    }
-
-    function getUsage(match, uid, cardId){
-      return match.meldUsage?.[uid]?.[cardId] || {};
-    }
+    function getOpponentUid(match){ return Object.keys(match.players).find(uid => uid !== me.uid); }
+    function getPlayerName(match, uid){ return match.players?.[uid]?.name || "Spelare"; }
+    function getUsage(match, uid, cardId){ return match.meldUsage?.[uid]?.[cardId] || {}; }
 
     function markUsage(match, uid, cardId, typeKey){
       if (!match.meldUsage) match.meldUsage = {};
@@ -1265,63 +1173,34 @@
       return selectedCardsResolved.some(c => (getUsage(match, uid, c.id)[typeKey] || 0) > 0);
     }
 
-    function sameSuit(cards){
-      return cards.every(c => c.suit === cards[0].suit);
-    }
-
-    function countByRank(cards){
-      const m = {};
-      for (const c of cards) m[c.rank] = (m[c.rank] || 0) + 1;
-      return m;
-    }
-
-    function countByRankSuit(cards){
-      const m = {};
-      for (const c of cards) {
-        const k = `${c.rank}_${c.suit}`;
-        m[k] = (m[k] || 0) + 1;
-      }
-      return m;
-    }
+    function sameSuit(cards){ return cards.every(c => c.suit === cards[0].suit); }
+    function countByRank(cards){ const m = {}; for (const c of cards) m[c.rank] = (m[c.rank] || 0) + 1; return m; }
+    function countByRankSuit(cards){ const m = {}; for (const c of cards) { const k = `${c.rank}_${c.suit}`; m[k] = (m[k] || 0) + 1; } return m; }
 
     function detectMeld(match, cards){
       if (!cards || !cards.length) return null;
-
       const trump = match.trumpSuit;
       const byRS = countByRankSuit(cards);
       const byR = countByRank(cards);
-
       if (cards.length === 2) {
         if (cards.some(c => c.rank === "K") && cards.some(c => c.rank === "Q") && sameSuit(cards)) {
           const suit = cards[0].suit;
-          const typeKey = `marriage_${suit}`;
-          return {
-            typeKey,
-            label: suit === trump ? "Mariage i trumf" : "Mariage",
-            points: suit === trump ? 40 : 20
-          };
+          return { typeKey:`marriage_${suit}`, label:suit === trump ? "Mariage i trumf" : "Mariage", points:suit === trump ? 40 : 20 };
         }
-        if ((byRS["J_D"] || 0) === 1 && (byRS["Q_S"] || 0) === 1) {
-          return { typeKey: "bezique", label: "Bezique", points: 40 };
-        }
+        if ((byRS["J_D"] || 0) === 1 && (byRS["Q_S"] || 0) === 1) return { typeKey:"bezique", label:"Bezique", points:40 };
       }
-
       if (cards.length === 4) {
-        if ((byRS["J_D"] || 0) === 2 && (byRS["Q_S"] || 0) === 2) {
-          return { typeKey: "doubleBezique", label: "Dubbel Bezique", points: 500 };
-        }
-        if ((byR["A"] || 0) === 4) return { typeKey: "fourAces", label: "4 ess", points: 100 };
-        if ((byR["K"] || 0) === 4) return { typeKey: "fourKings", label: "4 kungar", points: 80 };
-        if ((byR["Q"] || 0) === 4) return { typeKey: "fourQueens", label: "4 damer", points: 60 };
-        if ((byR["J"] || 0) === 4) return { typeKey: "fourJacks", label: "4 knektar", points: 40 };
+        if ((byRS["J_D"] || 0) === 2 && (byRS["Q_S"] || 0) === 2) return { typeKey:"doubleBezique", label:"Dubbel Bezique", points:500 };
+        if ((byR["A"] || 0) === 4) return { typeKey:"fourAces", label:"4 ess", points:100 };
+        if ((byR["K"] || 0) === 4) return { typeKey:"fourKings", label:"4 kungar", points:80 };
+        if ((byR["Q"] || 0) === 4) return { typeKey:"fourQueens", label:"4 damer", points:60 };
+        if ((byR["J"] || 0) === 4) return { typeKey:"fourJacks", label:"4 knektar", points:40 };
       }
-
       if (cards.length === 5) {
         const need = ["A","10","K","Q","J"];
         const ok = need.every(r => cards.some(c => c.rank === r && c.suit === trump));
-        if (ok) return { typeKey: `sequence_${trump}`, label: "Sequence", points: 250 };
+        if (ok) return { typeKey:`sequence_${trump}`, label:"Sequence", points:250 };
       }
-
       return null;
     }
 
@@ -1332,21 +1211,10 @@
       return rankOrder[b.rank] - rankOrder[a.rank];
     }
 
-    function selectedSummary(currentMatch){
-      return instructionText(currentMatch);
-    }
-      const allMine = getAllMyAvailableCards(currentMatch);
-      const chosen = selectedCards.map(sel => allMine.find(c => c.id === sel.id)).filter(Boolean);
-      const names = chosen.map(cardText).join(", ");
-      const hasHand = selectedCards.some(s => s.source === "hand");
-      return `${names}${hasHand ? "" : " — minst ett kort måste komma från handen."}`;
-    }
+    function selectedSummary(currentMatch){ return instructionText(currentMatch); }
 
     function getAllMyAvailableCards(match){
-      return [
-        ...ensureArray(match.hands?.[me.uid]),
-        ...ensureArray(match.exposed?.[me.uid])
-      ];
+      return [...ensureArray(match.hands?.[me.uid]), ...ensureArray(match.exposed?.[me.uid])];
     }
 
     function toggleSelected(card, source){
@@ -1359,11 +1227,9 @@
       const deck = createDeck();
       const dealer = Math.random() < 0.5 ? playerA.uid : playerB.uid;
       const nonDealer = dealer === playerA.uid ? playerB.uid : playerA.uid;
-
       const handA = deck.splice(0,8);
       const handB = deck.splice(0,8);
       const trumpCard = deck.shift();
-
       return {
         id: matchId,
         matchKey: sortedPair(playerA.uid, playerB.uid).join("_"),
@@ -1423,35 +1289,16 @@
         if (!snap.exists()) return;
         const match = { id:snap.id, ...snap.data() };
         if (!match.players?.[me.uid]) return;
-
         const presence = match.presence || {};
-        presence[me.uid] = {
-          online: !isDisconnected,
-          changedAtMs: Date.now()
-        };
-
-        const payload = {
-          presence,
-          updatedAt: serverTimestamp()
-        };
-
+        presence[me.uid] = { online: !isDisconnected, changedAtMs: Date.now() };
+        const payload = { presence, updatedAt: serverTimestamp() };
         if (isDisconnected) payload.disconnectSince = Date.now();
         else payload.reconnectedAfterDisconnect = true;
-
         await updateDoc(ref, payload);
-      } catch (e) {
-        console.error("markDisconnectState failed:", e);
-      }
+      } catch (e) { console.error("markDisconnectState failed:", e); }
     }
 
-    function targetHandSize(match, uid){
-      const exposedCount = ensureArray(match.exposed?.[uid]).length;
-      return Math.max(0, 8 - exposedCount);
-    }
-
-    async function ensureSignedIn(){
-      await signInAnonymously(auth);
-    }
+    async function ensureSignedIn(){ await signInAnonymously(auth); }
 
     async function saveMyProfile(){
       if (!me) return;
@@ -1459,22 +1306,14 @@
       localStorage.setItem("pete_bezique_name", meName);
       meNameEl.textContent = meName;
       await setDoc(doc(db, "players", me.uid), {
-        uid: me.uid,
-        name: meName,
-        online: true,
-        lastSeen: Date.now(),
-        updatedAt: serverTimestamp()
+        uid: me.uid, name: meName, online: true, lastSeen: Date.now(), updatedAt: serverTimestamp()
       }, { merge:true });
     }
 
     async function heartbeat(){
       if (!me) return;
       await setDoc(doc(db, "players", me.uid), {
-        uid: me.uid,
-        name: meName || `Spelare-${me.uid.slice(0,4)}`,
-        online: true,
-        lastSeen: Date.now(),
-        updatedAt: serverTimestamp()
+        uid: me.uid, name: meName || `Spelare-${me.uid.slice(0,4)}`, online: true, lastSeen: Date.now(), updatedAt: serverTimestamp()
       }, { merge:true });
     }
 
@@ -1498,7 +1337,6 @@
       disconnectCountdownEl.textContent = String(disconnectRemaining);
       disconnectStatusText.textContent = "Väntar på kontakt…";
       disconnectOverlay.classList.add("show");
-
       disconnectTimer = setInterval(async () => {
         disconnectRemaining -= 1;
         disconnectCountdownEl.textContent = String(disconnectRemaining);
@@ -1511,10 +1349,7 @@
     }
 
     function stopDisconnectCountdown(){
-      if (disconnectTimer) {
-        clearInterval(disconnectTimer);
-        disconnectTimer = null;
-      }
+      if (disconnectTimer) { clearInterval(disconnectTimer); disconnectTimer = null; }
       disconnectOverlay.classList.remove("show");
     }
 
@@ -1524,10 +1359,7 @@
       opponentLeftOverlay.classList.remove("show");
       selectedCards = [];
       currentMatchId = null;
-      if (currentMatchUnsub) {
-        currentMatchUnsub();
-        currentMatchUnsub = null;
-      }
+      if (currentMatchUnsub) { currentMatchUnsub(); currentMatchUnsub = null; }
       enterLobbyView();
     }
 
@@ -1539,9 +1371,7 @@
             abandonedAtMs: Date.now(),
             updatedAt: serverTimestamp()
           });
-        } catch (err) {
-          console.error("leaveCurrentMatch failed:", err);
-        }
+        } catch (err) { console.error("leaveCurrentMatch failed:", err); }
       }
       await abortRoundAndReturnToLobby();
     }
@@ -1557,8 +1387,7 @@
       playersUnsub = onSnapshot(q, snap => {
         const players = [];
         snap.forEach(d => players.push(d.data()));
-        const active = players
-          .filter(p => p.uid !== me.uid && p.lastSeen && Date.now() - p.lastSeen < 120000)
+        const active = players.filter(p => p.uid !== me.uid && p.lastSeen && Date.now() - p.lastSeen < 120000)
           .sort((a,b) => (b.lastSeen || 0) - (a.lastSeen || 0));
 
         playersListEl.innerHTML = "";
@@ -1574,8 +1403,7 @@
             <div>
               <div><strong>${escapeHtml(player.name || "Okänd")}</strong></div>
               <div class="tiny">Aktiv ${shortTimeAgo(player.lastSeen || Date.now())}</div>
-            </div>
-          `;
+            </div>`;
           const btn = document.createElement("button");
           btn.className = "primary";
           btn.textContent = "Utmana";
@@ -1587,34 +1415,14 @@
     }
 
     async function challengePlayer(player){
-      if (!meName) {
-        alert("Spara ditt namn först.");
-        return;
-      }
-
+      if (!meName) { alert("Spara ditt namn först."); return; }
       const matchId = matchIdFor(me.uid, player.uid);
       const ref = await addDoc(collection(db, "challenges"), {
-        fromUid: me.uid,
-        fromName: meName,
-        toUid: player.uid,
-        toName: player.name || "Spelare",
-        status: "pending",
-        matchId,
-        createdAtMs: Date.now(),
-        createdAt: serverTimestamp()
+        fromUid: me.uid, fromName: meName, toUid: player.uid, toName: player.name || "Spelare",
+        status: "pending", matchId, createdAtMs: Date.now(), createdAt: serverTimestamp()
       });
-
       outgoingChallengeId = ref.id;
-      outgoingChallenge = {
-        id: ref.id,
-        fromUid: me.uid,
-        fromName: meName,
-        toUid: player.uid,
-        toName: player.name || "Spelare",
-        status: "pending",
-        matchId
-      };
-
+      outgoingChallenge = { id: ref.id, fromUid: me.uid, fromName: meName, toUid: player.uid, toName: player.name || "Spelare", status: "pending", matchId };
       challengeText.textContent = `Väntar på att ${(player.name || "spelaren")} ska acceptera utmaningen.`;
       acceptChallengeBtn.style.display = "none";
       declineChallengeBtn.style.display = "none";
@@ -1624,17 +1432,11 @@
 
     function subscribeChallenges(){
       if (challengesUnsub) challengesUnsub();
-      const q = query(
-        collection(db, "challenges"),
-        where("toUid","==",me.uid),
-        where("status","==","pending")
-      );
-
+      const q = query(collection(db, "challenges"), where("toUid","==",me.uid), where("status","==","pending"));
       challengesUnsub = onSnapshot(q, snap => {
         const docs = [];
         snap.forEach(d => docs.push({id:d.id, ...d.data()}));
         docs.sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
-
         if (docs.length) {
           pendingChallenge = docs[0];
           pendingChallengeId = docs[0].id;
@@ -1653,31 +1455,18 @@
 
     async function acceptChallenge(){
       if (!pendingChallengeId || !pendingChallenge) return;
-
       try {
         const opponentUid = pendingChallenge.fromUid;
         const opponentName = pendingChallenge.fromName;
         const id = matchIdFor(me.uid, opponentUid);
-
-        await createFreshMatchWithPreservedVictoryPoints(
-          { uid: me.uid, name: meName },
-          { uid: opponentUid, name: opponentName },
-          id
-        );
-
-        await updateDoc(doc(db, "challenges", pendingChallengeId), {
-          status: "accepted",
-          acceptedAtMs: Date.now(),
-          acceptedAt: serverTimestamp()
-        });
-
+        await createFreshMatchWithPreservedVictoryPoints({ uid: me.uid, name: meName }, { uid: opponentUid, name: opponentName }, id);
+        await updateDoc(doc(db, "challenges", pendingChallengeId), { status: "accepted", acceptedAtMs: Date.now(), acceptedAt: serverTimestamp() });
         pendingChallenge = null;
         pendingChallengeId = null;
         challengeOverlay.classList.remove("show");
         acceptChallengeBtn.style.display = "inline-block";
         declineChallengeBtn.style.display = "inline-block";
         cancelChallengeBtn.style.display = "none";
-
         currentMatchId = id;
         openMatch(currentMatchId);
       } catch (err) {
@@ -1688,95 +1477,48 @@
 
     async function declineChallenge(){
       if (!pendingChallengeId) return;
-
-      await updateDoc(doc(db, "challenges", pendingChallengeId), {
-        status: "declined",
-        declinedAtMs: Date.now(),
-        declinedAt: serverTimestamp()
-      });
-
-      pendingChallenge = null;
-      pendingChallengeId = null;
-      challengeOverlay.classList.remove("show");
-      acceptChallengeBtn.style.display = "inline-block";
-      declineChallengeBtn.style.display = "inline-block";
-      cancelChallengeBtn.style.display = "none";
+      await updateDoc(doc(db, "challenges", pendingChallengeId), { status: "declined", declinedAtMs: Date.now(), declinedAt: serverTimestamp() });
+      pendingChallenge = null; pendingChallengeId = null; challengeOverlay.classList.remove("show");
+      acceptChallengeBtn.style.display = "inline-block"; declineChallengeBtn.style.display = "inline-block"; cancelChallengeBtn.style.display = "none";
     }
 
     async function cancelOutgoingChallenge(){
       if (!outgoingChallengeId) return;
-
-      await updateDoc(doc(db, "challenges", outgoingChallengeId), {
-        status: "cancelled",
-        cancelledAtMs: Date.now(),
-        cancelledAt: serverTimestamp()
-      });
-
-      outgoingChallenge = null;
-      outgoingChallengeId = null;
-      challengeOverlay.classList.remove("show");
-      acceptChallengeBtn.style.display = "inline-block";
-      declineChallengeBtn.style.display = "inline-block";
-      cancelChallengeBtn.style.display = "none";
+      await updateDoc(doc(db, "challenges", outgoingChallengeId), { status: "cancelled", cancelledAtMs: Date.now(), cancelledAt: serverTimestamp() });
+      outgoingChallenge = null; outgoingChallengeId = null; challengeOverlay.classList.remove("show");
+      acceptChallengeBtn.style.display = "inline-block"; declineChallengeBtn.style.display = "inline-block"; cancelChallengeBtn.style.display = "none";
     }
 
     function subscribeOutgoingChallenges(){
       if (outgoingChallengesUnsub) outgoingChallengesUnsub();
       const q = query(collection(db, "challenges"), where("fromUid", "==", me.uid));
-
       outgoingChallengesUnsub = onSnapshot(q, snap => {
         const docs = [];
         snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
         docs.sort((a,b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
-
-        const latest = docs.find(d =>
-          d.status === "pending" ||
-          d.status === "accepted" ||
-          d.status === "declined" ||
-          d.status === "cancelled"
-        );
-
+        const latest = docs.find(d => d.status === "pending" || d.status === "accepted" || d.status === "declined" || d.status === "cancelled");
         if (!latest) return;
-
         if (latest.status === "pending") {
-          outgoingChallenge = latest;
-          outgoingChallengeId = latest.id;
+          outgoingChallenge = latest; outgoingChallengeId = latest.id;
           challengeText.textContent = `Väntar på att ${latest.toName} ska acceptera utmaningen.`;
-          acceptChallengeBtn.style.display = "none";
-          declineChallengeBtn.style.display = "none";
-          cancelChallengeBtn.style.display = "inline-block";
+          acceptChallengeBtn.style.display = "none"; declineChallengeBtn.style.display = "none"; cancelChallengeBtn.style.display = "inline-block";
           challengeOverlay.classList.add("show");
         }
-
         if (latest.status === "accepted") {
-          outgoingChallenge = null;
-          outgoingChallengeId = null;
-          challengeOverlay.classList.remove("show");
-          acceptChallengeBtn.style.display = "inline-block";
-          declineChallengeBtn.style.display = "inline-block";
-          cancelChallengeBtn.style.display = "none";
-          currentMatchId = latest.matchId;
-          openMatch(currentMatchId);
+          outgoingChallenge = null; outgoingChallengeId = null; challengeOverlay.classList.remove("show");
+          acceptChallengeBtn.style.display = "inline-block"; declineChallengeBtn.style.display = "inline-block"; cancelChallengeBtn.style.display = "none";
+          currentMatchId = latest.matchId; openMatch(currentMatchId);
         }
-
         if (latest.status === "declined") {
-          outgoingChallenge = null;
-          outgoingChallengeId = null;
+          outgoingChallenge = null; outgoingChallengeId = null;
           challengeText.textContent = `${latest.toName} tackade nej till utmaningen.`;
-          acceptChallengeBtn.style.display = "none";
-          declineChallengeBtn.style.display = "none";
-          cancelChallengeBtn.style.display = "none";
+          acceptChallengeBtn.style.display = "none"; declineChallengeBtn.style.display = "none"; cancelChallengeBtn.style.display = "none";
           challengeOverlay.classList.add("show");
           setTimeout(() => challengeOverlay.classList.remove("show"), 1500);
         }
-
         if (latest.status === "cancelled") {
-          outgoingChallenge = null;
-          outgoingChallengeId = null;
-          challengeOverlay.classList.remove("show");
-          acceptChallengeBtn.style.display = "inline-block";
-          declineChallengeBtn.style.display = "inline-block";
-          cancelChallengeBtn.style.display = "none";
+          outgoingChallenge = null; outgoingChallengeId = null; challengeOverlay.classList.remove("show");
+          acceptChallengeBtn.style.display = "inline-block"; declineChallengeBtn.style.display = "inline-block"; cancelChallengeBtn.style.display = "none";
         }
       });
     }
@@ -1784,26 +1526,12 @@
     function subscribeHistory(){
       if (historyUnsub) historyUnsub();
       const q = query(collection(db, "matches"));
-
       historyUnsub = onSnapshot(q, snap => {
         const matches = [];
-        snap.forEach(d => {
-          const data = d.data();
-          if (data.players && data.players[me.uid]) matches.push({id:d.id, ...data});
-        });
-
-        matches.sort((a,b) => {
-          const av = a.updatedAt?.seconds || 0;
-          const bv = b.updatedAt?.seconds || 0;
-          return bv - av;
-        });
-
+        snap.forEach(d => { const data = d.data(); if (data.players && data.players[me.uid]) matches.push({id:d.id, ...data}); });
+        matches.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
         historyBoxEl.innerHTML = "";
-        if (!matches.length) {
-          historyBoxEl.innerHTML = `<div class="muted">Ingen historik ännu.</div>`;
-          return;
-        }
-
+        if (!matches.length) { historyBoxEl.innerHTML = `<div class="muted">Ingen historik ännu.</div>`; return; }
         matches.forEach(m => {
           const opp = Object.values(m.players).find(p => p.uid !== me.uid);
           const div = document.createElement("div");
@@ -1812,25 +1540,14 @@
             <div class="split">
               <div>
                 <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
-                <div class="tiny">
-                  Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
-                  · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
-                </div>
+                <div class="tiny">Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0} · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}</div>
               </div>
-            </div>
-          `;
+            </div>`;
           const deleteBtn = document.createElement("button");
-          deleteBtn.className = "ghost";
-          deleteBtn.textContent = "🗑️";
-          deleteBtn.title = "Ta bort matchhistorik";
+          deleteBtn.className = "ghost"; deleteBtn.textContent = "🗑️"; deleteBtn.title = "Ta bort matchhistorik";
           deleteBtn.onclick = async () => {
             if (!confirm("Ta bort matchen ur historiken?")) return;
-            try {
-              await deleteDoc(doc(db, "matches", m.id));
-            } catch (err) {
-              console.error("delete match failed:", err);
-              alert("Kunde inte ta bort matchen.");
-            }
+            try { await deleteDoc(doc(db, "matches", m.id)); } catch (err) { console.error("delete match failed:", err); alert("Kunde inte ta bort matchen."); }
           };
           div.querySelector('.split').appendChild(deleteBtn);
           historyBoxEl.appendChild(div);
@@ -1840,58 +1557,31 @@
 
     function openMatch(matchId){
       if (currentMatchUnsub) currentMatchUnsub();
-
-      currentMatchUnsub = onSnapshot(
-        doc(db, "matches", matchId),
-        async snap => {
-          stopDisconnectCountdown();
-          if (!snap.exists()) {
-            enterLobbyView();
-            return;
-          }
-
-          const match = { id:snap.id, ...snap.data() };
-
-          if (match.reconnectedAfterDisconnect) {
-            await abortRoundAndReturnToLobby();
-            return;
-          }
-
-          if (match.disconnectSince && (Date.now() - match.disconnectSince > RECONNECT_ABORT_MS)) {
-            await abortRoundAndReturnToLobby();
-            return;
-          }
-
-          renderMatch(match);
-        },
-        err => {
-          console.error("match snapshot error:", err);
-          startDisconnectCountdown();
-        }
-      );
+      currentMatchUnsub = onSnapshot(doc(db, "matches", matchId), async snap => {
+        stopDisconnectCountdown();
+        if (!snap.exists()) { enterLobbyView(); return; }
+        const match = { id:snap.id, ...snap.data() };
+        if (match.reconnectedAfterDisconnect) { await abortRoundAndReturnToLobby(); return; }
+        if (match.disconnectSince && (Date.now() - match.disconnectSince > RECONNECT_ABORT_MS)) { await abortRoundAndReturnToLobby(); return; }
+        renderMatch(match);
+      }, err => {
+        console.error("match snapshot error:", err);
+        startDisconnectCountdown();
+      });
     }
 
     function placeTrickCards(match){
       leadCardBoxEl.className = "trick-card";
       replyCardBoxEl.className = "trick-card";
-
       const oppUid = getOpponentUid(match);
-      if (match.trick?.[0]) {
-        const leadUpper = match.trick[0].uid === oppUid;
-        leadCardBoxEl.classList.add(leadUpper ? "upper" : "lower");
-      }
-      if (match.trick?.[1]) {
-        const replyUpper = match.trick[1].uid === oppUid;
-        replyCardBoxEl.classList.add(replyUpper ? "upper" : "lower", "overlap");
-      }
+      if (match.trick?.[0]) leadCardBoxEl.classList.add(match.trick[0].uid === oppUid ? "upper" : "lower");
+      if (match.trick?.[1]) replyCardBoxEl.classList.add(match.trick[1].uid === oppUid ? "upper" : "lower", "overlap");
     }
 
     function renderMatch(match){
       enterMatchView();
       currentMatchId = match.id;
-
       const opponentUid = getOpponentUid(match);
-
       if (match.abandonedByUid && match.abandonedByUid !== me.uid) {
         opponentLeftOverlay.classList.add("show");
         opponentLeftNoticeShown = true;
@@ -1906,7 +1596,6 @@
 
       myNameLarge.textContent = getPlayerName(match, me.uid);
       opponentNameLarge.textContent = getPlayerName(match, opponentUid);
-
       myScoreBig.textContent = match.scores?.[me.uid] || 0;
       opponentScoreBig.textContent = match.scores?.[opponentUid] || 0;
       myVictoryInline.textContent = match.victoryPoints?.[me.uid] || 0;
@@ -1922,74 +1611,46 @@
       const newMyCardIds = myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id));
 
       myHandEl.innerHTML = "";
-      myHand.slice().sort(sortCardsForUi).forEach(card => {
+      window.__lastRenderedMyHand = myHand.slice().sort(sortCardsForUi);
+      window.__lastRenderedMyHand.forEach(card => {
         const selectable = canTakeAnyStockCard(match, me.uid);
         const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "hand");
-
-        const el = renderSpriteCard(card, {
-          selectable,
-          playable,
-          selected: isSelected
-        });
-
+        const el = renderSpriteCard(card, { selectable, playable, selected: isSelected });
         if (newMyCardIds.includes(card.id)) el.classList.add("new-drawn");
-
         if (selectable) {
-          el.onclick = () => {
-            toggleSelected(card, "hand");
-            renderMatch(match);
-          };
+          el.onclick = () => { toggleSelected(card, "hand"); renderMatch(match); };
         } else if (playable) {
           el.ondblclick = () => playCard(match, card.id);
-          el.onclick = () => {
-            selectedCards = [{ id: card.id, source: "hand" }];
-            selectedInfoEl.textContent = instructionText(match);
-          };
+          el.onclick = () => { selectedCards = [{ id: card.id, source: "hand" }]; selectedInfoEl.textContent = instructionText(match); };
         }
-
         myHandEl.appendChild(el);
       });
       previousMyHandIds = myHand.map(c => c.id);
 
       opponentHandEl.innerHTML = "";
-      oppHand.slice().sort(sortCardsForUi).forEach((_, i) => {
-        opponentHandEl.appendChild(renderBackCard(true, `round-${match.backThemeSeed || match.id}`));
-      });
+      oppHand.slice().sort(sortCardsForUi).forEach((_, i) => opponentHandEl.appendChild(renderBackCard(true, `round-${match.backThemeSeed || match.id}`)));
 
       myExposedEl.innerHTML = "";
       myExposed.slice().sort(sortCardsForUi).forEach(card => {
         const selectable = canTakeAnyStockCard(match, me.uid);
         const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "exposed");
-        const el = renderSpriteCard(card, {
-          selectable,
-          playable,
-          selected: isSelected
-        });
+        const el = renderSpriteCard(card, { selectable, playable, selected: isSelected });
         if (selectable) {
-          el.onclick = () => {
-            toggleSelected(card, "exposed");
-            renderMatch(match);
-          };
+          el.onclick = () => { toggleSelected(card, "exposed"); renderMatch(match); };
         } else if (playable) {
           el.ondblclick = () => playCard(match, card.id);
-          el.onclick = () => {
-            selectedCards = [{ id: card.id, source: "exposed" }];
-            selectedInfoEl.textContent = instructionText(match);
-          };
+          el.onclick = () => { selectedCards = [{ id: card.id, source: "exposed" }]; selectedInfoEl.textContent = instructionText(match); };
         }
         myExposedEl.appendChild(el);
       });
 
       opponentExposedEl.innerHTML = "";
-      oppExposed.slice().sort(sortCardsForUi).forEach(card => {
-        opponentExposedEl.appendChild(renderSpriteCard(card, { small:true }));
-      });
+      oppExposed.slice().sort(sortCardsForUi).forEach(card => opponentExposedEl.appendChild(renderSpriteCard(card, { small:true })));
 
       drawPileBox.innerHTML = "";
       trumpUnderBox.innerHTML = "";
-
       const canDrawNow = canTakeAnyStockCard(match, me.uid);
       const stockCount = ensureArray(match.drawPile).length;
 
@@ -2000,9 +1661,7 @@
           drawEl.title = "Dra kort";
           drawEl.onclick = () => drawFromPile(match);
           drawPileBox.parentElement.classList.add("draw-attention");
-        } else {
-          drawPileBox.parentElement.classList.remove("draw-attention");
-        }
+        } else drawPileBox.parentElement.classList.remove("draw-attention");
         drawPileBox.appendChild(drawEl);
       } else {
         drawPileBox.parentElement.classList.remove("draw-attention");
@@ -2021,12 +1680,10 @@
         trumpUnderBox.appendChild(trumpEl);
       } else {
         trumpUnderBox.style.pointerEvents = "none";
-        drawPileBox.parentElement.classList.remove("draw-attention");
       }
 
       leadCardBoxEl.innerHTML = "";
       replyCardBoxEl.innerHTML = "";
-
       if (match.trick?.[0]) leadCardBoxEl.appendChild(renderSpriteCard(match.trick[0].card));
       if (match.trick?.[1]) replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
       placeTrickCards(match);
@@ -2043,7 +1700,6 @@
 
       maybeAnimateVisuals(match);
     }
-
 
     async function advanceAfterEndgameTrick(){
       if (!currentMatchId) return;
@@ -2076,33 +1732,22 @@
       }
 
       await updateDoc(doc(db, "matches", next.id), {
-        trick: next.trick,
-        pendingWinnerActionUid: next.pendingWinnerActionUid,
-        pendingLoserDrawUid: next.pendingLoserDrawUid,
-        turn: next.turn,
-        scores: next.scores,
-        lastTrickWinner: next.lastTrickWinner,
-        winnerUid: next.winnerUid || null,
-        victoryPoints: next.victoryPoints,
-        updatedAt: serverTimestamp()
+        trick: next.trick, pendingWinnerActionUid: next.pendingWinnerActionUid, pendingLoserDrawUid: next.pendingLoserDrawUid,
+        turn: next.turn, scores: next.scores, lastTrickWinner: next.lastTrickWinner, winnerUid: next.winnerUid || null,
+        victoryPoints: next.victoryPoints, updatedAt: serverTimestamp()
       });
     }
 
     function canSwapTrump(match, uid){
       if (match.pendingWinnerActionUid !== uid) return false;
-      if (match.declaredThisWin) return false;
-      if (match.swappedTrumpThisWin) return false;
-      if (!match.trumpCard) return false;
+      if (match.declaredThisWin || match.swappedTrumpThisWin || !match.trumpCard) return false;
       if (ensureArray(match.drawPile).length === 0) return false;
       const hand = ensureArray(match.hands?.[uid]);
       return hand.some(c => c.rank === "7" && c.suit === match.trumpSuit);
     }
 
     async function playCard(match, cardId){
-      if (match.turn !== me.uid) return;
-      if (match.pendingWinnerActionUid || match.pendingLoserDrawUid) return;
-      if (match.winnerUid) return;
-
+      if (match.turn !== me.uid || match.pendingWinnerActionUid || match.pendingLoserDrawUid || match.winnerUid) return;
       clearSelections();
 
       const next = deepClone(match);
@@ -2128,11 +1773,7 @@
       if (next.trick.length === 1) {
         next.turn = opponentUid;
         await updateDoc(doc(db, "matches", next.id), {
-          hands: next.hands,
-          exposed: next.exposed,
-          trick: next.trick,
-          turn: next.turn,
-          updatedAt: serverTimestamp()
+          hands: next.hands, exposed: next.exposed, trick: next.trick, turn: next.turn, updatedAt: serverTimestamp()
         });
         return;
       }
@@ -2158,32 +1799,18 @@
 
       if (!isStockClosed(next)) {
         const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
-        const handsEmpty =
-          ensureArray(next.hands[winnerUid]).length === 0 &&
+        const handsEmpty = ensureArray(next.hands[winnerUid]).length === 0 &&
           ensureArray(next.hands[otherUid]).length === 0 &&
           ensureArray(next.exposed[winnerUid]).length === 0 &&
           ensureArray(next.exposed[otherUid]).length === 0;
-        if (handsEmpty) {
-          next.pendingWinnerActionUid = null;
-          next.trick = [];
-        }
+        if (handsEmpty) { next.pendingWinnerActionUid = null; next.trick = []; }
       }
 
       await updateDoc(doc(db, "matches", next.id), {
-        hands: next.hands,
-        exposed: next.exposed,
-        trick: next.trick,
-        turn: next.turn,
-        leader: next.leader,
-        pendingWinnerActionUid: next.pendingWinnerActionUid,
-        pendingLoserDrawUid: next.pendingLoserDrawUid,
-        swappedTrumpThisWin: next.swappedTrumpThisWin,
-        declaredThisWin: next.declaredThisWin,
-        scores: next.scores,
-        lastTrickWinner: next.lastTrickWinner,
-        updatedAt: serverTimestamp(),
-        winnerUid: next.winnerUid || null,
-        victoryPoints: next.victoryPoints
+        hands: next.hands, exposed: next.exposed, trick: next.trick, turn: next.turn, leader: next.leader,
+        pendingWinnerActionUid: next.pendingWinnerActionUid, pendingLoserDrawUid: next.pendingLoserDrawUid,
+        swappedTrumpThisWin: next.swappedTrumpThisWin, declaredThisWin: next.declaredThisWin, scores: next.scores,
+        lastTrickWinner: next.lastTrickWinner, updatedAt: serverTimestamp(), winnerUid: next.winnerUid || null, victoryPoints: next.victoryPoints
       });
     }
 
@@ -2192,48 +1819,23 @@
       const snap = await getDoc(doc(db, "matches", currentMatchId));
       if (!snap.exists()) return;
       const match = { id:snap.id, ...snap.data() };
-
-      if (match.pendingWinnerActionUid !== me.uid) {
-        alert("Du kan bara lägga ut efter att du vunnit ett stick och innan du dragit.");
-        return;
-      }
-      if (match.swappedTrumpThisWin) {
-        alert("Du har redan bytt trumfsjua i detta läge och får då inte lägga ut kombination.");
-        return;
-      }
-      if (match.declaredThisWin) {
-        alert("Du har redan lagt ut en kombination i detta läge. Klicka på högen för att dra.");
-        return;
-      }
-      if (!selectedCards.length) {
-        alert("Markera kort först.");
-        return;
-      }
-      if (!selectedCards.some(x => x.source === "hand")) {
-        alert("Minst ett av de markerade korten måste komma från handen.");
-        return;
-      }
+      if (isEndgameTrickPhase(match)) return;
+      if (match.pendingWinnerActionUid !== me.uid) { alert("Du kan bara lägga ut efter att du vunnit ett stick och innan du dragit."); return; }
+      if (match.swappedTrumpThisWin) { alert("Du har redan bytt trumfsjua i detta läge och får då inte lägga ut kombination."); return; }
+      if (match.declaredThisWin) { alert("Du har redan lagt ut en kombination i detta läge. Klicka på högen för att dra."); return; }
+      if (!selectedCards.length) { alert("Markera kort först."); return; }
+      if (!selectedCards.some(x => x.source === "hand")) { alert("Minst ett av de markerade korten måste komma från handen."); return; }
 
       const allMy = getAllMyAvailableCards(match);
       const chosen = selectedCards.map(s => allMy.find(c => c.id === s.id)).filter(Boolean);
-      if (chosen.length !== selectedCards.length) {
-        alert("Kunde inte hitta alla markerade kort.");
-        return;
-      }
+      if (chosen.length !== selectedCards.length) { alert("Kunde inte hitta alla markerade kort."); return; }
 
       const meld = detectMeld(match, chosen);
-      if (!meld) {
-        alert("De markerade korten bildar ingen giltig kombination.");
-        return;
-      }
-      if (hasTypeUsage(match, me.uid, chosen, meld.typeKey)) {
-        alert("Minst ett av de markerade korten har redan använts i just den här typen av kombination.");
-        return;
-      }
+      if (!meld) { alert("De markerade korten bildar ingen giltig kombination."); return; }
+      if (hasTypeUsage(match, me.uid, chosen, meld.typeKey)) { alert("Minst ett av de markerade korten har redan använts i just den här typen av kombination."); return; }
 
       const next = deepClone(match);
       const handIds = new Set(selectedCards.filter(x => x.source === "hand").map(x => x.id));
-
       const handCards = ensureArray(next.hands[me.uid]);
       const exposedCards = ensureArray(next.exposed[me.uid]);
       const moveFromHand = handCards.filter(c => handIds.has(c.id));
@@ -2242,19 +1844,13 @@
 
       chosen.forEach(card => markUsage(next, me.uid, card.id, meld.typeKey));
       incMeldCount(next, me.uid, meld.typeKey);
-
       next.scores[me.uid] = (next.scores[me.uid] || 0) + meld.points;
       next.declaredThisWin = true;
       selectedCards = [];
 
       await updateDoc(doc(db, "matches", next.id), {
-        hands: next.hands,
-        exposed: next.exposed,
-        meldUsage: next.meldUsage,
-        meldCounts: next.meldCounts,
-        scores: next.scores,
-        declaredThisWin: next.declaredThisWin,
-        updatedAt: serverTimestamp()
+        hands: next.hands, exposed: next.exposed, meldUsage: next.meldUsage, meldCounts: next.meldCounts,
+        scores: next.scores, declaredThisWin: next.declaredThisWin, updatedAt: serverTimestamp()
       });
     }
 
@@ -2263,12 +1859,7 @@
       const snap = await getDoc(doc(db, "matches", currentMatchId));
       if (!snap.exists()) return;
       const match = { id:snap.id, ...snap.data() };
-
-      if (!canSwapTrump(match, me.uid)) {
-        alert("Du kan inte byta trumfsjua nu.");
-        return;
-      }
-
+      if (!canSwapTrump(match, me.uid)) { alert("Du kan inte byta trumfsjua nu."); return; }
       selectedCards = [];
 
       const next = deepClone(match);
@@ -2276,19 +1867,13 @@
       const idx = hand.findIndex(c => c.rank === "7" && c.suit === next.trumpSuit);
       const seven = hand[idx];
       const oldTrump = next.trumpCard;
-
-      await animateTrumpSwapSequence(seven, oldTrump);
-
       hand.splice(idx,1,oldTrump);
       next.trumpCard = seven;
       next.swappedTrumpThisWin = true;
       next.declaredThisWin = false;
 
       await updateDoc(doc(db, "matches", next.id), {
-        hands: next.hands,
-        trumpCard: next.trumpCard,
-        swappedTrumpThisWin: true,
-        updatedAt: serverTimestamp()
+        hands: next.hands, trumpCard: next.trumpCard, swappedTrumpThisWin: true, updatedAt: serverTimestamp()
       });
     }
 
@@ -2299,18 +1884,10 @@
       clearSelections();
 
       const stockHasCards = () => ensureArray(next.drawPile).length > 0 || !!next.trumpCard;
-
       const drawCardFor = (uid) => {
         if (!stockHasCards()) return false;
-        if (ensureArray(next.drawPile).length > 0) {
-          next.hands[uid].push(next.drawPile.shift());
-          return true;
-        }
-        if (next.trumpCard) {
-          next.hands[uid].push(next.trumpCard);
-          next.trumpCard = null;
-          return true;
-        }
+        if (ensureArray(next.drawPile).length > 0) { next.hands[uid].push(next.drawPile.shift()); return true; }
+        if (next.trumpCard) { next.hands[uid].push(next.trumpCard); next.trumpCard = null; return true; }
         return false;
       };
 
@@ -2318,41 +1895,21 @@
         const drew = drawCardFor(me.uid);
         if (!drew) return;
         next.pendingWinnerActionUid = null;
-
-        if (stockHasCards()) {
-          next.pendingLoserDrawUid = oppUid;
-          next.turn = oppUid;
-        } else {
-          next.pendingLoserDrawUid = null;
-          next.turn = next.leader;
-          next.trick = [];
-        }
+        if (stockHasCards()) { next.pendingLoserDrawUid = oppUid; next.turn = oppUid; }
+        else { next.pendingLoserDrawUid = null; next.turn = next.leader; next.trick = []; }
       } else if (next.pendingLoserDrawUid === me.uid) {
         const drew = drawCardFor(me.uid);
         if (!drew) return;
         next.pendingLoserDrawUid = null;
         next.turn = next.leader;
         next.trick = [];
-      } else {
-        return;
-      }
+      } else return;
 
       await updateDoc(doc(db, "matches", next.id), {
-        hands: next.hands,
-        drawPile: next.drawPile,
-        trumpCard: next.trumpCard,
-        trick: next.trick,
-        turn: next.turn,
-        leader: next.leader,
-        pendingWinnerActionUid: next.pendingWinnerActionUid,
-        pendingLoserDrawUid: next.pendingLoserDrawUid,
-        swappedTrumpThisWin: next.swappedTrumpThisWin,
-        declaredThisWin: next.declaredThisWin,
-        scores: next.scores,
-        updatedAt: serverTimestamp(),
-        winnerUid: next.winnerUid || null,
-        victoryPoints: next.victoryPoints,
-        lastTrickWinner: next.lastTrickWinner
+        hands: next.hands, drawPile: next.drawPile, trumpCard: next.trumpCard, trick: next.trick, turn: next.turn, leader: next.leader,
+        pendingWinnerActionUid: next.pendingWinnerActionUid, pendingLoserDrawUid: next.pendingLoserDrawUid,
+        swappedTrumpThisWin: next.swappedTrumpThisWin, declaredThisWin: next.declaredThisWin, scores: next.scores,
+        updatedAt: serverTimestamp(), winnerUid: next.winnerUid || null, victoryPoints: next.victoryPoints, lastTrickWinner: next.lastTrickWinner
       });
     }
 
@@ -2365,20 +1922,13 @@
     swapTrumpBtn.addEventListener("click", swapTrump);
     nextTrickBtn.addEventListener("click", advanceAfterEndgameTrick);
 
-    leaveMatchBtn.addEventListener("click", () => {
-      leaveConfirmOverlay.classList.add("show");
-    });
+    leaveMatchBtn.addEventListener("click", () => leaveConfirmOverlay.classList.add("show"));
     confirmLeaveBtn.addEventListener("click", leaveCurrentMatch);
-    cancelLeaveBtn.addEventListener("click", () => {
-      leaveConfirmOverlay.classList.remove("show");
-    });
+    cancelLeaveBtn.addEventListener("click", () => leaveConfirmOverlay.classList.remove("show"));
     opponentLeftOkBtn.addEventListener("click", acknowledgeOpponentLeft);
 
     window.addEventListener("offline", async () => {
-      if (currentMatchId) {
-        await markDisconnectState(true);
-        startDisconnectCountdown();
-      }
+      if (currentMatchId) { await markDisconnectState(true); startDisconnectCountdown(); }
     });
 
     window.addEventListener("online", async () => {
@@ -2390,15 +1940,8 @@
 
     window.addEventListener("beforeunload", async () => {
       try {
-        if (me) {
-          await updateDoc(doc(db, "players", me.uid), {
-            online: false,
-            lastSeen: Date.now()
-          });
-        }
-        if (currentMatchId) {
-          await markDisconnectState(true);
-        }
+        if (me) await updateDoc(doc(db, "players", me.uid), { online: false, lastSeen: Date.now() });
+        if (currentMatchId) await markDisconnectState(true);
       } catch (e) {}
     });
 
@@ -2408,6 +1951,9 @@
         uidLabelEl.textContent = user.uid.slice(0,8);
         authStateEl.textContent = "Inloggad";
         meNameEl.textContent = meName || `Spelare-${user.uid.slice(0,4)}`;
+
+        if (currentMatchId) await abortRoundAndReturnToLobby();
+        enterLobbyView();
 
         await saveMyProfile();
         await heartbeat();
@@ -2431,7 +1977,6 @@
       authStateEl.textContent = "Kunde inte logga in";
       alert("Firebase-inloggning misslyckades. Kontrollera config, Firestore och Anonymous Auth.");
     });
-
   </script>
 </body>
 </html>
