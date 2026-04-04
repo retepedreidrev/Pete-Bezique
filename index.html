@@ -705,7 +705,7 @@
 
         <div class="row" style="margin-bottom:10px; align-items:stretch">
           <input id="displayNameInput" type="text" maxlength="24" placeholder="Ditt spelarnamn">
-          <button id="saveNameBtn" class="primary">Spara namn</button>
+          <button id="saveNameBtn" type="button" class="primary">Spara namn</button>
         </div>
 
         <div class="split">
@@ -969,6 +969,15 @@
       const n = Math.floor(10 + Math.random() * 90);
       return `${a}${b}${n}`;
     }
+
+    function applyOwnNameToLobbyUI(){
+      const safeName = (meName || "").trim() || generateRandomPlayerName();
+      meName = safeName;
+      localStorage.setItem("pete_bezique_name", meName);
+      if (displayNameInput) displayNameInput.value = meName;
+      if (displayNameInput) displayNameInput.placeholder = "Ditt spelarnamn";
+      if (meNameEl) meNameEl.textContent = meName;
+    }
     let meName = localStorage.getItem("pete_bezique_name") || generateRandomPlayerName();
     localStorage.setItem("pete_bezique_name", meName);
     let currentMatchId = null;
@@ -991,7 +1000,7 @@
     let previousMyHandIds = [];
     let opponentLeftNoticeShown = false;
 
-    displayNameInput.value = meName;
+    applyOwnNameToLobbyUI();
 
     const SUITS = ["S","H","D","C"];
     const RANKS = ["7","8","9","10","J","Q","K","A"];
@@ -1463,10 +1472,10 @@
     }
 
     async function saveMyProfile(){
+      const typedName = (displayNameInput.value || "").trim();
+      meName = typedName || meName || generateRandomPlayerName();
+      applyOwnNameToLobbyUI();
       if (!me) return;
-      meName = (displayNameInput.value || "").trim() || `Spelare-${me.uid.slice(0,4)}`;
-      localStorage.setItem("pete_bezique_name", meName);
-      meNameEl.textContent = meName;
       await setDoc(doc(db, "players", me.uid), {
         uid: me.uid,
         name: meName,
@@ -1494,8 +1503,8 @@
     }
 
     async function refreshOwnPresence(){
-      if (!me) return;
       await saveMyProfile();
+      if (!me) return;
       await heartbeat();
       subscribePlayers();
     }
@@ -2391,6 +2400,10 @@
       }
     });
 
+    displayNameInput.addEventListener("input", () => {
+      saveNameBtn.disabled = false;
+    });
+
     displayNameInput.addEventListener("focus", enableLobbyIdentityControls);
     acceptChallengeBtn.addEventListener("click", acceptChallenge);
     declineChallengeBtn.addEventListener("click", declineChallenge);
@@ -2451,14 +2464,11 @@
         me = user;
         if (!meName || !String(meName).trim()) {
           meName = generateRandomPlayerName();
-          localStorage.setItem("pete_bezique_name", meName);
         }
+        applyOwnNameToLobbyUI();
         uidLabelEl.textContent = user.uid.slice(0,8);
         authStateEl.textContent = "Inloggad";
         enableLobbyIdentityControls();
-        displayNameInput.value = meName;
-        displayNameInput.placeholder = "Ditt spelarnamn";
-        meNameEl.textContent = meName;
 
         await refreshOwnPresence();
 
