@@ -317,18 +317,19 @@
       </main>
     </div>
   </div>
-
-  <div id="challengeOverlay" class="overlay">
-    <div class="modal">
-      <h2>Utmaning</h2>
-      <p id="challengeText">En spelare vill spela mot dig.</p>
-      <div class="row">
-        <button id="acceptChallengeBtn" class="good">Acceptera</button>
-        <button id="declineChallengeBtn" class="danger">Decline</button>
-      </div>
+  
+<div id="challengeOverlay" class="overlay">
+  <div class="modal">
+    <h2>Utmaning</h2>
+    <p id="challengeText">En spelare vill spela mot dig.</p>
+    <div class="row">
+      <button id="acceptChallengeBtn" class="good">Acceptera</button>
+      <button id="declineChallengeBtn" class="danger">Decline</button>
+      <button id="cancelChallengeBtn" class="ghost" style="display:none;">Avbryt utmaning</button>
     </div>
   </div>
-
+</div>
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
@@ -363,7 +364,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
+    const cancelChallengeBtn = document.getElementById("cancelChallengeBtn");
     const authStateEl = document.getElementById("authState");
     const uidLabelEl = document.getElementById("uidLabel");
     const displayNameInput = document.getElementById("displayNameInput");
@@ -424,7 +425,9 @@
     let heartbeatTimer = null;
     let pendingChallenge = null;
     let pendingChallengeId = null;
-
+    let outgoingChallenge = null;
+    let outgoingChallengeId = null;
+    let outgoingChallengesUnsub = null;
     let selectedCards = []; // [{id, source:'hand'|'exposed'}]
 
     displayNameInput.value = meName;
@@ -861,86 +864,222 @@
       });
     }
 
-    async function challengePlayer(player){
-      if (!meName) {
-        alert("Spara ditt namn först.");
-        return;
-      }
-      const matchId = matchIdFor(me.uid, player.uid);
-      await addDoc(collection(db, "challenges"), {
-        fromUid: me.uid,
-        fromName: meName,
-        toUid: player.uid,
-        toName: player.name || "Spelare",
-        status: "pending",
-        matchId,
-        createdAtMs: Date.now(),
-        createdAt: serverTimestamp()
-      });
-      alert(`Utmaning skickad till ${player.name}.`);
+
+async function challengePlayer(player){
+  if (!meName) {
+    alert("Spara ditt namn först.");
+    return;
+  }
+
+  const matchId = matchIdFor(me.uid, player.uid);
+
+  const ref = await addDoc(collection(db, "challenges"), {
+    fromUid: me.uid,
+    fromName: meName,
+    toUid: player.uid,
+    toName: player.name || "Spelare",
+    status: "pending",
+    matchId,
+    createdAtMs: Date.now(),
+    createdAt: serverTimestamp()
+  });
+
+  outgoingChallengeId = ref.id;
+  outgoingChallenge = {
+    id: ref.id,
+    fromUid: me.uid,
+    fromName: meName,
+    toUid: player.uid,
+    toName: player.name || "Spelare",
+    status: "pending",
+    matchId
+  };
+
+  challengeText.textContent = `Väntar på att ${player.name} ska acceptera utmaningen.`;
+  acceptChallengeBtn.style.display = "none";
+  declineChallengeBtn.style.display = "none";
+  cancelChallengeBtn.style.display = "inline-block";
+  challengeOverlay.classList.add("show");player.name}.`);
     }
 
-    function subscribeChallenges(){
-      if (challengesUnsub) challengesUnsub();
-      const q = query(
-        collection(db, "challenges"),
-        where("toUid","==",me.uid),
-        where("status","==","pending")
+function subscribeChallenges(){
+  if (challengesUnsub) challengesUnsub();
+
+  const q = query(
+    collection(db, "challenges"),
+    where("toUid","==",me.uid),
+    where("status","==","pending")
+  );
+
+  challengesUnsub = onSnapshot(q, snap => {
+    const docs = [];
+    snap.forEach(d => docs.push({id:d.id, ...d.data()}));
+    docs.sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
+
+    if (docs.length) {
+      pendingChallenge = docs[0];
+      pendingChallengeId = docs[0].id;
+      challengeText.textContent = `${pendingChallenge.fromName} vill spela Bezique mot dig.`;
+      acceptChallengeBtn.style.display = "inline-block";
+      declineChallengeBtn.style.display = "inline-block";
+      cancelChallengeBtn.style.display = "none";
+      challengeOverlay.classList.add("show");
+    } else if (!outgoingChallengeId) {
+      pendingChallenge = null;
+      pendingChallengeId = null;
+      challengeOverlay.classList.remove("show");
+    }
+  });
+}
+
+async function acceptChallenge(){
+  if (!pendingChallengeId || !pendingChallenge) return;
+
+  try {
+    const opponentUid = pendingChallenge.fromUid;
+    const opponentName = pendingChallenge.fromName;
+    const id = matchIdFor(me.uid, opponentUid);
+
+    const matchRef = doc(db, "matches", id);
+    const existing = await getDoc(matchRef);
+
+    if (!existing.exists()) {
+      const match = makeInitialRound(
+        id,
+        { uid: me.uid, name: meName },
+        { uid: opponentUid, name: opponentName }
       );
-      challengesUnsub = onSnapshot(q, snap => {
-        const docs = [];
-        snap.forEach(d => docs.push({id:d.id, ...d.data()}));
-        docs.sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
-
-        if (docs.length) {
-          pendingChallenge = docs[0];
-          pendingChallengeId = docs[0].id;
-          challengeText.textContent = `${pendingChallenge.fromName} vill spela Bezique mot dig.`;
-          challengeOverlay.classList.add("show");
-        } else {
-          pendingChallenge = null;
-          pendingChallengeId = null;
-          challengeOverlay.classList.remove("show");
-        }
-      });
+      await setDoc(matchRef, match);
     }
 
-    async function acceptChallenge(){
-      if (!pendingChallengeId || !pendingChallenge) return;
+    await updateDoc(doc(db, "challenges", pendingChallengeId), {
+      status: "accepted",
+      acceptedAtMs: Date.now(),
+      acceptedAt: serverTimestamp()
+    });
 
-      await updateDoc(doc(db, "challenges", pendingChallengeId), {
-        status: "accepted",
-        acceptedAtMs: Date.now(),
-        acceptedAt: serverTimestamp()
-      });
+    pendingChallenge = null;
+    pendingChallengeId = null;
 
-      const opponentUid = pendingChallenge.fromUid;
-      const opponentName = pendingChallenge.fromName;
-      const id = matchIdFor(me.uid, opponentUid);
-      currentMatchId = id;
+    challengeOverlay.classList.remove("show");
+    acceptChallengeBtn.style.display = "inline-block";
+    declineChallengeBtn.style.display = "inline-block";
+    cancelChallengeBtn.style.display = "none";
+
+    currentMatchId = id;
+    localStorage.setItem("pete_bezique_matchId", currentMatchId);
+    openMatch(currentMatchId);
+  } catch (err) {
+    console.error("acceptChallenge failed:", err);
+    alert("Kunde inte öppna matchen. Kontrollera console/loggar.");
+  }
+}
+
+   async function declineChallenge(){
+  if (!pendingChallengeId) return;
+
+  await updateDoc(doc(db, "challenges", pendingChallengeId), {
+    status: "declined",
+    declinedAtMs: Date.now(),
+    declinedAt: serverTimestamp()
+  });
+
+  pendingChallenge = null;
+  pendingChallengeId = null;
+  challengeOverlay.classList.remove("show");
+  acceptChallengeBtn.style.display = "inline-block";
+  declineChallengeBtn.style.display = "inline-block";
+  cancelChallengeBtn.style.display = "none";
+} 
+
+async function cancelOutgoingChallenge(){
+  if (!outgoingChallengeId) return;
+
+  await updateDoc(doc(db, "challenges", outgoingChallengeId), {
+    status: "cancelled",
+    cancelledAtMs: Date.now(),
+    cancelledAt: serverTimestamp()
+  });
+
+  outgoingChallenge = null;
+  outgoingChallengeId = null;
+  challengeOverlay.classList.remove("show");
+  acceptChallengeBtn.style.display = "inline-block";
+  declineChallengeBtn.style.display = "inline-block";
+  cancelChallengeBtn.style.display = "none";
+}
+
+
+function subscribeOutgoingChallenges(){
+  if (outgoingChallengesUnsub) outgoingChallengesUnsub();
+
+  const q = query(
+    collection(db, "challenges"),
+    where("fromUid", "==", me.uid)
+  );
+
+  outgoingChallengesUnsub = onSnapshot(q, async snap => {
+    const docs = [];
+    snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+    docs.sort((a,b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+
+    const latest = docs.find(d =>
+      d.status === "pending" ||
+      d.status === "accepted" ||
+      d.status === "declined" ||
+      d.status === "cancelled"
+    );
+
+    if (!latest) return;
+
+    if (latest.status === "pending") {
+      outgoingChallenge = latest;
+      outgoingChallengeId = latest.id;
+
+      challengeText.textContent = `Väntar på att ${latest.toName} ska acceptera utmaningen.`;
+      acceptChallengeBtn.style.display = "none";
+      declineChallengeBtn.style.display = "none";
+      cancelChallengeBtn.style.display = "inline-block";
+      challengeOverlay.classList.add("show");
+    }
+
+    if (latest.status === "accepted") {
+      outgoingChallenge = null;
+      outgoingChallengeId = null;
+      challengeOverlay.classList.remove("show");
+      acceptChallengeBtn.style.display = "inline-block";
+      declineChallengeBtn.style.display = "inline-block";
+      cancelChallengeBtn.style.display = "none";
+
+      currentMatchId = latest.matchId;
       localStorage.setItem("pete_bezique_matchId", currentMatchId);
-
-      const matchRef = doc(db, "matches", id);
-      const existing = await getDoc(matchRef);
-      if (!existing.exists()) {
-        const match = makeInitialRound(
-          id,
-          { uid:me.uid, name:meName },
-          { uid:opponentUid, name:opponentName }
-        );
-        await setDoc(matchRef, match);
-      }
-      openMatch(id);
+      openMatch(currentMatchId);
     }
 
-    async function declineChallenge(){
-      if (!pendingChallengeId) return;
-      await updateDoc(doc(db, "challenges", pendingChallengeId), {
-        status: "declined",
-        declinedAtMs: Date.now(),
-        declinedAt: serverTimestamp()
-      });
+    if (latest.status === "declined") {
+      outgoingChallenge = null;
+      outgoingChallengeId = null;
+      challengeText.textContent = `${latest.toName} tackade nej till utmaningen.`;
+      acceptChallengeBtn.style.display = "none";
+      declineChallengeBtn.style.display = "none";
+      cancelChallengeBtn.style.display = "none";
+      challengeOverlay.classList.add("show");
+
+      setTimeout(() => {
+        challengeOverlay.classList.remove("show");
+      }, 1500);
     }
+
+    if (latest.status === "cancelled") {
+      outgoingChallenge = null;
+      outgoingChallengeId = null;
+      challengeOverlay.classList.remove("show");
+      acceptChallengeBtn.style.display = "inline-block";
+      declineChallengeBtn.style.display = "inline-block";
+      cancelChallengeBtn.style.display = "none";
+    }
+  });
+}
 
     function subscribeHistory(){
       if (historyUnsub) historyUnsub();
@@ -1412,8 +1551,13 @@
     swapTrumpBtn.addEventListener("click", swapTrump);
     clearSelectionBtn.addEventListener("click", clearSelection);
     newRoundBtn.addEventListener("click", startNewDeal);
-    newMatchBtn.addEventListener("click", startNewMatch);
+    
+    
 
+    newMatchBtn.addEventListener("click", startNewMatch);
+    
+    cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
+    
     window.addEventListener("beforeunload", async () => {
       try {
         if (me) {
@@ -1441,7 +1585,8 @@
         subscribePlayers();
         subscribeChallenges();
         subscribeHistory();
-
+        subscribeOutgoingChallenges();
+        
         if (currentMatchId) openMatch(currentMatchId);
       } else {
         authStateEl.textContent = "Loggar in…";
