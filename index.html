@@ -226,7 +226,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,0.72fr) 158px minmax(0,0.88fr);
+      grid-template-rows:minmax(0,0.54fr) 170px minmax(0,0.92fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -323,7 +323,7 @@
 
     .table-center{
       display:grid;
-      grid-template-rows:auto 1fr auto;
+      grid-template-rows:auto auto auto;
       gap:6px;
       align-content:start;
     }
@@ -337,12 +337,20 @@
       min-height:0;
     }
 
+    .center-play-row{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      min-height:118px;
+      overflow:visible;
+    }
+
     .center-top{
       display:flex;
       justify-content:center;
       align-items:center;
-      gap:14px;
-      min-height:96px;
+      min-height:0;
     }
 
     .stack-wrap{
@@ -352,6 +360,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
+      flex:0 0 auto;
     }
 
     .deck-base{
@@ -372,12 +381,14 @@
 
     .trick-stage{
       position:relative;
-      width:190px;
-      min-height:110px;
+      width:240px;
+      height:calc(var(--card-h) + 34px);
+      min-height:calc(var(--card-h) + 34px);
       border:1px dashed rgba(255,255,255,.12);
       border-radius:12px;
       background:rgba(255,255,255,.02);
       flex:0 0 auto;
+      overflow:visible;
     }
 
     .trick-card{
@@ -386,30 +397,29 @@
       min-width:var(--card-w);
       min-height:var(--card-h);
       pointer-events:none;
+      z-index:2;
     }
 
     .trick-card.upper{
-      top:14px;
-      left:34px;
-      z-index:2;
+      top:8px;
+      left:22px;
     }
 
     .trick-card.lower{
-      top:42px;
-      left:56px;
-      z-index:2;
+      top:30px;
+      left:42px;
     }
 
     .trick-card.upper.overlap{
-      top:18px;
-      left:86px;
-      z-index:3;
+      top:8px;
+      left:118px;
+      z-index:4;
     }
 
     .trick-card.lower.overlap{
-      top:52px;
-      left:100px;
-      z-index:3;
+      top:30px;
+      left:138px;
+      z-index:4;
     }
 
     .card{
@@ -520,7 +530,7 @@
 
     .stack-wrap.draw-attention .deck-base .card,
     .stack-wrap.draw-attention .trump-under .card{
-      box-shadow:0 0 0 4px rgba(255,235,150,.34), 0 0 26px rgba(255,235,150,.24), 0 3px 10px rgba(0,0,0,.24);
+      box-shadow:0 0 0 6px rgba(255,235,150,.42), 0 0 30px rgba(255,235,150,.28), 0 3px 10px rgba(0,0,0,.24);
     }
 
     .stack-wrap.draw-attention .deck-base .card,
@@ -530,9 +540,9 @@
 
     @keyframes drawPromptHop{
       0%, 78%, 100%{ transform:translateY(0) scale(1); }
-      84%{ transform:translateY(-10px) scale(1.04); }
+      84%{ transform:translateY(-13px) scale(1.04); }
       90%{ transform:translateY(0) scale(1); }
-      95%{ transform:translateY(-4px) scale(1.015); }
+      95%{ transform:translateY(-5px) scale(1.018); }
     }
 
     @keyframes dealPulse{
@@ -575,13 +585,12 @@
     }
 
     .my-bottom-info{
-      margin-top:auto;
-      padding-top:8px;
+      margin-top:6px;
+      padding-top:2px;
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:10px;
-      border-top:1px solid var(--line);
     }
 
     .my-bottom-main{
@@ -735,16 +744,18 @@
             </section>
 
             <section class="table-center">
-              <div class="center-top">
-                <div class="stack-wrap">
-                  <div id="trumpUnderBox" class="trump-under"></div>
-                  <div id="drawPileBox" class="deck-base"></div>
+              <div class="center-play-row">
+                <div class="center-top">
+                  <div class="stack-wrap">
+                    <div id="trumpUnderBox" class="trump-under"></div>
+                    <div id="drawPileBox" class="deck-base"></div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="trick-stage">
-                <div id="leadCardBox" class="trick-card"></div>
-                <div id="replyCardBox" class="trick-card"></div>
+                <div class="trick-stage">
+                  <div id="leadCardBox" class="trick-card"></div>
+                  <div id="replyCardBox" class="trick-card"></div>
+                </div>
               </div>
 
               <div class="status-box">
@@ -813,6 +824,16 @@
     </div>
   </div>
 
+  <div id="opponentLeftOverlay" class="overlay">
+    <div class="modal">
+      <h2>Motståndaren lämnade</h2>
+      <p>Omgången avbryts och du går tillbaka till lobbyn.</p>
+      <div class="row">
+        <button id="opponentLeftOkBtn" class="primary">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
@@ -832,7 +853,8 @@
       query,
       where,
       onSnapshot,
-      addDoc
+      addDoc,
+      deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -918,6 +940,8 @@
     const leaveConfirmOverlay = document.getElementById("leaveConfirmOverlay");
     const confirmLeaveBtn = document.getElementById("confirmLeaveBtn");
     const cancelLeaveBtn = document.getElementById("cancelLeaveBtn");
+    const opponentLeftOverlay = document.getElementById("opponentLeftOverlay");
+    const opponentLeftOkBtn = document.getElementById("opponentLeftOkBtn");
 
     let me = null;
     let meName = localStorage.getItem("pete_bezique_name") || "";
@@ -939,6 +963,7 @@
     let disconnectRemaining = 60;
     let lastVisualSignature = "";
     let previousMyHandIds = [];
+    let opponentLeftNoticeShown = false;
 
     displayNameInput.value = meName;
 
@@ -1272,7 +1297,10 @@
         lastTrickWinner: null,
         winnerUid: null,
         reconnectedAfterDisconnect: false,
-        disconnectSince: null
+        disconnectSince: null,
+        backThemeSeed: `${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+        abandonedByUid: null,
+        abandonedAtMs: null
       };
     }
 
@@ -1391,6 +1419,7 @@
     async function abortRoundAndReturnToLobby(){
       stopDisconnectCountdown();
       leaveConfirmOverlay.classList.remove("show");
+      opponentLeftOverlay.classList.remove("show");
       selectedCards = [];
       currentMatchId = null;
       if (currentMatchUnsub) {
@@ -1398,6 +1427,26 @@
         currentMatchUnsub = null;
       }
       enterLobbyView();
+    }
+
+    async function leaveCurrentMatch(){
+      if (currentMatchId && me) {
+        try {
+          await updateDoc(doc(db, "matches", currentMatchId), {
+            abandonedByUid: me.uid,
+            abandonedAtMs: Date.now(),
+            updatedAt: serverTimestamp()
+          });
+        } catch (err) {
+          console.error("leaveCurrentMatch failed:", err);
+        }
+      }
+      await abortRoundAndReturnToLobby();
+    }
+
+    async function acknowledgeOpponentLeft(){
+      opponentLeftOverlay.classList.remove("show");
+      await abortRoundAndReturnToLobby();
     }
 
     function subscribePlayers(){
@@ -1658,12 +1707,30 @@
           const div = document.createElement("div");
           div.className = "history-item";
           div.innerHTML = `
-            <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
-            <div class="tiny">
-              Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
-              · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
+            <div class="split">
+              <div>
+                <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
+                <div class="tiny">
+                  Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
+                  · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
+                </div>
+              </div>
             </div>
           `;
+          const deleteBtn = document.createElement("button");
+          deleteBtn.className = "ghost";
+          deleteBtn.textContent = "🗑️";
+          deleteBtn.title = "Ta bort matchhistorik";
+          deleteBtn.onclick = async () => {
+            if (!confirm("Ta bort matchen ur historiken?")) return;
+            try {
+              await deleteDoc(doc(db, "matches", m.id));
+            } catch (err) {
+              console.error("delete match failed:", err);
+              alert("Kunde inte ta bort matchen.");
+            }
+          };
+          div.querySelector('.split').appendChild(deleteBtn);
           historyBoxEl.appendChild(div);
         });
       });
@@ -1722,6 +1789,14 @@
       currentMatchId = match.id;
 
       const opponentUid = getOpponentUid(match);
+
+      if (match.abandonedByUid && match.abandonedByUid !== me.uid) {
+        opponentLeftOverlay.classList.add("show");
+        opponentLeftNoticeShown = true;
+      } else if (!match.abandonedByUid) {
+        opponentLeftOverlay.classList.remove("show");
+        opponentLeftNoticeShown = false;
+      }
       const myHand = ensureArray(match.hands?.[me.uid]);
       const myExposed = ensureArray(match.exposed?.[me.uid]);
       const oppHand = ensureArray(match.hands?.[opponentUid]);
@@ -1777,7 +1852,7 @@
 
       opponentHandEl.innerHTML = "";
       oppHand.slice().sort(sortCardsForUi).forEach((_, i) => {
-        opponentHandEl.appendChild(renderBackCard(true, `opp-${oppHand.length}-${i}-${match.id}`));
+        opponentHandEl.appendChild(renderBackCard(true, `round-${match.backThemeSeed || match.id}`));
       });
 
       myExposedEl.innerHTML = "";
@@ -1817,7 +1892,7 @@
       const stockCount = ensureArray(match.drawPile).length;
 
       if (stockCount > 0) {
-        const drawEl = renderBackCard(false, `pile-${stockCount}-${match.id}`);
+        const drawEl = renderBackCard(false, `round-${match.backThemeSeed || match.id}`);
         if (canDrawNow) {
           drawEl.classList.add("playable");
           drawEl.title = "Dra kort";
@@ -2178,10 +2253,11 @@
     leaveMatchBtn.addEventListener("click", () => {
       leaveConfirmOverlay.classList.add("show");
     });
-    confirmLeaveBtn.addEventListener("click", abortRoundAndReturnToLobby);
+    confirmLeaveBtn.addEventListener("click", leaveCurrentMatch);
     cancelLeaveBtn.addEventListener("click", () => {
       leaveConfirmOverlay.classList.remove("show");
     });
+    opponentLeftOkBtn.addEventListener("click", acknowledgeOpponentLeft);
 
     window.addEventListener("offline", async () => {
       if (currentMatchId) {
