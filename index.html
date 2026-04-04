@@ -226,7 +226,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,0.42fr) 170px minmax(0,0.92fr);
+      grid-template-rows:minmax(0,0.46fr) 188px minmax(0,0.92fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -332,9 +332,11 @@
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
       border-radius:12px;
-      padding:6px 8px;
+      padding:8px 10px;
       font-size:12px;
-      min-height:0;
+      min-height:44px;
+      display:flex;
+      align-items:center;
     }
 
     .center-play-row{
@@ -433,7 +435,7 @@
       overflow:hidden;
       cursor:default;
       user-select:none;
-      transition:transform .28s ease, box-shadow .28s ease, opacity .28s ease, filter .28s ease;
+      transition:transform .08s ease, box-shadow .12s ease, opacity .18s ease, filter .18s ease;
     }
 
     .card.small{
@@ -523,12 +525,13 @@
       animation:pileBounce .7s cubic-bezier(.18,.85,.25,1);
     }
 
-    .stack-wrap.draw-attention{
+    .stack-wrap.draw-attention-stock,
+    .stack-wrap.draw-attention-trump{
       filter:drop-shadow(0 0 12px rgba(255,235,150,.28));
     }
 
-    .stack-wrap.draw-attention .deck-base .card,
-    .stack-wrap.draw-attention .trump-under .card{
+    .stack-wrap.draw-attention-stock .deck-base .card,
+    .stack-wrap.draw-attention-trump .trump-under .card{
       box-shadow:0 0 0 1.5px rgba(255,235,150,.30), 0 0 14px rgba(255,235,150,.16), 0 3px 10px rgba(0,0,0,.24);
       animation:drawPromptWiggle 2.7s ease-in-out infinite;
     }
@@ -631,7 +634,7 @@
     }
 
     #mySide{
-      margin-top:16px;
+      margin-top:24px;
       justify-content:flex-start;
     }
 
@@ -684,7 +687,7 @@
       .player-name{ font-size:16px; max-width:130px; }
       .player-points{ font-size:16px; }
       .victory-inline{ font-size:11px; }
-      .board-layout{ grid-template-rows:minmax(0,0.52fr) 148px minmax(0,0.92fr); }
+      .board-layout{ grid-template-rows:minmax(0,0.56fr) 160px minmax(0,0.92fr); }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
@@ -695,7 +698,7 @@
       .trick-card.lower{ top:calc(50% - var(--card-h) / 2 + 10px); left:22px; }
       .trick-card.upper.overlap{ top:calc(50% - var(--card-h) / 2 - 10px); left:40px; }
       .trick-card.lower.overlap{ top:calc(50% - var(--card-h) / 2 + 10px); left:48px; }
-      #mySide{ margin-top:10px; }
+      #mySide{ margin-top:14px; }
     }
   </style>
 </head>
@@ -1734,6 +1737,8 @@
       trumpUnderBox.innerHTML = "";
       const canDrawNow = canTakeAnyStockCard(match, me.uid);
       const stockCount = ensureArray(match.drawPile).length;
+      const stackWrapEl = drawPileBox.parentElement;
+      stackWrapEl.classList.remove("draw-attention-stock", "draw-attention-trump");
 
       if (stockCount > 0) {
         const drawEl = renderBackCard(false, `round-${match.backThemeSeed || match.id}`);
@@ -1741,11 +1746,9 @@
           drawEl.classList.add("playable");
           drawEl.title = "Dra kort";
           drawEl.onclick = () => drawFromPile(match);
-          drawPileBox.parentElement.classList.add("draw-attention");
-        } else drawPileBox.parentElement.classList.remove("draw-attention");
+          stackWrapEl.classList.add("draw-attention-stock");
+        }
         drawPileBox.appendChild(drawEl);
-      } else {
-        drawPileBox.parentElement.classList.remove("draw-attention");
       }
 
       if (match.trumpCard) {
@@ -1756,7 +1759,7 @@
           trumpEl.title = "Ta upp trumfkortet";
           trumpEl.onclick = () => drawFromPile(match);
           trumpUnderBox.style.pointerEvents = "auto";
-          drawPileBox.parentElement.classList.add("draw-attention");
+          stackWrapEl.classList.add("draw-attention-trump");
         }
         trumpUnderBox.appendChild(trumpEl);
       } else {
