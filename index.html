@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -227,7 +226,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,0.38fr) 170px minmax(0,0.92fr);
+      grid-template-rows:minmax(0,0.42fr) 170px minmax(0,0.92fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -555,18 +554,22 @@
     }
 
     .card.new-drawn{
-      animation:newDrawSettle 2s ease forwards;
+      animation:newDrawSettle 5s ease forwards;
       transform-origin:center bottom;
       z-index:9;
       box-shadow:0 0 0 3px rgba(255,235,150,.35), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
     }
 
     @keyframes newDrawSettle{
-      0%{ transform:scale(1.30) rotate(-7deg); box-shadow:0 0 0 3px rgba(255,235,150,.42), 0 0 22px rgba(255,235,150,.28), 0 3px 10px rgba(0,0,0,.24); }
-      14%{ transform:scale(1.22) rotate(6deg); }
-      28%{ transform:scale(1.16) rotate(-4deg); }
-      42%{ transform:scale(1.11) rotate(3deg); }
-      58%{ transform:scale(1.06) rotate(-2deg); box-shadow:0 0 0 3px rgba(255,235,150,.32), 0 0 16px rgba(255,235,150,.18), 0 3px 10px rgba(0,0,0,.24); }
+      0%{ transform:scale(1.28) rotate(-7deg); box-shadow:0 0 0 3px rgba(255,235,150,.42), 0 0 22px rgba(255,235,150,.28), 0 3px 10px rgba(0,0,0,.24); }
+      8%{ transform:scale(1.23) rotate(7deg); }
+      16%{ transform:scale(1.20) rotate(-6deg); }
+      24%{ transform:scale(1.17) rotate(5deg); }
+      34%{ transform:scale(1.13) rotate(-4deg); }
+      46%{ transform:scale(1.10) rotate(3deg); box-shadow:0 0 0 3px rgba(255,235,150,.36), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24); }
+      60%{ transform:scale(1.07) rotate(-2deg); }
+      74%{ transform:scale(1.04) rotate(1.6deg); }
+      88%{ transform:scale(1.01) rotate(-0.8deg); }
       100%{ transform:scale(1) rotate(0deg); box-shadow:0 3px 10px rgba(0,0,0,.24); }
     }
 
@@ -574,6 +577,27 @@
       display:flex;
       justify-content:center;
       padding-top:6px;
+    }
+
+    .floating-card{
+      position:fixed;
+      z-index:80;
+      pointer-events:none;
+      transition:opacity .2s ease;
+    }
+
+    .floating-card.swap-wiggle{
+      animation:swapWiggle 2s ease-in-out forwards;
+    }
+
+    @keyframes swapWiggle{
+      0%{ transform:rotate(-5deg) scale(1.04); }
+      16%{ transform:rotate(6deg) scale(1.05); }
+      32%{ transform:rotate(-4deg) scale(1.04); }
+      48%{ transform:rotate(5deg) scale(1.03); }
+      64%{ transform:rotate(-3deg) scale(1.02); }
+      80%{ transform:rotate(2deg) scale(1.01); }
+      100%{ transform:rotate(0deg) scale(1); }
     }
 
     .my-actions{
@@ -607,19 +631,12 @@
     }
 
     #mySide{
-      margin-top:10px;
+      margin-top:16px;
       justify-content:flex-start;
     }
 
     #myHand{ margin-top:-8px; }
     #myExposed{ min-height:calc(var(--card-h) + 2px); margin-bottom:-2px; }
-
-    .floating-card{
-      position:fixed;
-      z-index:80;
-      transition:left .65s ease, top .65s ease, transform .65s ease, opacity .45s ease;
-      pointer-events:none;
-    }
 
     .overlay{
       position:fixed;
@@ -667,7 +684,7 @@
       .player-name{ font-size:16px; max-width:130px; }
       .player-points{ font-size:16px; }
       .victory-inline{ font-size:11px; }
-      .board-layout{ grid-template-rows:minmax(0,0.48fr) 148px minmax(0,0.92fr); }
+      .board-layout{ grid-template-rows:minmax(0,0.52fr) 148px minmax(0,0.92fr); }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
@@ -678,7 +695,7 @@
       .trick-card.lower{ top:calc(50% - var(--card-h) / 2 + 10px); left:22px; }
       .trick-card.upper.overlap{ top:calc(50% - var(--card-h) / 2 - 10px); left:40px; }
       .trick-card.lower.overlap{ top:calc(50% - var(--card-h) / 2 + 10px); left:48px; }
-      #mySide{ margin-top:6px; }
+      #mySide{ margin-top:10px; }
     }
   </style>
 </head>
@@ -698,7 +715,7 @@
       <aside id="lobbyPanel" class="panel">
         <h2 style="margin:0 0 10px 0">Lobby</h2>
         <div class="notice">
-          Skriv ditt namn. Utmana sedan andra spelare.
+          Skriv ditt namn. Utmana sedan en annan spelare
         </div>
 
         <div class="row" style="margin-bottom:10px">
@@ -849,6 +866,13 @@
     </div>
   </div>
 
+  <div id="statusOverlay" class="overlay">
+    <div class="modal">
+      <h2 id="statusOverlayTitle">Ogiltigt drag</h2>
+      <p id="statusOverlayText">Det gick inte.</p>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
@@ -956,6 +980,9 @@
     const cancelLeaveBtn = document.getElementById("cancelLeaveBtn");
     const opponentLeftOverlay = document.getElementById("opponentLeftOverlay");
     const opponentLeftOkBtn = document.getElementById("opponentLeftOkBtn");
+    const statusOverlay = document.getElementById("statusOverlay");
+    const statusOverlayTitle = document.getElementById("statusOverlayTitle");
+    const statusOverlayText = document.getElementById("statusOverlayText");
 
     let me = null;
     let meName = localStorage.getItem("pete_bezique_name") || "";
@@ -978,6 +1005,8 @@
     let lastVisualSignature = "";
     let previousMyHandIds = [];
     let opponentLeftNoticeShown = false;
+    let transientStatusTimer = null;
+    const APP_START_MS = Date.now();
 
     displayNameInput.value = meName;
 
@@ -1112,6 +1141,55 @@
     }
 
     function clearSelections(){ selectedCards = []; }
+
+    function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    function showTimedPopup(message, title = "Ogiltigt drag", duration = 1200){
+      statusOverlayTitle.textContent = title;
+      statusOverlayText.textContent = message;
+      statusOverlay.classList.add("show");
+      if (transientStatusTimer) clearTimeout(transientStatusTimer);
+      transientStatusTimer = setTimeout(() => {
+        statusOverlay.classList.remove("show");
+        transientStatusTimer = null;
+      }, duration);
+    }
+
+    function getCardRectFromHand(cardId){
+      const cards = Array.from(myHandEl.children);
+      const rendered = window.__lastRenderedMyHand || [];
+      const idx = rendered.findIndex(c => c.id === cardId);
+      return idx >= 0 && cards[idx] ? cards[idx].getBoundingClientRect() : null;
+    }
+
+    function getTrumpRect(){
+      const el = trumpUnderBox.firstElementChild;
+      return el ? el.getBoundingClientRect() : null;
+    }
+
+    async function animateTrumpSwapSequence(sevenCard, trumpCard){
+      const trumpRect = getTrumpRect();
+      if (!trumpRect || !sevenCard || !trumpCard) return;
+
+      const sevenFloat = renderSpriteCard(sevenCard);
+      sevenFloat.classList.add("floating-card", "swap-wiggle");
+      sevenFloat.style.left = `${trumpRect.left - 14}px`;
+      sevenFloat.style.top = `${trumpRect.top + 30}px`;
+
+      const trumpFloat = renderSpriteCard(trumpCard);
+      trumpFloat.classList.add("floating-card", "swap-wiggle");
+      trumpFloat.style.left = `${trumpRect.left + 62}px`;
+      trumpFloat.style.top = `${trumpRect.top + 4}px`;
+
+      document.body.appendChild(sevenFloat);
+      document.body.appendChild(trumpFloat);
+      await sleep(2000);
+      sevenFloat.style.opacity = "0";
+      trumpFloat.style.opacity = "0";
+      await sleep(180);
+      sevenFloat.remove();
+      trumpFloat.remove();
+    }
 
     function animateCardEntry(container){
       const card = container?.firstElementChild;
@@ -1507,7 +1585,10 @@
         if (latest.status === "accepted") {
           outgoingChallenge = null; outgoingChallengeId = null; challengeOverlay.classList.remove("show");
           acceptChallengeBtn.style.display = "inline-block"; declineChallengeBtn.style.display = "inline-block"; cancelChallengeBtn.style.display = "none";
-          currentMatchId = latest.matchId; openMatch(currentMatchId);
+          if ((latest.acceptedAtMs || 0) >= APP_START_MS) {
+            currentMatchId = latest.matchId;
+            openMatch(currentMatchId);
+          }
         }
         if (latest.status === "declined") {
           outgoingChallenge = null; outgoingChallengeId = null;
@@ -1823,16 +1904,16 @@
       if (match.pendingWinnerActionUid !== me.uid) { alert("Du kan bara lägga ut efter att du vunnit ett stick och innan du dragit."); return; }
       if (match.swappedTrumpThisWin) { alert("Du har redan bytt trumfsjua i detta läge och får då inte lägga ut kombination."); return; }
       if (match.declaredThisWin) { alert("Du har redan lagt ut en kombination i detta läge. Klicka på högen för att dra."); return; }
-      if (!selectedCards.length) { alert("Markera kort först."); return; }
-      if (!selectedCards.some(x => x.source === "hand")) { alert("Minst ett av de markerade korten måste komma från handen."); return; }
+      if (!selectedCards.length) { showTimedPopup("Markera kort först."); return; }
+      if (!selectedCards.some(x => x.source === "hand")) { showTimedPopup("Minst ett av de markerade korten måste komma från handen."); return; }
 
       const allMy = getAllMyAvailableCards(match);
       const chosen = selectedCards.map(s => allMy.find(c => c.id === s.id)).filter(Boolean);
-      if (chosen.length !== selectedCards.length) { alert("Kunde inte hitta alla markerade kort."); return; }
+      if (chosen.length !== selectedCards.length) { showTimedPopup("Kunde inte hitta alla markerade kort."); return; }
 
       const meld = detectMeld(match, chosen);
-      if (!meld) { alert("De markerade korten bildar ingen giltig kombination."); return; }
-      if (hasTypeUsage(match, me.uid, chosen, meld.typeKey)) { alert("Minst ett av de markerade korten har redan använts i just den här typen av kombination."); return; }
+      if (!meld) { showTimedPopup("De markerade korten bildar ingen giltig kombination."); return; }
+      if (hasTypeUsage(match, me.uid, chosen, meld.typeKey)) { showTimedPopup("De markerade korten kan inte användas i den kombinationen igen."); return; }
 
       const next = deepClone(match);
       const handIds = new Set(selectedCards.filter(x => x.source === "hand").map(x => x.id));
@@ -1867,6 +1948,7 @@
       const idx = hand.findIndex(c => c.rank === "7" && c.suit === next.trumpSuit);
       const seven = hand[idx];
       const oldTrump = next.trumpCard;
+      await animateTrumpSwapSequence(seven, oldTrump);
       hand.splice(idx,1,oldTrump);
       next.trumpCard = seven;
       next.swappedTrumpThisWin = true;
@@ -1952,7 +2034,9 @@
         authStateEl.textContent = "Inloggad";
         meNameEl.textContent = meName || `Spelare-${user.uid.slice(0,4)}`;
 
-        if (currentMatchId) await abortRoundAndReturnToLobby();
+        if (currentMatchUnsub) { currentMatchUnsub(); currentMatchUnsub = null; }
+        currentMatchId = null;
+        selectedCards = [];
         enterLobbyView();
 
         await saveMyProfile();
