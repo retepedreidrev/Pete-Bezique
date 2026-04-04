@@ -9,6 +9,7 @@
       --bg:#0b1020;
       --panel:#141c36;
       --panel2:#0f1730;
+      --panel3:#0c1328;
       --line:rgba(255,255,255,.12);
       --text:#eef3ff;
       --muted:#aab7df;
@@ -22,33 +23,22 @@
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-      background:#0b1020;
+      background:var(--bg);
       color:var(--text);
     }
-    .wrap{max-width:1400px;margin:0 auto;padding:16px}
+    .wrap{max-width:1480px;margin:0 auto;padding:14px}
     .topbar{
-      display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;
-      margin-bottom:16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
     }
     .brand h1{margin:0;font-size:30px}
     .brand small{color:var(--muted)}
-    .grid{
-      display:grid;
-      grid-template-columns:320px 1fr;
-      gap:16px;
-    }
-    @media (max-width:980px){
-      .grid{grid-template-columns:1fr}
-    }
-    .panel{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:16px;
-      padding:16px;
-    }
-    h2,h3{margin-top:0}
     .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .split{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .split{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:6px 10px;border-radius:999px;
@@ -56,13 +46,31 @@
       font-size:13px;
     }
     .dot{width:10px;height:10px;border-radius:50%;background:#6ff0a6}
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+    }
+    .hidden{display:none !important}
+    h2,h3,h4{margin-top:0}
     input{
-      width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);
-      background:#0d1430;color:var(--text);font:inherit;
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#0d1430;
+      color:var(--text);
+      font:inherit;
     }
     button{
-      padding:10px 14px;border-radius:12px;border:1px solid var(--line);
-      background:#1d2a56;color:var(--text);cursor:pointer;font:inherit;
+      padding:10px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#1d2a56;
+      color:var(--text);
+      cursor:pointer;
+      font:inherit;
     }
     button:hover{filter:brightness(1.08)}
     button.primary{background:linear-gradient(180deg,#2a7cff 0%,#195ce3 100%)}
@@ -71,6 +79,7 @@
     button.danger{background:linear-gradient(180deg,#ca4b4b 0%,#a53636 100%)}
     button.ghost{background:transparent}
     button:disabled{opacity:.45;cursor:not-allowed}
+
     .notice{
       background:rgba(124,199,255,.08);
       border-left:4px solid #7cc7ff;
@@ -80,59 +89,179 @@
     }
     .muted,.tiny,.label{color:var(--muted)}
     .tiny,.label{font-size:12px}
-    .players,.log{display:flex;flex-direction:column;gap:8px}
-    .player,.log-item{
-      background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;
+    .players,.history{display:flex;flex-direction:column;gap:8px}
+    .player,.history-item{
+      background:var(--panel3);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
     }
-    .game.hidden{display:none}
-    .scoreboard{
+
+    .layout{
       display:grid;
-      grid-template-columns:1fr auto 1fr;
-      gap:12px;
-      margin-bottom:14px;
+      grid-template-columns:320px 1fr;
+      gap:16px;
     }
-    @media (max-width:900px){
-      .scoreboard{grid-template-columns:1fr}
+    @media (max-width:1020px){
+      .layout{grid-template-columns:1fr}
     }
-    .scorecard,.centerbox,.zone{
-      background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px;
+
+    .table-layout{
+      display:grid;
+      grid-template-columns:1fr 320px 1fr;
+      gap:14px;
+      align-items:start;
     }
-    .bigscore{font-size:34px;font-weight:700}
-    .table{
-      display:grid;grid-template-columns:1fr 260px 1fr;gap:14px;
+    @media (max-width:1180px){
+      .table-layout{grid-template-columns:1fr}
     }
-    @media (max-width:1100px){
-      .table{grid-template-columns:1fr}
+
+    .player-side,.table-center{
+      background:var(--panel2);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      min-height:300px;
     }
+
+    .player-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .player-name{
+      font-size:22px;
+      font-weight:700;
+      line-height:1.1;
+    }
+    .turn-badge{
+      background:#ffd479;
+      color:#111;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .score-box{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .score-cell{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px 10px;
+    }
+    .score-big{
+      font-size:28px;
+      font-weight:800;
+      line-height:1;
+      margin-top:2px;
+    }
+
+    .meld-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-bottom:12px;
+    }
+    .meld-item{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+    }
+
     .separator{height:1px;background:var(--line);margin:12px 0}
     .cards{display:flex;flex-wrap:wrap;gap:8px}
-    .badge{
-      background:#ffd479;color:#111;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;
+    .section-title{
+      margin-bottom:8px;
+      font-size:13px;
+      color:var(--muted);
     }
 
-.card{
-  width:110px;
-  height:150px;
-  border-radius:10px;
-  background-image:url('cards-atlas.jpeg');
-  background-repeat:no-repeat;
-  background-size:1536px 1024px;
-  box-shadow:0 4px 12px rgba(0,0,0,.25);
-  border:2px solid transparent;
-  cursor:default;
-  position:relative;
-  overflow:hidden;
-  flex:0 0 auto;
-}
+    .table-center{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      justify-content:flex-start;
+      align-items:stretch;
+    }
+    .status-box{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+    }
+    .center-top{
+      display:flex;
+      justify-content:center;
+      gap:24px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .stack-area{
+      text-align:center;
+    }
+    .stack-area .label{
+      margin-bottom:6px;
+      display:block;
+    }
+    .trick-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+    .trick-slot{
+      min-height:180px;
+      border:1px dashed rgba(255,255,255,.15);
+      border-radius:14px;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background:rgba(255,255,255,.02);
+    }
 
-.card.small{
-  width:82px;
-  height:112px;
-  background-size:1145px 763px;
-}
+    .action-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
 
-    
- 
+    .card{
+      width:110px;
+      height:150px;
+      border-radius:10px;
+      background-image:url('cards-atlas.jpeg');
+      background-repeat:no-repeat;
+      background-size:1536px 1024px;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);
+      border:2px solid transparent;
+      cursor:default;
+      position:relative;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .card.small{
+      width:82px;
+      height:112px;
+      background-size:1145px 763px;
+    }
     .card.back{
       background:linear-gradient(180deg,#274e9b 0%,#18335f 100%);
       display:flex;align-items:center;justify-content:center;
@@ -141,7 +270,10 @@
     .card.playable{cursor:pointer}
     .card.playable:hover{transform:translateY(-3px)}
     .card.selectable{cursor:pointer}
-    .card.selected{border-color:var(--select);box-shadow:0 0 0 2px rgba(255,211,77,.35),0 4px 12px rgba(0,0,0,.25)}
+    .card.selected{
+      border-color:var(--select);
+      box-shadow:0 0 0 2px rgba(255,211,77,.35),0 4px 12px rgba(0,0,0,.25);
+    }
     .card.from-hand::after{
       content:"HAND";
       position:absolute;left:4px;bottom:4px;
@@ -156,17 +288,30 @@
       color:#111;background:rgba(255,255,255,.8);
       border-radius:6px;padding:2px 5px;
     }
-    .trickslot{
-      min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-    }
+
     .overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,.55);
-      display:none;align-items:center;justify-content:center;padding:16px;z-index:50;
+      position:fixed;inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:50;
     }
     .overlay.show{display:flex}
     .modal{
       width:min(520px,100%);
-      background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:20px;
+    }
+    .countdown-big{
+      font-size:42px;
+      font-weight:800;
+      line-height:1;
+      margin:10px 0;
+      text-align:center;
     }
   </style>
 </head>
@@ -175,7 +320,7 @@
     <div class="topbar">
       <div class="brand">
         <h1>Pete Bezique</h1>
-        <small>Webbläsarversion med Firebase och kortbild som sprite sheet</small>
+        <small>Webbläsarversion</small>
       </div>
       <div class="row">
         <span class="pill"><span class="dot"></span><span id="authState">Startar…</span></span>
@@ -183,8 +328,8 @@
       </div>
     </div>
 
-    <div class="grid">
-      <aside class="panel">
+    <div class="layout">
+      <aside id="lobbyPanel" class="panel">
         <h2>Lobby</h2>
         <div class="notice">
           Skriv ditt namn. Två öppna sidor kan sedan utmana varandra.
@@ -211,115 +356,121 @@
         <div class="separator"></div>
 
         <h3>Historik</h3>
-        <div id="historyBox" class="log"></div>
+        <div id="historyBox" class="history"></div>
       </aside>
 
       <main class="panel">
-        <h2>Match</h2>
-
         <div id="noMatchBox" class="notice">
           Välj en spelare i lobbyn och tryck <strong>Utmana</strong>.
         </div>
 
-        <div id="gameBox" class="game hidden">
-          <div class="scoreboard">
-            <div class="scorecard">
-              <div class="label">Spelare 1</div>
-              <div><strong id="p1Name">-</strong></div>
-              <div class="bigscore" id="p1Score">0</div>
-              <div class="tiny">Segerpoäng: <span id="p1Victories">0</span></div>
+        <div id="gameBox" class="hidden">
+          <div class="split" style="margin-bottom:12px">
+            <div class="row">
+              <span class="pill">Trumf: <strong id="trumpLabel">-</strong></span>
+              <span class="pill">Kort kvar: <strong id="drawCountLabel">0</strong></span>
             </div>
-
-            <div class="centerbox">
-              <div class="label">Matchstatus</div>
-              <div id="matchStatusLabel" style="margin-bottom:8px">-</div>
-              <div class="row">
-                <span class="pill">Trumf: <strong id="trumpLabel">-</strong></span>
-                <span class="pill">Kort kvar: <strong id="drawCountLabel">0</strong></span>
-              </div>
-              <div class="row" style="margin-top:10px">
-                <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
-                <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
-                <button id="clearSelectionBtn" class="ghost">Rensa markering</button>
-              </div>
-              <div class="row" style="margin-top:10px">
-                <button id="newRoundBtn" class="warn">Ny giv</button>
-                <button id="newMatchBtn" class="danger">Ny match</button>
-              </div>
-            </div>
-
-            <div class="scorecard">
-              <div class="label">Spelare 2</div>
-              <div><strong id="p2Name">-</strong></div>
-              <div class="bigscore" id="p2Score">0</div>
-              <div class="tiny">Segerpoäng: <span id="p2Victories">0</span></div>
+            <div class="row">
+              <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
+              <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
+              <button id="clearSelectionBtn" class="ghost">Rensa markering</button>
+              <button id="newRoundBtn" class="warn">Ny giv</button>
+              <button id="newMatchBtn" class="danger">Ny match</button>
+              <button id="leaveMatchBtn" class="ghost">Till lobby</button>
             </div>
           </div>
 
-          <div class="table">
-            <section class="zone">
-              <h3>Motståndare <span id="opponentTurnBadge" class="badge" style="display:none">Tur</span></h3>
-              <div id="opponentMeta" class="label">-</div>
-              <div class="separator"></div>
+          <div class="table-layout">
+            <section class="player-side">
+              <div class="player-header">
+                <div>
+                  <div class="player-name" id="opponentNameLarge">-</div>
+                  <div class="tiny" id="opponentMeta">-</div>
+                </div>
+                <span id="opponentTurnBadge" class="turn-badge hidden">Tur</span>
+              </div>
 
-              <div class="label">Hand</div>
+              <div class="score-box">
+                <div class="score-cell">
+                  <div class="label">Totalpoäng</div>
+                  <div class="score-big" id="opponentScoreBig">0</div>
+                </div>
+                <div class="score-cell">
+                  <div class="label">Segerpoäng</div>
+                  <div class="score-big" id="opponentVictoriesBig">0</div>
+                </div>
+              </div>
+
+              <div class="meld-grid" id="opponentMeldGrid"></div>
+
+              <div class="separator"></div>
+              <div class="section-title">Hand</div>
               <div id="opponentHand" class="cards"></div>
 
               <div class="separator"></div>
-
-              <div class="label">Utlagda kort på bordet</div>
+              <div class="section-title">Utlagda kort</div>
               <div id="opponentExposed" class="cards"></div>
             </section>
 
-            <section class="zone">
-              <h3>Bord</h3>
+            <section class="table-center">
+              <div class="status-box" id="matchStatusLabel">-</div>
 
-              <div class="row" style="justify-content:center">
-                <div>
-                  <div class="label" style="text-align:center">Draghög</div>
+              <div class="center-top">
+                <div class="stack-area">
+                  <span class="label">Draghög</span>
                   <div id="drawPileBox"></div>
                 </div>
-                <div>
-                  <div class="label" style="text-align:center">Trumfkort</div>
+                <div class="stack-area">
+                  <span class="label">Trumfkort</span>
                   <div id="trumpCardBox"></div>
                 </div>
               </div>
 
-              <div class="separator"></div>
-
-              <div class="split">
-                <div class="trickslot">
+              <div class="trick-row">
+                <div class="trick-slot">
                   <div class="label" id="leadPlayerLabel">Första kort</div>
                   <div id="leadCardBox"></div>
                 </div>
-                <div class="trickslot">
+                <div class="trick-slot">
                   <div class="label" id="replyPlayerLabel">Andra kort</div>
                   <div id="replyCardBox"></div>
                 </div>
               </div>
 
-              <div class="separator"></div>
-
-              <div class="label">Valda kort</div>
-              <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
-
-              <div class="separator"></div>
-
-              <div class="label">Logg</div>
-              <div id="logBox" class="log"></div>
+              <div class="status-box">
+                <div class="label">Valda kort</div>
+                <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
+              </div>
             </section>
 
-            <section class="zone">
-              <h3>Du <span id="myTurnBadge" class="badge" style="display:none">Tur</span></h3>
-              <div id="myMeta" class="label">-</div>
-              <div class="separator"></div>
+            <section class="player-side">
+              <div class="player-header">
+                <div>
+                  <div class="player-name" id="myNameLarge">-</div>
+                  <div class="tiny" id="myMeta">-</div>
+                </div>
+                <span id="myTurnBadge" class="turn-badge hidden">Tur</span>
+              </div>
 
-              <div class="label">Din hand</div>
+              <div class="score-box">
+                <div class="score-cell">
+                  <div class="label">Totalpoäng</div>
+                  <div class="score-big" id="myScoreBig">0</div>
+                </div>
+                <div class="score-cell">
+                  <div class="label">Segerpoäng</div>
+                  <div class="score-big" id="myVictoriesBig">0</div>
+                </div>
+              </div>
+
+              <div class="meld-grid" id="myMeldGrid"></div>
+
+              <div class="separator"></div>
+              <div class="section-title">Din hand</div>
               <div id="myHand" class="cards"></div>
 
               <div class="separator"></div>
-
-              <div class="label">Dina utlagda kort på bordet</div>
+              <div class="section-title">Dina utlagda kort</div>
               <div id="myExposed" class="cards"></div>
             </section>
           </div>
@@ -327,19 +478,28 @@
       </main>
     </div>
   </div>
-  
-<div id="challengeOverlay" class="overlay">
-  <div class="modal">
-    <h2>Utmaning</h2>
-    <p id="challengeText">En spelare vill spela mot dig.</p>
-    <div class="row">
-      <button id="acceptChallengeBtn" class="good">Acceptera</button>
-      <button id="declineChallengeBtn" class="danger">Decline</button>
-      <button id="cancelChallengeBtn" class="ghost" style="display:none;">Avbryt utmaning</button>
+
+  <div id="challengeOverlay" class="overlay">
+    <div class="modal">
+      <h2>Utmaning</h2>
+      <p id="challengeText">En spelare vill spela mot dig.</p>
+      <div class="row">
+        <button id="acceptChallengeBtn" class="good">Acceptera</button>
+        <button id="declineChallengeBtn" class="danger">Decline</button>
+        <button id="cancelChallengeBtn" class="ghost" style="display:none;">Avbryt utmaning</button>
+      </div>
     </div>
   </div>
-</div>
-  
+
+  <div id="disconnectOverlay" class="overlay">
+    <div class="modal">
+      <h2>Anslutningen bröts</h2>
+      <p>Försöker återansluta. Om anslutningen inte kommer tillbaka avbryts omgången.</p>
+      <div class="countdown-big" id="disconnectCountdown">60</div>
+      <div class="tiny" id="disconnectStatusText">Väntar på kontakt…</div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
@@ -374,9 +534,11 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const cancelChallengeBtn = document.getElementById("cancelChallengeBtn");
+
     const authStateEl = document.getElementById("authState");
     const uidLabelEl = document.getElementById("uidLabel");
+
+    const lobbyPanel = document.getElementById("lobbyPanel");
     const displayNameInput = document.getElementById("displayNameInput");
     const saveNameBtn = document.getElementById("saveNameBtn");
     const meNameEl = document.getElementById("meName");
@@ -387,12 +549,19 @@
     const noMatchBox = document.getElementById("noMatchBox");
     const gameBox = document.getElementById("gameBox");
 
-    const p1NameEl = document.getElementById("p1Name");
-    const p2NameEl = document.getElementById("p2Name");
-    const p1ScoreEl = document.getElementById("p1Score");
-    const p2ScoreEl = document.getElementById("p2Score");
-    const p1VictoriesEl = document.getElementById("p1Victories");
-    const p2VictoriesEl = document.getElementById("p2Victories");
+    const myNameLarge = document.getElementById("myNameLarge");
+    const opponentNameLarge = document.getElementById("opponentNameLarge");
+    const myMetaEl = document.getElementById("myMeta");
+    const opponentMetaEl = document.getElementById("opponentMeta");
+    const myTurnBadgeEl = document.getElementById("myTurnBadge");
+    const opponentTurnBadgeEl = document.getElementById("opponentTurnBadge");
+    const myScoreBig = document.getElementById("myScoreBig");
+    const opponentScoreBig = document.getElementById("opponentScoreBig");
+    const myVictoriesBig = document.getElementById("myVictoriesBig");
+    const opponentVictoriesBig = document.getElementById("opponentVictoriesBig");
+    const myMeldGrid = document.getElementById("myMeldGrid");
+    const opponentMeldGrid = document.getElementById("opponentMeldGrid");
+
     const matchStatusLabelEl = document.getElementById("matchStatusLabel");
     const trumpLabelEl = document.getElementById("trumpLabel");
     const drawCountLabelEl = document.getElementById("drawCountLabel");
@@ -407,11 +576,6 @@
     const replyCardBoxEl = document.getElementById("replyCardBox");
     const leadPlayerLabelEl = document.getElementById("leadPlayerLabel");
     const replyPlayerLabelEl = document.getElementById("replyPlayerLabel");
-    const myMetaEl = document.getElementById("myMeta");
-    const opponentMetaEl = document.getElementById("opponentMeta");
-    const myTurnBadgeEl = document.getElementById("myTurnBadge");
-    const opponentTurnBadgeEl = document.getElementById("opponentTurnBadge");
-    const logBoxEl = document.getElementById("logBox");
     const selectedInfoEl = document.getElementById("selectedInfo");
 
     const declareMeldBtn = document.getElementById("declareMeldBtn");
@@ -419,11 +583,17 @@
     const clearSelectionBtn = document.getElementById("clearSelectionBtn");
     const newRoundBtn = document.getElementById("newRoundBtn");
     const newMatchBtn = document.getElementById("newMatchBtn");
+    const leaveMatchBtn = document.getElementById("leaveMatchBtn");
 
     const challengeOverlay = document.getElementById("challengeOverlay");
     const challengeText = document.getElementById("challengeText");
     const acceptChallengeBtn = document.getElementById("acceptChallengeBtn");
     const declineChallengeBtn = document.getElementById("declineChallengeBtn");
+    const cancelChallengeBtn = document.getElementById("cancelChallengeBtn");
+
+    const disconnectOverlay = document.getElementById("disconnectOverlay");
+    const disconnectCountdownEl = document.getElementById("disconnectCountdown");
+    const disconnectStatusText = document.getElementById("disconnectStatusText");
 
     let me = null;
     let meName = localStorage.getItem("pete_bezique_name") || "";
@@ -432,13 +602,17 @@
     let playersUnsub = null;
     let challengesUnsub = null;
     let historyUnsub = null;
+    let outgoingChallengesUnsub = null;
     let heartbeatTimer = null;
+
     let pendingChallenge = null;
     let pendingChallengeId = null;
     let outgoingChallenge = null;
     let outgoingChallengeId = null;
-    let outgoingChallengesUnsub = null;
-    let selectedCards = []; // [{id, source:'hand'|'exposed'}]
+
+    let selectedCards = [];
+    let disconnectTimer = null;
+    let disconnectRemaining = 60;
 
     displayNameInput.value = meName;
 
@@ -448,72 +622,39 @@
     const SUIT_NAME = { S:"Spader", H:"Hjärter", D:"Ruter", C:"Klöver" };
     const RANK_NAME = { J:"Knekt", Q:"Dam", K:"Kung", A:"Ess" };
     const CARD_POINTS_IN_TRICK = new Set(["A","10"]);
+    const MELD_CONFIG = [
+      { key:"marriage_S", label:"Mariage ♠" },
+      { key:"marriage_H", label:"Mariage ♥" },
+      { key:"marriage_D", label:"Mariage ♦" },
+      { key:"marriage_C", label:"Mariage ♣" },
+      { key:"bezique", label:"Bezique" },
+      { key:"doubleBezique", label:"Dubbel Bez." },
+      { key:"fourAces", label:"4 ess" },
+      { key:"fourKings", label:"4 kungar" },
+      { key:"fourQueens", label:"4 damer" },
+      { key:"fourJacks", label:"4 knektar" },
+      { key:"sequence_S", label:"Sequence ♠" },
+      { key:"sequence_H", label:"Sequence ♥" },
+      { key:"sequence_D", label:"Sequence ♦" },
+      { key:"sequence_C", label:"Sequence ♣" }
+    ];
 
-const ATLAS = {
-  X_LEFT: [42,186,330,474,618],
-  X_RIGHT: [804,948,1092,1236,1380],
-  Y_TOP: [153,329,504],
-  Y_BOTTOM: [713,883,1053]
-};
+    function atlasPos(rank, suit){
+      const X = [20, 149, 278, 397, 524, 652, 784, 913, 1042, 1171, 1300, 1429];
+      const Y = [28, 190, 351, 542, 700, 860];
 
-function atlasPos(rank, suit){
-  const X = [20, 149, 278, 397, 524, 652, 784, 913, 1042, 1171, 1300, 1429];
-  const Y = [28, 190, 351, 542, 700, 860];
+      const map = {
+        H: { A:[0,0], "7":[3,0], "8":[4,0], "9":[5,0], "10":[4,1], J:[0,2], Q:[1,2], K:[2,2] },
+        D: { A:[6,0], "7":[7,1], "8":[8,1], "9":[9,1], "10":[10,1], J:[6,2], Q:[7,2], K:[8,2] },
+        C: { A:[0,3], "7":[3,4], "8":[4,4], "9":[5,4], "10":[4,5], J:[0,5], Q:[1,5], K:[2,5] },
+        S: { A:[6,3], "7":[7,4], "8":[8,4], "9":[9,4], "10":[10,4], J:[6,5], Q:[7,5], K:[8,5] }
+      };
 
-  const map = {
-    H: {
-      A: [0, 0],
-      "7": [3, 0],
-      "8": [4, 0],
-      "9": [5, 0],
-      "10": [4, 1],
-      J: [0, 2],
-      Q: [1, 2],
-      K: [2, 2]
-    },
-    D: {
-      A: [6, 0],
-      "7": [7, 1],
-      "8": [8, 1],
-      "9": [9, 1],
-      "10": [10, 1],
-      J: [6, 2],
-      Q: [7, 2],
-      K: [8, 2]
-    },
-    C: {
-      A: [0, 3],
-      "7": [3, 4],
-      "8": [4, 4],
-      "9": [5, 4],
-      "10": [4, 5],
-      J: [0, 5],
-      Q: [1, 5],
-      K: [2, 5]
-    },
-    S: {
-      A: [6, 3],
-      "7": [7, 4],
-      "8": [8, 4],
-      "9": [9, 4],
-      "10": [10, 4],
-      J: [6, 5],
-      Q: [7, 5],
-      K: [8, 5]
+      const pos = map[suit]?.[rank];
+      if (!pos) return { x: X[0], y: Y[0] };
+      return { x: X[pos[0]], y: Y[pos[1]] };
     }
-  };
 
-  const pos = map[suit]?.[rank];
-  if (!pos) return { x: X[0], y: Y[0] };
-
-  return {
-    x: X[pos[0]],
-    y: Y[pos[1]]
-  };
-}
-
-    
-    
     function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
     function ensureArray(v){ return Array.isArray(v) ? v : []; }
     function sortedPair(a,b){ return [a,b].sort(); }
@@ -558,16 +699,7 @@ function atlasPos(rank, suit){
     }
 
     function cardValue(rank){
-      return {
-        "7":1,
-        "8":2,
-        "9":3,
-        "J":4,
-        "Q":5,
-        "K":6,
-        "10":7,
-        "A":8
-      }[rank] ?? 0;
+      return { "7":1, "8":2, "9":3, "J":4, "Q":5, "K":6, "10":7, "A":8 }[rank] ?? 0;
     }
 
     function isLegalResponse(hand, leadCard, playCard, trumpSuit){
@@ -587,24 +719,19 @@ function atlasPos(rank, suit){
       const secondBeats =
         (secondCard.suit === firstCard.suit && cardValue(secondCard.rank) > cardValue(firstCard.rank)) ||
         (secondCard.suit === trumpSuit && firstCard.suit !== trumpSuit);
-
       if (secondBeats) winnerUid = followerUid;
       return winnerUid;
     }
 
-function renderSpriteCard(card, opts = {}){
-  const el = document.createElement("div");
-  el.className = `card ${opts.small ? "small" : ""} ${opts.playable ? "playable" : ""} ${opts.selectable ? "selectable" : ""} ${opts.selected ? "selected" : ""} ${opts.source === "hand" ? "from-hand" : ""} ${opts.source === "exposed" ? "from-exposed" : ""}`;
-
-  const pos = atlasPos(card.rank, card.suit);
-  const scale = opts.small ? 0.746 : 1;
-
-  el.style.backgroundPosition = `-${pos.x * scale}px -${pos.y * scale}px`;
-  el.title = cardDisplayName(card);
-  return el;
-}
-      
-    
+    function renderSpriteCard(card, opts = {}){
+      const el = document.createElement("div");
+      el.className = `card ${opts.small ? "small" : ""} ${opts.playable ? "playable" : ""} ${opts.selectable ? "selectable" : ""} ${opts.selected ? "selected" : ""} ${opts.source === "hand" ? "from-hand" : ""} ${opts.source === "exposed" ? "from-exposed" : ""}`;
+      const pos = atlasPos(card.rank, card.suit);
+      const scale = opts.small ? 0.746 : 1;
+      el.style.backgroundPosition = `-${pos.x * scale}px -${pos.y * scale}px`;
+      el.title = cardDisplayName(card);
+      return el;
+    }
 
     function renderBackCard(){
       const el = document.createElement("div");
@@ -616,6 +743,7 @@ function renderSpriteCard(card, opts = {}){
     function getOpponentUid(match){
       return Object.keys(match.players).find(uid => uid !== me.uid);
     }
+
     function getPlayerName(match, uid){
       return match.players?.[uid]?.name || "Spelare";
     }
@@ -662,13 +790,12 @@ function renderSpriteCard(card, opts = {}){
 
     function detectMeld(match, cards){
       if (!cards || !cards.length) return null;
-
       const trump = match.trumpSuit;
       const byRS = countByRankSuit(cards);
       const byR = countByRank(cards);
 
       if (cards.length === 2) {
-        if (cards.some(c=>c.rank==="K") && cards.some(c=>c.rank==="Q") && sameSuit(cards)) {
+        if (cards.some(c => c.rank === "K") && cards.some(c => c.rank === "Q") && sameSuit(cards)) {
           const suit = cards[0].suit;
           const typeKey = `marriage_${suit}`;
           return {
@@ -695,9 +822,7 @@ function renderSpriteCard(card, opts = {}){
       if (cards.length === 5) {
         const need = ["A","10","K","Q","J"];
         const ok = need.every(r => cards.some(c => c.rank === r && c.suit === trump));
-        if (ok) {
-          return { typeKey: `sequence_${trump}`, label: "Sequence", points: 250 };
-        }
+        if (ok) return { typeKey: `sequence_${trump}`, label: "Sequence", points: 250 };
       }
 
       return null;
@@ -776,14 +901,8 @@ function renderSpriteCard(card, opts = {}){
         },
         scores: scores || { [playerA.uid]:0, [playerB.uid]:0 },
         victoryPoints: victoryPoints || { [playerA.uid]:0, [playerB.uid]:0 },
-        meldUsage: {
-          [playerA.uid]: {},
-          [playerB.uid]: {}
-        },
-        meldCounts: {
-          [playerA.uid]: {},
-          [playerB.uid]: {}
-        },
+        meldUsage: { [playerA.uid]: {}, [playerB.uid]: {} },
+        meldCounts: { [playerA.uid]: {}, [playerB.uid]: {} },
         pendingWinnerActionUid: null,
         swappedTrumpThisWin: false,
         declaredThisWin: false,
@@ -830,18 +949,25 @@ function renderSpriteCard(card, opts = {}){
       if (ensureArray(match.drawPile).length === 0 && handsEmpty && ensureArray(match.trick).length === 0) {
         if (match.lastTrickWinner) {
           match.scores[match.lastTrickWinner] = (match.scores[match.lastTrickWinner] || 0) + 10;
-          match.logs.push(`${getPlayerName(match, match.lastTrickWinner)} får 10 poäng för sista sticket.`);
           match.lastTrickWinner = null;
         }
         const maybeWinner = uids.find(uid => (match.scores[uid] || 0) >= 1000);
         if (maybeWinner && !match.winnerUid) {
           match.winnerUid = maybeWinner;
           match.victoryPoints[maybeWinner] = (match.victoryPoints[maybeWinner] || 0) + 1;
-          match.logs.push(`${getPlayerName(match, maybeWinner)} når ${match.scores[maybeWinner]} poäng och vinner matchen!`);
-        } else if (!maybeWinner) {
-          match.logs.push("Given är slut. Tryck Ny giv för att fortsätta mot 1000 poäng.");
         }
       }
+    }
+
+    function renderMeldGrid(container, match, uid){
+      container.innerHTML = "";
+      const counts = match.meldCounts?.[uid] || {};
+      MELD_CONFIG.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "meld-item";
+        div.innerHTML = `<span>${escapeHtml(m.label)}</span><strong>${counts[m.key] || 0}</strong>`;
+        container.appendChild(div);
+      });
     }
 
     async function ensureSignedIn(){
@@ -871,6 +997,45 @@ function renderSpriteCard(card, opts = {}){
         lastSeen: Date.now(),
         updatedAt: serverTimestamp()
       }, { merge:true });
+    }
+
+    function enterMatchView(){
+      lobbyPanel.classList.add("hidden");
+      noMatchBox.classList.add("hidden");
+      gameBox.classList.remove("hidden");
+    }
+
+    function enterLobbyView(){
+      lobbyPanel.classList.remove("hidden");
+      gameBox.classList.add("hidden");
+      noMatchBox.classList.remove("hidden");
+    }
+
+    function startDisconnectCountdown(){
+      if (!currentMatchId) return;
+      if (disconnectTimer) return;
+      disconnectRemaining = 60;
+      disconnectCountdownEl.textContent = String(disconnectRemaining);
+      disconnectStatusText.textContent = "Väntar på kontakt…";
+      disconnectOverlay.classList.add("show");
+
+      disconnectTimer = setInterval(() => {
+        disconnectRemaining -= 1;
+        disconnectCountdownEl.textContent = String(disconnectRemaining);
+        if (disconnectRemaining <= 0) {
+          clearInterval(disconnectTimer);
+          disconnectTimer = null;
+          leaveCurrentMatch();
+        }
+      }, 1000);
+    }
+
+    function stopDisconnectCountdown(){
+      if (disconnectTimer) {
+        clearInterval(disconnectTimer);
+        disconnectTimer = null;
+      }
+      disconnectOverlay.classList.remove("show");
     }
 
     function subscribePlayers(){
@@ -908,215 +1073,140 @@ function renderSpriteCard(card, opts = {}){
       });
     }
 
-async function challengePlayer(player){
-  if (!meName) {
-    alert("Spara ditt namn först.");
-    return;
-  }
+    async function challengePlayer(player){
+      if (!meName) {
+        alert("Spara ditt namn först.");
+        return;
+      }
 
-  const matchId = matchIdFor(me.uid, player.uid);
+      const matchId = matchIdFor(me.uid, player.uid);
+      const ref = await addDoc(collection(db, "challenges"), {
+        fromUid: me.uid,
+        fromName: meName,
+        toUid: player.uid,
+        toName: player.name || "Spelare",
+        status: "pending",
+        matchId,
+        createdAtMs: Date.now(),
+        createdAt: serverTimestamp()
+      });
 
-  const ref = await addDoc(collection(db, "challenges"), {
-    fromUid: me.uid,
-    fromName: meName,
-    toUid: player.uid,
-    toName: player.name || "Spelare",
-    status: "pending",
-    matchId,
-    createdAtMs: Date.now(),
-    createdAt: serverTimestamp()
-  });
+      outgoingChallengeId = ref.id;
+      outgoingChallenge = {
+        id: ref.id,
+        fromUid: me.uid,
+        fromName: meName,
+        toUid: player.uid,
+        toName: player.name || "Spelare",
+        status: "pending",
+        matchId
+      };
 
-  outgoingChallengeId = ref.id;
-  outgoingChallenge = {
-    id: ref.id,
-    fromUid: me.uid,
-    fromName: meName,
-    toUid: player.uid,
-    toName: player.name || "Spelare",
-    status: "pending",
-    matchId
-  };
-challengeText.textContent = `Väntar på att ${(player.name || "spelaren")} ska acceptera utmaningen.`;
-    acceptChallengeBtn.style.display = "none";
-  declineChallengeBtn.style.display = "none";
-  cancelChallengeBtn.style.display = "inline-block";
-  challengeOverlay.classList.add("show");
-}
-
-
-    
-
-
-function subscribeChallenges(){
-  if (challengesUnsub) challengesUnsub();
-
-  const q = query(
-    collection(db, "challenges"),
-    where("toUid","==",me.uid),
-    where("status","==","pending")
-  );
-
-  challengesUnsub = onSnapshot(q, snap => {
-    const docs = [];
-    snap.forEach(d => docs.push({id:d.id, ...d.data()}));
-    docs.sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
-
-    if (docs.length) {
-      pendingChallenge = docs[0];
-      pendingChallengeId = docs[0].id;
-      challengeText.textContent = `${pendingChallenge.fromName} vill spela Bezique mot dig.`;
-      acceptChallengeBtn.style.display = "inline-block";
-      declineChallengeBtn.style.display = "inline-block";
-      cancelChallengeBtn.style.display = "none";
-      challengeOverlay.classList.add("show");
-    } else if (!outgoingChallengeId) {
-      pendingChallenge = null;
-      pendingChallengeId = null;
-      challengeOverlay.classList.remove("show");
-    }
-  });
-}
-
-async function acceptChallenge(){
-  if (!pendingChallengeId || !pendingChallenge) return;
-
-  try {
-    const opponentUid = pendingChallenge.fromUid;
-    const opponentName = pendingChallenge.fromName;
-    const id = matchIdFor(me.uid, opponentUid);
-
-    const matchRef = doc(db, "matches", id);
-    const existing = await getDoc(matchRef);
-
-    if (!existing.exists()) {
-      const match = makeInitialRound(
-        id,
-        { uid: me.uid, name: meName },
-        { uid: opponentUid, name: opponentName }
-      );
-      await setDoc(matchRef, match);
-    }
-
-    await updateDoc(doc(db, "challenges", pendingChallengeId), {
-      status: "accepted",
-      acceptedAtMs: Date.now(),
-      acceptedAt: serverTimestamp()
-    });
-
-    pendingChallenge = null;
-    pendingChallengeId = null;
-
-    challengeOverlay.classList.remove("show");
-    acceptChallengeBtn.style.display = "inline-block";
-    declineChallengeBtn.style.display = "inline-block";
-    cancelChallengeBtn.style.display = "none";
-
-    currentMatchId = id;
-    localStorage.setItem("pete_bezique_matchId", currentMatchId);
-    openMatch(currentMatchId);
-  } catch (err) {
-    console.error("acceptChallenge failed:", err);
-    alert("Kunde inte öppna matchen. Kontrollera console/loggar.");
-  }
-}
-
-   async function declineChallenge(){
-  if (!pendingChallengeId) return;
-
-  await updateDoc(doc(db, "challenges", pendingChallengeId), {
-    status: "declined",
-    declinedAtMs: Date.now(),
-    declinedAt: serverTimestamp()
-  });
-
-  pendingChallenge = null;
-  pendingChallengeId = null;
-  challengeOverlay.classList.remove("show");
-  acceptChallengeBtn.style.display = "inline-block";
-  declineChallengeBtn.style.display = "inline-block";
-  cancelChallengeBtn.style.display = "none";
-} 
-
-async function cancelOutgoingChallenge(){
-  if (!outgoingChallengeId) return;
-
-  await updateDoc(doc(db, "challenges", outgoingChallengeId), {
-    status: "cancelled",
-    cancelledAtMs: Date.now(),
-    cancelledAt: serverTimestamp()
-  });
-
-  outgoingChallenge = null;
-  outgoingChallengeId = null;
-  challengeOverlay.classList.remove("show");
-  acceptChallengeBtn.style.display = "inline-block";
-  declineChallengeBtn.style.display = "inline-block";
-  cancelChallengeBtn.style.display = "none";
-}
-
-
-function subscribeOutgoingChallenges(){
-  if (outgoingChallengesUnsub) outgoingChallengesUnsub();
-
-  const q = query(
-    collection(db, "challenges"),
-    where("fromUid", "==", me.uid)
-  );
-
-  outgoingChallengesUnsub = onSnapshot(q, async snap => {
-    const docs = [];
-    snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-    docs.sort((a,b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
-
-    const latest = docs.find(d =>
-      d.status === "pending" ||
-      d.status === "accepted" ||
-      d.status === "declined" ||
-      d.status === "cancelled"
-    );
-
-    if (!latest) return;
-
-    if (latest.status === "pending") {
-      outgoingChallenge = latest;
-      outgoingChallengeId = latest.id;
-
-      challengeText.textContent = `Väntar på att ${latest.toName} ska acceptera utmaningen.`;
+      challengeText.textContent = `Väntar på att ${(player.name || "spelaren")} ska acceptera utmaningen.`;
       acceptChallengeBtn.style.display = "none";
       declineChallengeBtn.style.display = "none";
       cancelChallengeBtn.style.display = "inline-block";
       challengeOverlay.classList.add("show");
     }
 
-    if (latest.status === "accepted") {
-      outgoingChallenge = null;
-      outgoingChallengeId = null;
-      challengeOverlay.classList.remove("show");
-      acceptChallengeBtn.style.display = "inline-block";
-      declineChallengeBtn.style.display = "inline-block";
-      cancelChallengeBtn.style.display = "none";
+    function subscribeChallenges(){
+      if (challengesUnsub) challengesUnsub();
 
-      currentMatchId = latest.matchId;
-      localStorage.setItem("pete_bezique_matchId", currentMatchId);
-      openMatch(currentMatchId);
+      const q = query(
+        collection(db, "challenges"),
+        where("toUid","==",me.uid),
+        where("status","==","pending")
+      );
+
+      challengesUnsub = onSnapshot(q, snap => {
+        const docs = [];
+        snap.forEach(d => docs.push({id:d.id, ...d.data()}));
+        docs.sort((a,b)=> (b.createdAtMs||0) - (a.createdAtMs||0));
+
+        if (docs.length) {
+          pendingChallenge = docs[0];
+          pendingChallengeId = docs[0].id;
+          challengeText.textContent = `${pendingChallenge.fromName} vill spela Bezique mot dig.`;
+          acceptChallengeBtn.style.display = "inline-block";
+          declineChallengeBtn.style.display = "inline-block";
+          cancelChallengeBtn.style.display = "none";
+          challengeOverlay.classList.add("show");
+        } else if (!outgoingChallengeId) {
+          pendingChallenge = null;
+          pendingChallengeId = null;
+          challengeOverlay.classList.remove("show");
+        }
+      });
     }
 
-    if (latest.status === "declined") {
-      outgoingChallenge = null;
-      outgoingChallengeId = null;
-      challengeText.textContent = `${latest.toName} tackade nej till utmaningen.`;
-      acceptChallengeBtn.style.display = "none";
-      declineChallengeBtn.style.display = "none";
-      cancelChallengeBtn.style.display = "none";
-      challengeOverlay.classList.add("show");
+    async function acceptChallenge(){
+      if (!pendingChallengeId || !pendingChallenge) return;
 
-      setTimeout(() => {
+      try {
+        const opponentUid = pendingChallenge.fromUid;
+        const opponentName = pendingChallenge.fromName;
+        const id = matchIdFor(me.uid, opponentUid);
+
+        const matchRef = doc(db, "matches", id);
+        const existing = await getDoc(matchRef);
+
+        if (!existing.exists()) {
+          const match = makeInitialRound(
+            id,
+            { uid: me.uid, name: meName },
+            { uid: opponentUid, name: opponentName }
+          );
+          await setDoc(matchRef, match);
+        }
+
+        await updateDoc(doc(db, "challenges", pendingChallengeId), {
+          status: "accepted",
+          acceptedAtMs: Date.now(),
+          acceptedAt: serverTimestamp()
+        });
+
+        pendingChallenge = null;
+        pendingChallengeId = null;
         challengeOverlay.classList.remove("show");
-      }, 1500);
+        acceptChallengeBtn.style.display = "inline-block";
+        declineChallengeBtn.style.display = "inline-block";
+        cancelChallengeBtn.style.display = "none";
+
+        currentMatchId = id;
+        localStorage.setItem("pete_bezique_matchId", currentMatchId);
+        openMatch(currentMatchId);
+      } catch (err) {
+        console.error("acceptChallenge failed:", err);
+        alert("Kunde inte öppna matchen. Kontrollera console/loggar.");
+      }
     }
 
-    if (latest.status === "cancelled") {
+    async function declineChallenge(){
+      if (!pendingChallengeId) return;
+
+      await updateDoc(doc(db, "challenges", pendingChallengeId), {
+        status: "declined",
+        declinedAtMs: Date.now(),
+        declinedAt: serverTimestamp()
+      });
+
+      pendingChallenge = null;
+      pendingChallengeId = null;
+      challengeOverlay.classList.remove("show");
+      acceptChallengeBtn.style.display = "inline-block";
+      declineChallengeBtn.style.display = "inline-block";
+      cancelChallengeBtn.style.display = "none";
+    }
+
+    async function cancelOutgoingChallenge(){
+      if (!outgoingChallengeId) return;
+
+      await updateDoc(doc(db, "challenges", outgoingChallengeId), {
+        status: "cancelled",
+        cancelledAtMs: Date.now(),
+        cancelledAt: serverTimestamp()
+      });
+
       outgoingChallenge = null;
       outgoingChallengeId = null;
       challengeOverlay.classList.remove("show");
@@ -1124,8 +1214,69 @@ function subscribeOutgoingChallenges(){
       declineChallengeBtn.style.display = "inline-block";
       cancelChallengeBtn.style.display = "none";
     }
-  });
-}
+
+    function subscribeOutgoingChallenges(){
+      if (outgoingChallengesUnsub) outgoingChallengesUnsub();
+
+      const q = query(collection(db, "challenges"), where("fromUid", "==", me.uid));
+
+      outgoingChallengesUnsub = onSnapshot(q, snap => {
+        const docs = [];
+        snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+        docs.sort((a,b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+
+        const latest = docs.find(d =>
+          d.status === "pending" ||
+          d.status === "accepted" ||
+          d.status === "declined" ||
+          d.status === "cancelled"
+        );
+
+        if (!latest) return;
+
+        if (latest.status === "pending") {
+          outgoingChallenge = latest;
+          outgoingChallengeId = latest.id;
+          challengeText.textContent = `Väntar på att ${latest.toName} ska acceptera utmaningen.`;
+          acceptChallengeBtn.style.display = "none";
+          declineChallengeBtn.style.display = "none";
+          cancelChallengeBtn.style.display = "inline-block";
+          challengeOverlay.classList.add("show");
+        }
+
+        if (latest.status === "accepted") {
+          outgoingChallenge = null;
+          outgoingChallengeId = null;
+          challengeOverlay.classList.remove("show");
+          acceptChallengeBtn.style.display = "inline-block";
+          declineChallengeBtn.style.display = "inline-block";
+          cancelChallengeBtn.style.display = "none";
+          currentMatchId = latest.matchId;
+          localStorage.setItem("pete_bezique_matchId", currentMatchId);
+          openMatch(currentMatchId);
+        }
+
+        if (latest.status === "declined") {
+          outgoingChallenge = null;
+          outgoingChallengeId = null;
+          challengeText.textContent = `${latest.toName} tackade nej till utmaningen.`;
+          acceptChallengeBtn.style.display = "none";
+          declineChallengeBtn.style.display = "none";
+          cancelChallengeBtn.style.display = "none";
+          challengeOverlay.classList.add("show");
+          setTimeout(() => challengeOverlay.classList.remove("show"), 1500);
+        }
+
+        if (latest.status === "cancelled") {
+          outgoingChallenge = null;
+          outgoingChallengeId = null;
+          challengeOverlay.classList.remove("show");
+          acceptChallengeBtn.style.display = "inline-block";
+          declineChallengeBtn.style.display = "inline-block";
+          cancelChallengeBtn.style.display = "none";
+        }
+      });
+    }
 
     function subscribeHistory(){
       if (historyUnsub) historyUnsub();
@@ -1152,7 +1303,7 @@ function subscribeOutgoingChallenges(){
         matches.forEach(m => {
           const opp = Object.values(m.players).find(p => p.uid !== me.uid);
           const div = document.createElement("div");
-          div.className = "log-item";
+          div.className = "history-item";
           div.style.cursor = "pointer";
           div.innerHTML = `
             <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
@@ -1175,8 +1326,7 @@ function subscribeOutgoingChallenges(){
       if (currentMatchUnsub) currentMatchUnsub();
       currentMatchUnsub = onSnapshot(doc(db, "matches", matchId), snap => {
         if (!snap.exists()) {
-          noMatchBox.style.display = "";
-          gameBox.classList.add("hidden");
+          enterLobbyView();
           return;
         }
         const match = { id:snap.id, ...snap.data() };
@@ -1184,47 +1334,36 @@ function subscribeOutgoingChallenges(){
       });
     }
 
-    function renderLogs(lines){
-      logBoxEl.innerHTML = "";
-      (lines || []).slice().reverse().forEach(line => {
-        const item = document.createElement("div");
-        item.className = "log-item";
-        item.textContent = line;
-        logBoxEl.appendChild(item);
-      });
-    }
-
     function renderMatch(match){
-      noMatchBox.style.display = "none";
-      gameBox.classList.remove("hidden");
+      enterMatchView();
       currentMatchId = match.id;
       localStorage.setItem("pete_bezique_matchId", currentMatchId);
 
       const opponentUid = getOpponentUid(match);
-      const uids = Object.keys(match.players);
-      const p1 = match.players[uids[0]];
-      const p2 = match.players[uids[1]];
-
-      p1NameEl.textContent = p1.name;
-      p2NameEl.textContent = p2.name;
-      p1ScoreEl.textContent = match.scores?.[p1.uid] || 0;
-      p2ScoreEl.textContent = match.scores?.[p2.uid] || 0;
-      p1VictoriesEl.textContent = match.victoryPoints?.[p1.uid] || 0;
-      p2VictoriesEl.textContent = match.victoryPoints?.[p2.uid] || 0;
-
-      trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
-      drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
-
-      myTurnBadgeEl.style.display = match.turn === me.uid ? "inline-block" : "none";
-      opponentTurnBadgeEl.style.display = match.turn === opponentUid ? "inline-block" : "none";
-
       const myHand = ensureArray(match.hands?.[me.uid]);
       const myExposed = ensureArray(match.exposed?.[me.uid]);
       const oppHand = ensureArray(match.hands?.[opponentUid]);
       const oppExposed = ensureArray(match.exposed?.[opponentUid]);
 
-      myMetaEl.textContent = `Poäng: ${match.scores?.[me.uid] || 0} · Segerpoäng: ${match.victoryPoints?.[me.uid] || 0} · Kort totalt: ${myHand.length + myExposed.length}`;
-      opponentMetaEl.textContent = `Poäng: ${match.scores?.[opponentUid] || 0} · Segerpoäng: ${match.victoryPoints?.[opponentUid] || 0} · Kort totalt: ${oppHand.length + oppExposed.length}`;
+      myNameLarge.textContent = getPlayerName(match, me.uid);
+      opponentNameLarge.textContent = getPlayerName(match, opponentUid);
+
+      myScoreBig.textContent = match.scores?.[me.uid] || 0;
+      opponentScoreBig.textContent = match.scores?.[opponentUid] || 0;
+      myVictoriesBig.textContent = match.victoryPoints?.[me.uid] || 0;
+      opponentVictoriesBig.textContent = match.victoryPoints?.[opponentUid] || 0;
+
+      myMetaEl.textContent = `Kort totalt: ${myHand.length + myExposed.length}`;
+      opponentMetaEl.textContent = `Kort totalt: ${oppHand.length + oppExposed.length}`;
+
+      renderMeldGrid(myMeldGrid, match, me.uid);
+      renderMeldGrid(opponentMeldGrid, match, opponentUid);
+
+      trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
+      drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
+
+      myTurnBadgeEl.classList.toggle("hidden", match.turn !== me.uid);
+      opponentTurnBadgeEl.classList.toggle("hidden", match.turn !== opponentUid);
 
       let status = "";
       if (match.winnerUid) {
@@ -1232,11 +1371,11 @@ function subscribeOutgoingChallenges(){
       } else if (match.pendingWinnerActionUid === me.uid) {
         if (match.swappedTrumpThisWin) status = "Du har bytt trumfsjua. Klicka nu på högen för att dra kort.";
         else if (match.declaredThisWin) status = "Du har lagt ut en kombination. Klicka nu på högen för att dra kort.";
-        else status = "Du vann sticket. Markera kort och lägg ut kombination, byt trumfsjua eller klicka på högen för att dra.";
+        else status = "Du vann sticket. Klicka kort för kombination, byt trumfsjua eller klicka på högen för att dra.";
       } else if (match.pendingWinnerActionUid === opponentUid) {
-        status = `${getPlayerName(match, opponentUid)} vann sticket och måste först lägga ut, byta trumf eller dra.`;
+        status = `${getPlayerName(match, opponentUid)} vann sticket och måste lägga ut, byta trumf eller dra.`;
       } else {
-        status = `Tur: ${getPlayerName(match, match.turn)}`;
+        status = `Tur: ${getPlayerName(match, match.turn)}. Dubbelklicka på ett handkort för att spela.`;
       }
       if (ensureArray(match.drawPile).length === 0) {
         status += " Slutfas: följ färg, annars trumf om möjligt.";
@@ -1256,14 +1395,16 @@ function subscribeOutgoingChallenges(){
           selected: isSelected,
           source: "hand"
         });
+
         if (selectable) {
           el.onclick = () => {
             toggleSelected(card, "hand");
             renderMatch(match);
           };
         } else if (playable) {
-          el.onclick = () => playCard(match, card.id);
+          el.ondblclick = () => playCard(match, card.id);
         }
+
         myHandEl.appendChild(el);
       });
 
@@ -1323,8 +1464,6 @@ function subscribeOutgoingChallenges(){
 
       declareMeldBtn.disabled = !(match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
       swapTrumpBtn.disabled = !canSwapTrump(match, me.uid);
-
-      renderLogs(match.logs || []);
     }
 
     function canSwapTrump(match, uid){
@@ -1359,7 +1498,6 @@ function subscribeOutgoingChallenges(){
 
       next.hands[me.uid] = hand.filter(c => c.id !== cardId);
       next.trick.push({ uid:me.uid, card });
-      next.logs.push(`${meName} spelar ${cardText(card)}.`);
 
       if (next.trick.length === 1) {
         next.turn = opponentUid;
@@ -1367,8 +1505,7 @@ function subscribeOutgoingChallenges(){
           hands: next.hands,
           trick: next.trick,
           turn: next.turn,
-          updatedAt: serverTimestamp(),
-          logs: next.logs.slice(-100)
+          updatedAt: serverTimestamp()
         });
         return;
       }
@@ -1390,7 +1527,6 @@ function subscribeOutgoingChallenges(){
       next.pendingWinnerActionUid = winnerUid;
       next.swappedTrumpThisWin = false;
       next.declaredThisWin = false;
-      next.logs.push(`${getPlayerName(next, winnerUid)} vinner sticket${trickPoints ? ` och får ${trickPoints} poäng` : ""}.`);
 
       const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
       const handsEmpty = ensureArray(next.hands[winnerUid]).length === 0 && ensureArray(next.hands[otherUid]).length === 0;
@@ -1411,7 +1547,6 @@ function subscribeOutgoingChallenges(){
         scores: next.scores,
         lastTrickWinner: next.lastTrickWinner,
         updatedAt: serverTimestamp(),
-        logs: next.logs.slice(-100),
         winnerUid: next.winnerUid || null,
         victoryPoints: next.victoryPoints
       });
@@ -1475,10 +1610,8 @@ function subscribeOutgoingChallenges(){
 
       next.scores[me.uid] = (next.scores[me.uid] || 0) + meld.points;
       next.declaredThisWin = true;
-      next.logs.push(`${meName} lägger ut ${meld.label} (${meld.points} poäng).`);
 
       selectedCards = [];
-      endRoundIfNeeded(next);
 
       await updateDoc(doc(db, "matches", next.id), {
         hands: next.hands,
@@ -1487,10 +1620,7 @@ function subscribeOutgoingChallenges(){
         meldCounts: next.meldCounts,
         scores: next.scores,
         declaredThisWin: next.declaredThisWin,
-        updatedAt: serverTimestamp(),
-        logs: next.logs.slice(-100),
-        winnerUid: next.winnerUid || null,
-        victoryPoints: next.victoryPoints
+        updatedAt: serverTimestamp()
       });
     }
 
@@ -1515,14 +1645,12 @@ function subscribeOutgoingChallenges(){
       next.trumpCard = seven;
       next.swappedTrumpThisWin = true;
       next.declaredThisWin = false;
-      next.logs.push(`${meName} byter trumfsjua mot trumfkortet ${cardText(oldTrump)}.`);
 
       await updateDoc(doc(db, "matches", next.id), {
         hands: next.hands,
         trumpCard: next.trumpCard,
         swappedTrumpThisWin: true,
-        updatedAt: serverTimestamp(),
-        logs: next.logs.slice(-100)
+        updatedAt: serverTimestamp()
       });
     }
 
@@ -1531,7 +1659,6 @@ function subscribeOutgoingChallenges(){
 
       const next = deepClone(match);
       refillAfterWin(next);
-      next.logs.push(`${meName} drar kort. Båda spelarna fyller upp till totalt 8 kort (hand + bord).`);
       endRoundIfNeeded(next);
 
       await updateDoc(doc(db, "matches", next.id), {
@@ -1545,7 +1672,6 @@ function subscribeOutgoingChallenges(){
         declaredThisWin: next.declaredThisWin,
         scores: next.scores,
         updatedAt: serverTimestamp(),
-        logs: next.logs.slice(-100),
         winnerUid: next.winnerUid || null,
         victoryPoints: next.victoryPoints,
         lastTrickWinner: next.lastTrickWinner
@@ -1584,26 +1710,44 @@ function subscribeOutgoingChallenges(){
         match.victoryPoints,
         { [uids[0]]:0, [uids[1]]:0 }
       );
-      next.logs.unshift("Ny match startad. Spelpoängen är nollställda.");
       await setDoc(doc(db, "matches", currentMatchId), next, { merge:false });
       selectedCards = [];
+    }
+
+    function leaveCurrentMatch(){
+      stopDisconnectCountdown();
+      selectedCards = [];
+      currentMatchId = null;
+      localStorage.removeItem("pete_bezique_matchId");
+      if (currentMatchUnsub) {
+        currentMatchUnsub();
+        currentMatchUnsub = null;
+      }
+      enterLobbyView();
     }
 
     saveNameBtn.addEventListener("click", saveMyProfile);
     refreshPlayersBtn.addEventListener("click", heartbeat);
     acceptChallengeBtn.addEventListener("click", acceptChallenge);
     declineChallengeBtn.addEventListener("click", declineChallenge);
+    cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
     declareMeldBtn.addEventListener("click", declareSelectedMeld);
     swapTrumpBtn.addEventListener("click", swapTrump);
     clearSelectionBtn.addEventListener("click", clearSelection);
     newRoundBtn.addEventListener("click", startNewDeal);
-    
-    
-
     newMatchBtn.addEventListener("click", startNewMatch);
-    
-    cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
-    
+    leaveMatchBtn.addEventListener("click", leaveCurrentMatch);
+
+    window.addEventListener("offline", () => {
+      if (currentMatchId) startDisconnectCountdown();
+    });
+
+    window.addEventListener("online", async () => {
+      stopDisconnectCountdown();
+      disconnectStatusText.textContent = "Kontakten är tillbaka.";
+      await heartbeat();
+    });
+
     window.addEventListener("beforeunload", async () => {
       try {
         if (me) {
@@ -1632,7 +1776,7 @@ function subscribeOutgoingChallenges(){
         subscribeChallenges();
         subscribeHistory();
         subscribeOutgoingChallenges();
-        
+
         if (currentMatchId) openMatch(currentMatchId);
       } else {
         authStateEl.textContent = "Loggar in…";
