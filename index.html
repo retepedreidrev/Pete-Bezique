@@ -974,12 +974,14 @@
       const safeName = (meName || "").trim() || generateRandomPlayerName();
       meName = safeName;
       localStorage.setItem("pete_bezique_name", meName);
-      if (displayNameInput) displayNameInput.value = meName;
-      if (displayNameInput) displayNameInput.placeholder = "Ditt spelarnamn";
-      if (meNameEl) meNameEl.textContent = meName;
+      displayNameInput.value = meName;
+      displayNameInput.placeholder = "Ditt spelarnamn";
+      meNameEl.textContent = meName;
     }
     let meName = localStorage.getItem("pete_bezique_name") || generateRandomPlayerName();
     localStorage.setItem("pete_bezique_name", meName);
+    displayNameInput.value = meName;
+    meNameEl.textContent = meName;
     let currentMatchId = null;
     let currentMatchUnsub = null;
     let playersUnsub = null;
@@ -1472,9 +1474,10 @@
     }
 
     async function saveMyProfile(){
-      const typedName = (displayNameInput.value || "").trim();
-      meName = typedName || meName || generateRandomPlayerName();
-      applyOwnNameToLobbyUI();
+      meName = (displayNameInput.value || "").trim() || meName || generateRandomPlayerName();
+      localStorage.setItem("pete_bezique_name", meName);
+      displayNameInput.value = meName;
+      meNameEl.textContent = meName;
       if (!me) return;
       await setDoc(doc(db, "players", me.uid), {
         uid: me.uid,
@@ -1504,9 +1507,7 @@
 
     async function refreshOwnPresence(){
       await saveMyProfile();
-      if (!me) return;
       await heartbeat();
-      subscribePlayers();
     }
 
     function enterMatchView(){
@@ -2391,12 +2392,13 @@
       });
     }
 
-    saveNameBtn.addEventListener("click", refreshOwnPresence);
-    refreshPlayersBtn.addEventListener("click", refreshOwnPresence);
+    saveNameBtn.addEventListener("click", saveMyProfile);
+    refreshPlayersBtn.addEventListener("click", heartbeat);
     displayNameInput.addEventListener("keydown", async (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        await refreshOwnPresence();
+        await saveMyProfile();
+        await heartbeat();
       }
     });
 
@@ -2462,15 +2464,15 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         me = user;
-        if (!meName || !String(meName).trim()) {
-          meName = generateRandomPlayerName();
-        }
-        applyOwnNameToLobbyUI();
         uidLabelEl.textContent = user.uid.slice(0,8);
         authStateEl.textContent = "Inloggad";
         enableLobbyIdentityControls();
+        meName = (displayNameInput.value || "").trim() || meName || generateRandomPlayerName();
+        displayNameInput.value = meName;
+        meNameEl.textContent = meName;
 
-        await refreshOwnPresence();
+        await saveMyProfile();
+        await heartbeat();
 
         if (heartbeatTimer) clearInterval(heartbeatTimer);
         heartbeatTimer = setInterval(heartbeat, 30000);
