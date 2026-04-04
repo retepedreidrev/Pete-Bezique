@@ -19,20 +19,20 @@
       --select:#ffd34d;
       --turnGlow:rgba(255,235,150,.92);
 
-      --card-w:48px;
-      --card-h:68px;
-      --card-small-w:36px;
-      --card-small-h:52px;
+      --card-w:54px;
+      --card-h:76px;
+      --card-small-w:46px;
+      --card-small-h:66px;
       --overlap:-12px;
       --overlap-small:-8px;
     }
 
     @media (min-width: 700px){
       :root{
-        --card-w:56px;
-        --card-h:78px;
-        --card-small-w:40px;
-        --card-small-h:58px;
+        --card-w:64px;
+        --card-h:88px;
+        --card-small-w:46px;
+        --card-small-h:66px;
         --overlap:-16px;
         --overlap-small:-10px;
       }
@@ -511,6 +511,26 @@
       animation:pileBounce .7s cubic-bezier(.18,.85,.25,1);
     }
 
+    .stack-wrap.draw-attention{
+      filter:drop-shadow(0 0 14px rgba(255,235,150,.35));
+    }
+
+    .stack-wrap.draw-attention .deck-base .card,
+    .stack-wrap.draw-attention .trump-under .card{
+      box-shadow:0 0 0 2px rgba(255,235,150,.28), 0 0 22px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
+    }
+
+    .stack-wrap.draw-attention .deck-base .card{
+      animation:drawPromptHop 3s ease-in-out infinite;
+    }
+
+    @keyframes drawPromptHop{
+      0%, 78%, 100%{ transform:translateY(0) scale(1); }
+      84%{ transform:translateY(-7px) scale(1.03); }
+      90%{ transform:translateY(0) scale(1); }
+      95%{ transform:translateY(-3px) scale(1.01); }
+    }
+
     @keyframes dealPulse{
       0%{ transform:translateY(-18px) scale(.86) rotate(-8deg); opacity:.2; filter:blur(1px); }
       45%{ transform:translateY(4px) scale(1.05) rotate(2deg); opacity:1; filter:blur(0); }
@@ -531,6 +551,27 @@
       margin-top:0;
       padding-top:2px;
       flex:0 0 auto;
+    }
+
+    .my-bottom-info{
+      margin-top:auto;
+      padding-top:8px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      border-top:1px solid var(--line);
+    }
+
+    .my-bottom-main{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      min-width:0;
+    }
+
+    .my-bottom-main .player-name{
+      max-width:none;
     }
 
     #myHand{ margin-top:-8px; }
@@ -582,7 +623,7 @@
       .player-name{ font-size:16px; max-width:130px; }
       .player-points{ font-size:16px; }
       .victory-inline{ font-size:11px; }
-      .board-layout{ grid-template-rows:minmax(0,0.9fr) 134px minmax(0,0.84fr); }
+      .board-layout{ grid-template-rows:minmax(0,0.9fr) 142px minmax(0,0.84fr); }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
@@ -691,15 +732,6 @@
             </section>
 
             <section id="mySide" class="player-side">
-              <div class="single-line-header">
-                <div class="player-line">
-                  <span class="player-name" id="myNameLarge">-</span>
-                  <span class="player-points"><strong id="myScoreBig">0</strong></span>
-                </div>
-                <div class="victory-inline">VP <strong id="myVictoryInline">0</strong></div>
-              </div>
-
-              <div class="separator"></div>
               <div id="myExposed" class="cards"></div>
 
               <div class="separator"></div>
@@ -708,6 +740,14 @@
               <div class="my-actions">
                 <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
                 <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
+              </div>
+
+              <div class="my-bottom-info">
+                <div class="my-bottom-main">
+                  <span class="player-name" id="myNameLarge">-</span>
+                  <span class="player-points"><strong id="myScoreBig">0</strong></span>
+                </div>
+                <div class="victory-inline">VP <strong id="myVictoryInline">0</strong></div>
               </div>
             </section>
           </div>
@@ -939,10 +979,13 @@
     function isLegalResponse(hand, leadCard, playCard, trumpSuit){
       const sameSuit = hand.filter(c => c.suit === leadCard.suit);
       if (sameSuit.length > 0) {
-        const higher = sameSuit.filter(c => cardValue(c.rank) > cardValue(leadCard.rank));
-        if (higher.length > 0) return higher.some(c => c.id === playCard.id);
+        if (leadCard.suit === trumpSuit) {
+          const higherTrump = sameSuit.filter(c => cardValue(c.rank) > cardValue(leadCard.rank));
+          if (higherTrump.length > 0) return higherTrump.some(c => c.id === playCard.id);
+        }
         return sameSuit.some(c => c.id === playCard.id);
       }
+
       const trumps = hand.filter(c => c.suit === trumpSuit);
       if (trumps.length > 0) return trumps.some(c => c.id === playCard.id);
       return true;
@@ -955,6 +998,14 @@
         (secondCard.suit === trumpSuit && firstCard.suit !== trumpSuit);
       if (secondBeats) winnerUid = followerUid;
       return winnerUid;
+    }
+
+    function isStockClosed(match){
+      return ensureArray(match.drawPile).length === 0 && !match.trumpCard;
+    }
+
+    function canTakeAnyStockCard(match, uid){
+      return !match.winnerUid && (match.pendingWinnerActionUid === uid || match.pendingLoserDrawUid === uid);
     }
 
     function renderSpriteCard(card, opts = {}){
@@ -1122,7 +1173,7 @@
 
     function selectedSummary(currentMatch){
       if (!selectedCards.length) {
-        if (currentMatch?.pendingLoserDrawUid === me?.uid) return "Du måste klicka på högen för att dra ditt kort.";
+        if (currentMatch?.pendingLoserDrawUid === me?.uid) return currentMatch?.trumpCard && ensureArray(currentMatch?.drawPile).length === 0 ? "Du måste ta upp det uppvända trumfkortet." : "Du måste klicka på högen för att dra ditt kort.";
         return "Inga kort markerade.";
       }
       const allMine = getAllMyAvailableCards(currentMatch);
@@ -1661,7 +1712,7 @@
 
       myHandEl.innerHTML = "";
       myHand.slice().sort(sortCardsForUi).forEach(card => {
-        const selectable = match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid;
+        const selectable = canTakeAnyStockCard(match, me.uid);
         const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "hand");
 
@@ -1694,16 +1745,24 @@
 
       myExposedEl.innerHTML = "";
       myExposed.slice().sort(sortCardsForUi).forEach(card => {
-        const selectable = match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid;
+        const selectable = canTakeAnyStockCard(match, me.uid);
+        const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "exposed");
         const el = renderSpriteCard(card, {
           selectable,
+          playable,
           selected: isSelected
         });
         if (selectable) {
           el.onclick = () => {
             toggleSelected(card, "exposed");
             renderMatch(match);
+          };
+        } else if (playable) {
+          el.ondblclick = () => playCard(match, card.id);
+          el.onclick = () => {
+            selectedCards = [{ id: card.id, source: "exposed" }];
+            selectedInfoEl.textContent = selectedSummary(match);
           };
         }
         myExposedEl.appendChild(el);
@@ -1715,17 +1774,47 @@
       });
 
       drawPileBox.innerHTML = "";
-      const drawEl = renderBackCard(false, `pile-${ensureArray(match.drawPile).length}-${match.id}`);
-      if (ensureArray(match.drawPile).length === 0) drawEl.style.opacity = "0.35";
-      if ((match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid) && !match.winnerUid) {
-        drawEl.classList.add("playable");
-        drawEl.title = "Dra kort";
-        drawEl.onclick = () => drawFromPile(match);
-      }
-      drawPileBox.appendChild(drawEl);
-
       trumpUnderBox.innerHTML = "";
-      if (match.trumpCard) trumpUnderBox.appendChild(renderSpriteCard(match.trumpCard));
+
+      const canDrawNow = canTakeAnyStockCard(match, me.uid);
+      const stockCount = ensureArray(match.drawPile).length;
+
+      if (stockCount > 0) {
+        const drawEl = renderBackCard(false, `pile-${stockCount}-${match.id}`);
+        if (canDrawNow) {
+          drawEl.classList.add("playable");
+          drawEl.title = "Dra kort";
+          drawEl.onclick = () => drawFromPile(match);
+          drawPileBox.parentElement.classList.add("draw-attention");
+        } else {
+          drawPileBox.parentElement.classList.remove("draw-attention");
+        }
+        drawPileBox.appendChild(drawEl);
+      } else {
+        const placeholder = renderBackCard(false, `pile-empty-${match.id}`);
+        placeholder.style.opacity = match.trumpCard ? "0.22" : "0.12";
+        if (canDrawNow && match.trumpCard) {
+          placeholder.classList.add("playable");
+          placeholder.title = "Ta upp trumfkortet";
+          placeholder.onclick = () => drawFromPile(match);
+          drawPileBox.parentElement.classList.add("draw-attention");
+        } else {
+          drawPileBox.parentElement.classList.remove("draw-attention");
+        }
+        drawPileBox.appendChild(placeholder);
+      }
+
+      if (match.trumpCard) {
+        const trumpEl = renderSpriteCard(match.trumpCard);
+        if (canDrawNow && stockCount === 0) {
+          trumpEl.classList.add("playable");
+          trumpEl.title = "Ta upp trumfkortet";
+          trumpEl.onclick = () => drawFromPile(match);
+        }
+        trumpUnderBox.appendChild(trumpEl);
+      } else {
+        drawPileBox.parentElement.classList.remove("draw-attention");
+      }
 
       leadCardBoxEl.innerHTML = "";
       replyCardBoxEl.innerHTML = "";
@@ -1759,26 +1848,29 @@
 
       const next = deepClone(match);
       const hand = ensureArray(next.hands[me.uid]);
-      const card = hand.find(c => c.id === cardId);
+      const exposed = ensureArray(next.exposed[me.uid]);
+      const card = hand.find(c => c.id === cardId) || exposed.find(c => c.id === cardId);
       if (!card) return;
 
       const opponentUid = getOpponentUid(next);
-      const drawPileEmpty = ensureArray(next.drawPile).length === 0;
-      if (drawPileEmpty && ensureArray(next.trick).length === 1) {
+      if (isStockClosed(next) && ensureArray(next.trick).length === 1) {
         const leadCard = next.trick[0].card;
-        if (!isLegalResponse(hand, leadCard, card, next.trumpSuit)) {
-          alert("Du måste följa färg eller lägga trumf om möjligt.");
+        const responsePool = [...hand, ...exposed];
+        if (!isLegalResponse(responsePool, leadCard, card, next.trumpSuit)) {
+          alert("Du måste följa färg. Kan du inte det måste du trumfa. Är utspelet trumf måste du trumfa över om möjligt.");
           return;
         }
       }
 
       next.hands[me.uid] = hand.filter(c => c.id !== cardId);
+      next.exposed[me.uid] = exposed.filter(c => c.id !== cardId);
       next.trick.push({ uid:me.uid, card });
 
       if (next.trick.length === 1) {
         next.turn = opponentUid;
         await updateDoc(doc(db, "matches", next.id), {
           hands: next.hands,
+          exposed: next.exposed,
           trick: next.trick,
           turn: next.turn,
           updatedAt: serverTimestamp()
@@ -1806,12 +1898,16 @@
       next.declaredThisWin = false;
 
       const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
-      const handsEmpty = ensureArray(next.hands[winnerUid]).length === 0 && ensureArray(next.hands[otherUid]).length === 0;
-      if (ensureArray(next.drawPile).length === 0 && handsEmpty) {
+      const handsEmpty =
+        ensureArray(next.hands[winnerUid]).length === 0 &&
+        ensureArray(next.hands[otherUid]).length === 0 &&
+        ensureArray(next.exposed[winnerUid]).length === 0 &&
+        ensureArray(next.exposed[otherUid]).length === 0;
+      if (isStockClosed(next) && handsEmpty) {
         next.pendingWinnerActionUid = null;
         next.trick = [];
         const uids = Object.keys(next.players);
-        const allEmpty = uids.every(uid => ensureArray(next.hands[uid]).length === 0);
+        const allEmpty = uids.every(uid => ensureArray(next.hands[uid]).length === 0 && ensureArray(next.exposed[uid]).length === 0);
         if (allEmpty) {
           if (next.lastTrickWinner) {
             next.scores[next.lastTrickWinner] = (next.scores[next.lastTrickWinner] || 0) + 10;
@@ -1827,6 +1923,7 @@
 
       await updateDoc(doc(db, "matches", next.id), {
         hands: next.hands,
+        exposed: next.exposed,
         trick: next.trick,
         turn: next.turn,
         leader: next.leader,
@@ -1950,13 +2047,23 @@
       const next = deepClone(match);
       const oppUid = getOpponentUid(next);
 
-      if (next.pendingWinnerActionUid === me.uid) {
-        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[me.uid]).length < targetHandSize(next, me.uid)) {
-          next.hands[me.uid].push(next.drawPile.shift());
+      const drawCardFor = (uid) => {
+        if (ensureArray(next.hands[uid]).length >= targetHandSize(next, uid)) return;
+        if (ensureArray(next.drawPile).length > 0) {
+          next.hands[uid].push(next.drawPile.shift());
+          return;
         }
+        if (next.trumpCard) {
+          next.hands[uid].push(next.trumpCard);
+          next.trumpCard = null;
+        }
+      };
+
+      if (next.pendingWinnerActionUid === me.uid) {
+        drawCardFor(me.uid);
         next.pendingWinnerActionUid = null;
 
-        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[oppUid]).length < targetHandSize(next, oppUid)) {
+        if ((ensureArray(next.drawPile).length > 0 || next.trumpCard) && ensureArray(next.hands[oppUid]).length < targetHandSize(next, oppUid)) {
           next.pendingLoserDrawUid = oppUid;
           next.turn = oppUid;
         } else {
@@ -1965,9 +2072,7 @@
           next.trick = [];
         }
       } else if (next.pendingLoserDrawUid === me.uid) {
-        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[me.uid]).length < targetHandSize(next, me.uid)) {
-          next.hands[me.uid].push(next.drawPile.shift());
-        }
+        drawCardFor(me.uid);
         next.pendingLoserDrawUid = null;
         next.turn = next.leader;
         next.trick = [];
@@ -1978,6 +2083,7 @@
       await updateDoc(doc(db, "matches", next.id), {
         hands: next.hands,
         drawPile: next.drawPile,
+        trumpCard: next.trumpCard,
         trick: next.trick,
         turn: next.turn,
         leader: next.leader,
