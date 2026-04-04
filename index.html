@@ -703,7 +703,7 @@
           Skriv ditt namn. Två öppna sidor kan sedan utmana varandra.
         </div>
 
-        <div class="row" style="margin-bottom:10px">
+        <div class="row" style="margin-bottom:10px; align-items:stretch">
           <input id="displayNameInput" type="text" maxlength="24" placeholder="Ditt spelarnamn">
           <button id="saveNameBtn" class="primary">Spara namn</button>
         </div>
@@ -1478,6 +1478,19 @@
       }, { merge:true });
     }
 
+    function enableLobbyIdentityControls(){
+      displayNameInput.disabled = false;
+      displayNameInput.readOnly = false;
+      saveNameBtn.disabled = false;
+    }
+
+    async function refreshOwnPresence(){
+      if (!me) return;
+      await saveMyProfile();
+      await heartbeat();
+      subscribePlayers();
+    }
+
     function enterMatchView(){
       document.body.classList.add("match-active");
       lobbyPanel.classList.add("hidden");
@@ -1490,6 +1503,10 @@
       lobbyPanel.classList.remove("hidden");
       gameBox.classList.add("hidden");
       noMatchBox.classList.remove("hidden");
+      leaveConfirmOverlay.classList.remove("show");
+      challengeOverlay.classList.remove("show");
+      opponentLeftOverlay.classList.remove("show");
+      enableLobbyIdentityControls();
     }
 
     function startDisconnectCountdown(){
@@ -2356,8 +2373,16 @@
       });
     }
 
-    saveNameBtn.addEventListener("click", saveMyProfile);
-    refreshPlayersBtn.addEventListener("click", heartbeat);
+    saveNameBtn.addEventListener("click", refreshOwnPresence);
+    refreshPlayersBtn.addEventListener("click", refreshOwnPresence);
+    displayNameInput.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        await refreshOwnPresence();
+      }
+    });
+
+    displayNameInput.addEventListener("focus", enableLobbyIdentityControls);
     acceptChallengeBtn.addEventListener("click", acceptChallenge);
     declineChallengeBtn.addEventListener("click", declineChallenge);
     cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
@@ -2388,6 +2413,16 @@
       await markDisconnectState(false);
     });
 
+    document.addEventListener("visibilitychange", async () => {
+      if (!document.hidden) {
+        await refreshOwnPresence();
+      }
+    });
+
+    window.addEventListener("focus", async () => {
+      await refreshOwnPresence();
+    });
+
     window.addEventListener("beforeunload", async () => {
       try {
         if (me) {
@@ -2407,10 +2442,13 @@
         me = user;
         uidLabelEl.textContent = user.uid.slice(0,8);
         authStateEl.textContent = "Inloggad";
+        enableLobbyIdentityControls();
+        if (!displayNameInput.value.trim()) {
+          displayNameInput.value = meName || `Spelare-${user.uid.slice(0,4)}`;
+        }
         meNameEl.textContent = meName || `Spelare-${user.uid.slice(0,4)}`;
 
-        await saveMyProfile();
-        await heartbeat();
+        await refreshOwnPresence();
 
         if (heartbeatTimer) clearInterval(heartbeatTimer);
         heartbeatTimer = setInterval(heartbeat, 30000);
