@@ -700,7 +700,7 @@
       <aside id="lobbyPanel" class="panel">
         <h2 style="margin:0 0 10px 0">Lobby</h2>
         <div class="notice">
-          Skriv ditt namn. Två öppna sidor kan sedan utmana varandra.
+          Skriv ditt namn. Utmana sedan andra spelare.
         </div>
 
         <div class="row" style="margin-bottom:10px; align-items:stretch">
@@ -961,7 +961,16 @@
     const opponentLeftOkBtn = document.getElementById("opponentLeftOkBtn");
 
     let me = null;
-    let meName = localStorage.getItem("pete_bezique_name") || "";
+    const RANDOM_NAME_PARTS_A = ["Snabb","Glad","Lurvig","Pigg","Vild","Mysig","Klok","Modig","Stjärn","Sol","Mån","Silver","Guld","Liten","Stor","Söt","Busig","Lugn","Klar","Fin"];
+    const RANDOM_NAME_PARTS_B = ["Räv","Katt","Hund","Björn","Tiger","Panda","Uggla","Hare","Mus","Rävunge","Stjärna","Blomma","Svala","Fjäril","Ekorre","Valp","Koala","Vän","Smiley","Hjärtat"];
+    function generateRandomPlayerName(){
+      const a = RANDOM_NAME_PARTS_A[Math.floor(Math.random() * RANDOM_NAME_PARTS_A.length)];
+      const b = RANDOM_NAME_PARTS_B[Math.floor(Math.random() * RANDOM_NAME_PARTS_B.length)];
+      const n = Math.floor(10 + Math.random() * 90);
+      return `${a}${b}${n}`;
+    }
+    let meName = localStorage.getItem("pete_bezique_name") || generateRandomPlayerName();
+    localStorage.setItem("pete_bezique_name", meName);
     let currentMatchId = null;
     let currentMatchUnsub = null;
     let playersUnsub = null;
@@ -2440,13 +2449,16 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         me = user;
+        if (!meName || !String(meName).trim()) {
+          meName = generateRandomPlayerName();
+          localStorage.setItem("pete_bezique_name", meName);
+        }
         uidLabelEl.textContent = user.uid.slice(0,8);
         authStateEl.textContent = "Inloggad";
         enableLobbyIdentityControls();
-        if (!displayNameInput.value.trim()) {
-          displayNameInput.value = meName || `Spelare-${user.uid.slice(0,4)}`;
-        }
-        meNameEl.textContent = meName || `Spelare-${user.uid.slice(0,4)}`;
+        displayNameInput.value = meName;
+        displayNameInput.placeholder = "Ditt spelarnamn";
+        meNameEl.textContent = meName;
 
         await refreshOwnPresence();
 
