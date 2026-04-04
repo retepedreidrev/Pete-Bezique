@@ -126,6 +126,18 @@
       min-height:0;
     }
 
+    #lobbyPanel{
+      position:relative;
+      z-index:5;
+    }
+
+    #lobbyPanel input,
+    #lobbyPanel button{
+      position:relative;
+      z-index:6;
+      pointer-events:auto;
+    }
+
     input{
       width:100%;
       padding:12px;
@@ -632,9 +644,10 @@
       justify-content:center;
       padding:16px;
       z-index:50;
+      pointer-events:none;
     }
 
-    .overlay.show{display:flex}
+    .overlay.show{display:flex;pointer-events:auto}
 
     .modal{
       width:min(520px,100%);
@@ -981,6 +994,8 @@
     let meName = localStorage.getItem("pete_bezique_name") || generateRandomPlayerName();
     localStorage.setItem("pete_bezique_name", meName);
     displayNameInput.value = meName;
+    displayNameInput.disabled = false;
+    displayNameInput.readOnly = false;
     meNameEl.textContent = meName;
     let currentMatchId = null;
     let currentMatchUnsub = null;
@@ -2407,6 +2422,8 @@
     });
 
     displayNameInput.addEventListener("focus", enableLobbyIdentityControls);
+    displayNameInput.addEventListener("click", enableLobbyIdentityControls);
+    displayNameInput.addEventListener("touchstart", enableLobbyIdentityControls, { passive:true });
     acceptChallengeBtn.addEventListener("click", acceptChallenge);
     declineChallengeBtn.addEventListener("click", declineChallenge);
     cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
