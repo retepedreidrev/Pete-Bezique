@@ -126,18 +126,6 @@
       min-height:0;
     }
 
-    #lobbyPanel{
-      position:relative;
-      z-index:5;
-    }
-
-    #lobbyPanel input,
-    #lobbyPanel button{
-      position:relative;
-      z-index:6;
-      pointer-events:auto;
-    }
-
     input{
       width:100%;
       padding:12px;
@@ -644,10 +632,9 @@
       justify-content:center;
       padding:16px;
       z-index:50;
-      pointer-events:none;
     }
 
-    .overlay.show{display:flex;pointer-events:auto}
+    .overlay.show{display:flex}
 
     .modal{
       width:min(520px,100%);
@@ -716,9 +703,9 @@
           Skriv ditt namn. Utmana sedan andra spelare.
         </div>
 
-        <div class="row" style="margin-bottom:10px; align-items:stretch">
+        <div class="row" style="margin-bottom:10px">
           <input id="displayNameInput" type="text" maxlength="24" placeholder="Ditt spelarnamn">
-          <button id="saveNameBtn" type="button" class="primary">Spara namn</button>
+          <button id="saveNameBtn" class="primary">Spara namn</button>
         </div>
 
         <div class="split">
@@ -974,29 +961,11 @@
     const opponentLeftOkBtn = document.getElementById("opponentLeftOkBtn");
 
     let me = null;
-    const RANDOM_NAME_PARTS_A = ["Snabb","Glad","Lurvig","Pigg","Vild","Mysig","Klok","Modig","Stjärn","Sol","Mån","Silver","Guld","Liten","Stor","Söt","Busig","Lugn","Klar","Fin"];
-    const RANDOM_NAME_PARTS_B = ["Räv","Katt","Hund","Björn","Tiger","Panda","Uggla","Hare","Mus","Rävunge","Stjärna","Blomma","Svala","Fjäril","Ekorre","Valp","Koala","Vän","Smiley","Hjärtat"];
-    function generateRandomPlayerName(){
-      const a = RANDOM_NAME_PARTS_A[Math.floor(Math.random() * RANDOM_NAME_PARTS_A.length)];
-      const b = RANDOM_NAME_PARTS_B[Math.floor(Math.random() * RANDOM_NAME_PARTS_B.length)];
-      const n = Math.floor(10 + Math.random() * 90);
-      return `${a}${b}${n}`;
+    function generateLobbyName(){
+      return `Spelare-${Math.floor(1000 + Math.random()*9000)}`;
     }
 
-    function applyOwnNameToLobbyUI(){
-      const safeName = (meName || "").trim() || generateRandomPlayerName();
-      meName = safeName;
-      localStorage.setItem("pete_bezique_name", meName);
-      displayNameInput.value = meName;
-      displayNameInput.placeholder = "Ditt spelarnamn";
-      meNameEl.textContent = meName;
-    }
-    let meName = localStorage.getItem("pete_bezique_name") || generateRandomPlayerName();
-    localStorage.setItem("pete_bezique_name", meName);
-    displayNameInput.value = meName;
-    displayNameInput.disabled = false;
-    displayNameInput.readOnly = false;
-    meNameEl.textContent = meName;
+    let meName = localStorage.getItem("pete_bezique_name") || generateLobbyName();
     let currentMatchId = null;
     let currentMatchUnsub = null;
     let playersUnsub = null;
@@ -1017,7 +986,10 @@
     let previousMyHandIds = [];
     let opponentLeftNoticeShown = false;
 
-    applyOwnNameToLobbyUI();
+    localStorage.setItem("pete_bezique_name", meName);
+    displayNameInput.value = meName;
+    displayNameInput.disabled = false;
+    displayNameInput.readOnly = false;
 
     const SUITS = ["S","H","D","C"];
     const RANKS = ["7","8","9","10","J","Q","K","A"];
@@ -1489,11 +1461,10 @@
     }
 
     async function saveMyProfile(){
-      meName = (displayNameInput.value || "").trim() || meName || generateRandomPlayerName();
-      localStorage.setItem("pete_bezique_name", meName);
-      displayNameInput.value = meName;
-      meNameEl.textContent = meName;
       if (!me) return;
+      meName = (displayNameInput.value || "").trim() || meName || localStorage.getItem("pete_bezique_name") || generateLobbyName();
+      localStorage.setItem("pete_bezique_name", meName);
+      meNameEl.textContent = meName;
       await setDoc(doc(db, "players", me.uid), {
         uid: me.uid,
         name: meName,
@@ -1507,22 +1478,11 @@
       if (!me) return;
       await setDoc(doc(db, "players", me.uid), {
         uid: me.uid,
-        name: meName || `Spelare-${me.uid.slice(0,4)}`,
+        name: meName || localStorage.getItem("pete_bezique_name") || generateLobbyName(),
         online: true,
         lastSeen: Date.now(),
         updatedAt: serverTimestamp()
       }, { merge:true });
-    }
-
-    function enableLobbyIdentityControls(){
-      displayNameInput.disabled = false;
-      displayNameInput.readOnly = false;
-      saveNameBtn.disabled = false;
-    }
-
-    async function refreshOwnPresence(){
-      await saveMyProfile();
-      await heartbeat();
     }
 
     function enterMatchView(){
@@ -1537,10 +1497,6 @@
       lobbyPanel.classList.remove("hidden");
       gameBox.classList.add("hidden");
       noMatchBox.classList.remove("hidden");
-      leaveConfirmOverlay.classList.remove("show");
-      challengeOverlay.classList.remove("show");
-      opponentLeftOverlay.classList.remove("show");
-      enableLobbyIdentityControls();
     }
 
     function startDisconnectCountdown(){
@@ -2409,21 +2365,6 @@
 
     saveNameBtn.addEventListener("click", saveMyProfile);
     refreshPlayersBtn.addEventListener("click", heartbeat);
-    displayNameInput.addEventListener("keydown", async (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        await saveMyProfile();
-        await heartbeat();
-      }
-    });
-
-    displayNameInput.addEventListener("input", () => {
-      saveNameBtn.disabled = false;
-    });
-
-    displayNameInput.addEventListener("focus", enableLobbyIdentityControls);
-    displayNameInput.addEventListener("click", enableLobbyIdentityControls);
-    displayNameInput.addEventListener("touchstart", enableLobbyIdentityControls, { passive:true });
     acceptChallengeBtn.addEventListener("click", acceptChallenge);
     declineChallengeBtn.addEventListener("click", declineChallenge);
     cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
@@ -2454,16 +2395,6 @@
       await markDisconnectState(false);
     });
 
-    document.addEventListener("visibilitychange", async () => {
-      if (!document.hidden) {
-        await refreshOwnPresence();
-      }
-    });
-
-    window.addEventListener("focus", async () => {
-      await refreshOwnPresence();
-    });
-
     window.addEventListener("beforeunload", async () => {
       try {
         if (me) {
@@ -2483,8 +2414,9 @@
         me = user;
         uidLabelEl.textContent = user.uid.slice(0,8);
         authStateEl.textContent = "Inloggad";
-        enableLobbyIdentityControls();
-        meName = (displayNameInput.value || "").trim() || meName || generateRandomPlayerName();
+        meName = localStorage.getItem("pete_bezique_name") || meName || generateLobbyName();
+        displayNameInput.disabled = false;
+        displayNameInput.readOnly = false;
         displayNameInput.value = meName;
         meNameEl.textContent = meName;
 
