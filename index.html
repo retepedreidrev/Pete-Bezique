@@ -19,32 +19,32 @@
       --select:#ffd34d;
       --turnGlow:rgba(255,235,150,.95);
 
-      --card-w:88px;
-      --card-h:121px;
-      --card-small-w:66px;
-      --card-small-h:91px;
-      --overlap:-34px;
+      --card-w:92px;
+      --card-h:126px;
+      --card-small-w:70px;
+      --card-small-h:96px;
+      --overlap:-36px;
       --overlap-small:-22px;
     }
 
     @media (max-width: 900px){
       :root{
-        --card-w:60px;
-        --card-h:83px;
-        --card-small-w:48px;
-        --card-small-h:66px;
-        --overlap:-24px;
-        --overlap-small:-17px;
+        --card-w:62px;
+        --card-h:85px;
+        --card-small-w:50px;
+        --card-small-h:69px;
+        --overlap:-25px;
+        --overlap-small:-18px;
       }
     }
 
     @media (max-width: 420px){
       :root{
-        --card-w:54px;
-        --card-h:74px;
-        --card-small-w:43px;
-        --card-small-h:59px;
-        --overlap:-21px;
+        --card-w:56px;
+        --card-h:77px;
+        --card-small-w:44px;
+        --card-small-h:61px;
+        --overlap:-22px;
         --overlap-small:-15px;
       }
     }
@@ -210,6 +210,7 @@
       display:flex;
       flex-direction:column;
       gap:8px;
+      overflow:hidden;
     }
 
     .top-actions{
@@ -221,12 +222,13 @@
       flex:0 0 auto;
     }
 
-    .table-layout{
+    .board-layout{
       display:grid;
       grid-template-rows:auto auto auto;
       gap:8px;
       min-height:0;
       flex:1 1 auto;
+      overflow:auto;
     }
 
     .player-side,.table-center{
@@ -259,46 +261,17 @@
     }
 
     .player-name{
-      font-size:18px;
+      font-size:19px;
       font-weight:700;
       line-height:1.1;
     }
 
-    .score-box{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:6px;
-    }
-
-    .score-cell{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:6px 8px;
-    }
-
-    .score-big{
-      font-size:22px;
-      font-weight:800;
-      line-height:1;
-      margin-top:2px;
-    }
-
-    .meld-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:5px;
-    }
-
-    .meld-item{
-      background:rgba(255,255,255,.04);
-      border:1px solid var(--line);
-      border-radius:10px;
-      padding:5px 6px;
+    .score-mini{
       display:flex;
-      justify-content:space-between;
-      gap:6px;
-      font-size:11px;
+      gap:12px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:13px;
     }
 
     .section-title{
@@ -386,7 +359,7 @@
     }
 
     .trick-slot{
-      min-height:88px;
+      min-height:92px;
       border:1px dashed rgba(255,255,255,.14);
       border-radius:14px;
       padding:8px;
@@ -561,100 +534,82 @@
             </div>
           </div>
 
-          <section id="opponentSide" class="player-side">
-            <div class="player-header">
-              <div>
-                <div class="player-name" id="opponentNameLarge">-</div>
-                <div class="tiny" id="opponentMeta">-</div>
-              </div>
-            </div>
-
-            <div class="score-box">
-              <div class="score-cell">
-                <div class="label">Totalpoäng</div>
-                <div class="score-big" id="opponentScoreBig">0</div>
-              </div>
-              <div class="score-cell">
-                <div class="label">Melds</div>
-                <div class="score-big" id="opponentMeldTotal">0</div>
-              </div>
-            </div>
-
-            <div class="meld-grid" id="opponentMeldGrid"></div>
-
-            <div class="separator"></div>
-            <div class="section-title">Motståndarens hand</div>
-            <div id="opponentHand" class="cards small-row"></div>
-
-            <div class="separator"></div>
-            <div class="section-title">Motståndarens utlagda kort</div>
-            <div id="opponentExposed" class="cards small-row"></div>
-          </section>
-
-          <section class="table-center">
-            <div class="status-box" id="matchStatusLabel">-</div>
-
-            <div class="center-top">
-              <div>
-                <div class="label" style="text-align:center;margin-bottom:6px;">Kortstapel</div>
-                <div class="stack-wrap">
-                  <div id="trumpUnderBox" class="trump-under"></div>
-                  <div id="drawPileBox" class="deck-base"></div>
+          <div class="board-layout">
+            <section id="opponentSide" class="player-side">
+              <div class="player-header">
+                <div>
+                  <div class="player-name" id="opponentNameLarge">-</div>
+                  <div class="score-mini">
+                    <span>Totalpoäng: <strong id="opponentScoreBig">0</strong></span>
+                    <span>Segerpoäng: <strong id="opponentVictoryInline">0</strong></span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="trick-row">
-              <div class="trick-slot">
-                <div class="label" id="leadPlayerLabel">Första kort</div>
-                <div id="leadCardBox"></div>
+              <div class="separator"></div>
+              <div class="section-title">Motståndarens hand</div>
+              <div id="opponentHand" class="cards small-row"></div>
+
+              <div class="separator"></div>
+              <div class="section-title">Motståndarens utlagda kort</div>
+              <div id="opponentExposed" class="cards small-row"></div>
+            </section>
+
+            <section class="table-center">
+              <div class="status-box" id="matchStatusLabel">-</div>
+
+              <div class="center-top">
+                <div>
+                  <div class="label" style="text-align:center;margin-bottom:6px;">Kortstapel</div>
+                  <div class="stack-wrap">
+                    <div id="trumpUnderBox" class="trump-under"></div>
+                    <div id="drawPileBox" class="deck-base"></div>
+                  </div>
+                </div>
               </div>
-              <div class="trick-slot">
-                <div class="label" id="replyPlayerLabel">Andra kort</div>
-                <div id="replyCardBox"></div>
+
+              <div class="trick-row">
+                <div class="trick-slot">
+                  <div class="label" id="leadPlayerLabel">Första kort</div>
+                  <div id="leadCardBox"></div>
+                </div>
+                <div class="trick-slot">
+                  <div class="label" id="replyPlayerLabel">Andra kort</div>
+                  <div id="replyCardBox"></div>
+                </div>
               </div>
-            </div>
 
-            <div class="status-box">
-              <div class="label">Valda kort</div>
-              <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
-            </div>
-          </section>
-
-          <section id="mySide" class="player-side">
-            <div class="player-header">
-              <div>
-                <div class="player-name" id="myNameLarge">-</div>
-                <div class="tiny" id="myMeta">-</div>
+              <div class="status-box">
+                <div class="label">Valda kort</div>
+                <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
               </div>
-            </div>
+            </section>
 
-            <div class="score-box">
-              <div class="score-cell">
-                <div class="label">Totalpoäng</div>
-                <div class="score-big" id="myScoreBig">0</div>
+            <section id="mySide" class="player-side">
+              <div class="player-header">
+                <div>
+                  <div class="player-name" id="myNameLarge">-</div>
+                  <div class="score-mini">
+                    <span>Totalpoäng: <strong id="myScoreBig">0</strong></span>
+                    <span>Segerpoäng: <strong id="myVictoryInline">0</strong></span>
+                  </div>
+                </div>
               </div>
-              <div class="score-cell">
-                <div class="label">Melds</div>
-                <div class="score-big" id="myMeldTotal">0</div>
+
+              <div class="separator"></div>
+              <div class="section-title">Dina utlagda kort</div>
+              <div id="myExposed" class="cards"></div>
+
+              <div class="separator"></div>
+              <div class="section-title">Din hand</div>
+              <div id="myHand" class="cards"></div>
+
+              <div class="my-actions">
+                <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
+                <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
               </div>
-            </div>
-
-            <div class="meld-grid" id="myMeldGrid"></div>
-
-            <div class="separator"></div>
-            <div class="section-title">Dina utlagda kort</div>
-            <div id="myExposed" class="cards"></div>
-
-            <div class="separator"></div>
-            <div class="section-title">Din hand</div>
-            <div id="myHand" class="cards"></div>
-
-            <div class="my-actions">
-              <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
-              <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
-            </div>
-          </section>
+            </section>
+          </div>
         </div>
       </main>
     </div>
@@ -746,14 +701,10 @@
 
     const myNameLarge = document.getElementById("myNameLarge");
     const opponentNameLarge = document.getElementById("opponentNameLarge");
-    const myMetaEl = document.getElementById("myMeta");
-    const opponentMetaEl = document.getElementById("opponentMeta");
     const myScoreBig = document.getElementById("myScoreBig");
     const opponentScoreBig = document.getElementById("opponentScoreBig");
-    const myMeldTotal = document.getElementById("myMeldTotal");
-    const opponentMeldTotal = document.getElementById("opponentMeldTotal");
-    const myMeldGrid = document.getElementById("myMeldGrid");
-    const opponentMeldGrid = document.getElementById("opponentMeldGrid");
+    const myVictoryInline = document.getElementById("myVictoryInline");
+    const opponentVictoryInline = document.getElementById("opponentVictoryInline");
 
     const matchStatusLabelEl = document.getElementById("matchStatusLabel");
     const trumpLabelEl = document.getElementById("trumpLabel");
@@ -817,17 +768,7 @@
     const SUIT_NAME = { S:"Spader", H:"Hjärter", D:"Ruter", C:"Klöver" };
     const RANK_NAME = { J:"Knekt", Q:"Dam", K:"Kung", A:"Ess" };
     const CARD_POINTS_IN_TRICK = new Set(["A","10"]);
-
-    const DISPLAY_MELDS = [
-      { key:"marriageTotal", label:"Mariage" },
-      { key:"bezique", label:"Bezique" },
-      { key:"doubleBezique", label:"Dubbel Bez." },
-      { key:"fourAces", label:"4 ess" },
-      { key:"fourKings", label:"4 kungar" },
-      { key:"fourQueens", label:"4 damer" },
-      { key:"fourJacks", label:"4 knektar" },
-      { key:"sequenceTotal", label:"Sequence" }
-    ];
+    const RECONNECT_ABORT_MS = 15000;
 
     function atlasPos(rank, suit){
       const X = [20, 149, 278, 397, 524, 652, 784, 913, 1042, 1171, 1300, 1429];
@@ -1087,8 +1028,42 @@
         swappedTrumpThisWin: false,
         declaredThisWin: false,
         lastTrickWinner: null,
-        winnerUid: null
+        winnerUid: null,
+        reconnectedAfterDisconnect: false,
+        disconnectSince: null
       };
+    }
+
+    async function markDisconnectState(isDisconnected){
+      if (!currentMatchId || !me) return;
+      try {
+        const ref = doc(db, "matches", currentMatchId);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return;
+        const match = { id:snap.id, ...snap.data() };
+        if (!match.players?.[me.uid]) return;
+
+        const presence = match.presence || {};
+        presence[me.uid] = {
+          online: !isDisconnected,
+          changedAtMs: Date.now()
+        };
+
+        const payload = {
+          presence,
+          updatedAt: serverTimestamp()
+        };
+
+        if (isDisconnected) {
+          payload.disconnectSince = Date.now();
+        } else {
+          payload.reconnectedAfterDisconnect = true;
+        }
+
+        await updateDoc(ref, payload);
+      } catch (e) {
+        console.error("markDisconnectState failed:", e);
+      }
     }
 
     function targetHandSize(match, uid){
@@ -1132,42 +1107,6 @@
           match.victoryPoints[maybeWinner] = (match.victoryPoints[maybeWinner] || 0) + 1;
         }
       }
-    }
-
-    function getDisplayMeldCounts(match, uid){
-      const raw = match.meldCounts?.[uid] || {};
-      return {
-        marriageTotal:
-          (raw.marriage_S || 0) +
-          (raw.marriage_H || 0) +
-          (raw.marriage_D || 0) +
-          (raw.marriage_C || 0),
-        bezique: raw.bezique || 0,
-        doubleBezique: raw.doubleBezique || 0,
-        fourAces: raw.fourAces || 0,
-        fourKings: raw.fourKings || 0,
-        fourQueens: raw.fourQueens || 0,
-        fourJacks: raw.fourJacks || 0,
-        sequenceTotal:
-          (raw.sequence_S || 0) +
-          (raw.sequence_H || 0) +
-          (raw.sequence_D || 0) +
-          (raw.sequence_C || 0)
-      };
-    }
-
-    function renderMeldGrid(container, match, uid, totalEl){
-      container.innerHTML = "";
-      const counts = getDisplayMeldCounts(match, uid);
-      let total = 0;
-      DISPLAY_MELDS.forEach(m => {
-        total += counts[m.key] || 0;
-        const div = document.createElement("div");
-        div.className = "meld-item";
-        div.innerHTML = `<span>${escapeHtml(m.label)}</span><strong>${counts[m.key] || 0}</strong>`;
-        container.appendChild(div);
-      });
-      totalEl.textContent = total;
     }
 
     async function ensureSignedIn(){
@@ -1562,13 +1501,25 @@
 
       currentMatchUnsub = onSnapshot(
         doc(db, "matches", matchId),
-        snap => {
+        async snap => {
           stopDisconnectCountdown();
           if (!snap.exists()) {
             enterLobbyView();
             return;
           }
+
           const match = { id:snap.id, ...snap.data() };
+
+          if (match.reconnectedAfterDisconnect) {
+            await abortRoundAndReturnToLobby();
+            return;
+          }
+
+          if (match.disconnectSince && (Date.now() - match.disconnectSince > RECONNECT_ABORT_MS)) {
+            await abortRoundAndReturnToLobby();
+            return;
+          }
+
           renderMatch(match);
         },
         err => {
@@ -1589,20 +1540,13 @@
       const oppHand = ensureArray(match.hands?.[opponentUid]);
       const oppExposed = ensureArray(match.exposed?.[opponentUid]);
 
-      myNameLarge.textContent = `${getPlayerName(match, me.uid)} · Segerpoäng ${match.victoryPoints?.[me.uid] || 0}`;
-      opponentNameLarge.textContent = `${getPlayerName(match, opponentUid)} · Segerpoäng ${match.victoryPoints?.[opponentUid] || 0}`;
+      myNameLarge.textContent = getPlayerName(match, me.uid);
+      opponentNameLarge.textContent = getPlayerName(match, opponentUid);
 
       myScoreBig.textContent = match.scores?.[me.uid] || 0;
       opponentScoreBig.textContent = match.scores?.[opponentUid] || 0;
-
-      myMetaEl.textContent = "";
-      opponentMetaEl.textContent = "";
-
-      renderMeldGrid(myMeldGrid, match, me.uid, myMeldTotal);
-      renderMeldGrid(opponentMeldGrid, match, opponentUid, opponentMeldTotal);
-
-      trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
-      drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
+      myVictoryInline.textContent = match.victoryPoints?.[me.uid] || 0;
+      opponentVictoryInline.textContent = match.victoryPoints?.[opponentUid] || 0;
 
       mySide.classList.toggle("active-turn", match.turn === me.uid);
       opponentSide.classList.toggle("active-turn", match.turn === opponentUid);
@@ -1624,6 +1568,8 @@
       }
       matchStatusLabelEl.textContent = status;
 
+      trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
+      drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
       selectedInfoEl.textContent = selectedSummary(match);
 
       myHandEl.innerHTML = "";
@@ -1962,14 +1908,18 @@
       leaveConfirmOverlay.classList.remove("show");
     });
 
-    window.addEventListener("offline", () => {
-      if (currentMatchId) startDisconnectCountdown();
+    window.addEventListener("offline", async () => {
+      if (currentMatchId) {
+        await markDisconnectState(true);
+        startDisconnectCountdown();
+      }
     });
 
     window.addEventListener("online", async () => {
       stopDisconnectCountdown();
       disconnectStatusText.textContent = "Kontakten är tillbaka.";
       await heartbeat();
+      await markDisconnectState(false);
     });
 
     window.addEventListener("beforeunload", async () => {
@@ -1979,6 +1929,9 @@
             online: false,
             lastSeen: Date.now()
           });
+        }
+        if (currentMatchId) {
+          await markDisconnectState(true);
         }
       } catch (e) {}
     });
