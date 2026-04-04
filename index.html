@@ -174,12 +174,8 @@
     }
 
     @media (max-width: 980px){
-      .layout{
-        grid-template-columns:1fr;
-      }
-      body.match-active #lobbyPanel{
-        display:none !important;
-      }
+      .layout{ grid-template-columns:1fr; }
+      body.match-active #lobbyPanel{ display:none !important; }
     }
 
     .players,.history{
@@ -200,7 +196,7 @@
     .separator{
       height:1px;
       background:var(--line);
-      margin:6px 0;
+      margin:4px 0;
     }
 
     .main-stage{
@@ -230,7 +226,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,1fr) minmax(145px, 170px) minmax(0,1fr);
+      grid-template-rows:minmax(0,0.95fr) 150px minmax(0,0.78fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -249,7 +245,7 @@
     .player-side{
       display:flex;
       flex-direction:column;
-      gap:4px;
+      gap:2px;
       transition:border-color .15s ease, box-shadow .15s ease;
       border:1px solid rgba(255,255,255,.10);
     }
@@ -259,33 +255,43 @@
       box-shadow:0 0 0 2px rgba(255,235,150,.18), 0 0 18px rgba(255,235,150,.14) inset;
     }
 
-    .player-header{
+    .single-line-header{
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
+      align-items:center;
       gap:8px;
+    }
+
+    .player-line{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+      min-width:0;
     }
 
     .player-name{
       font-size:18px;
       font-weight:700;
       line-height:1.05;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:180px;
     }
 
-    .score-mini{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      color:var(--muted);
+    .player-points{
+      font-size:18px;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .victory-inline{
       font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
     }
 
-    .section-title{
-      margin:0;
-      font-size:11px;
-      color:var(--muted);
-      line-height:1.1;
-    }
+    .score-mini{ display:none; }
 
     .cards{
       display:flex;
@@ -310,13 +316,11 @@
       margin-right:var(--overlap-small);
     }
 
-    .cards .card:last-child{
-      margin-right:0;
-    }
+    .cards .card:last-child{ margin-right:0; }
 
     .table-center{
       display:grid;
-      grid-template-rows:auto auto 1fr auto;
+      grid-template-rows:auto 1fr auto;
       gap:6px;
       align-content:start;
     }
@@ -330,17 +334,19 @@
       min-height:0;
     }
 
+    .compact-status{ padding:5px 8px; }
+
     .center-top{
       display:flex;
       justify-content:center;
       align-items:center;
-      gap:10px;
+      min-height:78px;
     }
 
     .stack-wrap{
       position:relative;
-      width:calc(var(--card-w) + 20px);
-      height:calc(var(--card-h) + 18px);
+      width:calc(var(--card-w) + 38px);
+      height:calc(var(--card-h) + 14px);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -356,31 +362,37 @@
       z-index:1;
       left:50%;
       top:50%;
-      transform:translate(-50%, -24%) rotate(90deg);
+      transform:translate(8%, -50%) rotate(90deg);
       transform-origin:center center;
       pointer-events:none;
-      opacity:.96;
+      opacity:.98;
     }
 
-    .trick-row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:6px;
-      min-height:0;
-    }
-
-    .trick-slot{
-      min-height:72px;
-      border:1px dashed rgba(255,255,255,.14);
+    .trick-stage{
+      position:relative;
+      min-height:86px;
+      border:1px dashed rgba(255,255,255,.12);
       border-radius:12px;
-      padding:6px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:4px;
       background:rgba(255,255,255,.02);
-      min-width:0;
+    }
+
+    .trick-card{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      transition:all .28s ease;
+      min-width:var(--card-w);
+      min-height:var(--card-h);
+    }
+
+    .lead-pos{
+      left:calc(50% - 36px);
+      z-index:2;
+    }
+
+    .reply-pos{
+      left:calc(50% - 6px);
+      z-index:3;
     }
 
     .card{
@@ -395,6 +407,7 @@
       overflow:hidden;
       cursor:default;
       user-select:none;
+      transition:transform .22s ease, box-shadow .22s ease, opacity .22s ease;
     }
 
     .card.small{
@@ -402,13 +415,8 @@
       height:var(--card-small-h);
     }
 
-    .card.red{
-      color:#c62828;
-    }
-
-    .card.black{
-      color:#111;
-    }
+    .card.red{ color:#c62828; }
+    .card.black{ color:#111; }
 
     .card.playable,
     .card.selectable{
@@ -467,8 +475,20 @@
       font-weight:700;
     }
 
-    .card.small .card-center{
-      font-size:18px;
+    .card.small .card-center{ font-size:18px; }
+
+    .card.entering{
+      transform:translateY(10px);
+      opacity:.2;
+    }
+
+    .card.dealing{
+      animation:dealPulse .35s ease;
+    }
+
+    @keyframes dealPulse{
+      0%{ transform:translateY(-8px) scale(.96); opacity:.4; }
+      100%{ transform:translateY(0) scale(1); opacity:1; }
     }
 
     .my-actions{
@@ -476,9 +496,15 @@
       gap:6px;
       flex-wrap:wrap;
       justify-content:flex-start;
-      margin-top:2px;
+      margin-top:0;
+      padding-top:2px;
       flex:0 0 auto;
     }
+
+    #mySide{ justify-content:flex-start; }
+    #myHand{ margin-top:-6px; }
+    #myExposed{ min-height:calc(var(--card-h) + 2px); margin-bottom:-2px; }
+    #opponentExposed{ min-height:calc(var(--card-small-h) + 2px); }
 
     .overlay{
       position:fixed;
@@ -518,12 +544,8 @@
           4px;
         gap:4px;
       }
-      .topbar{
-        gap:6px;
-      }
-      .brand h1{
-        font-size:22px;
-      }
+      .topbar{ gap:6px; }
+      .brand h1{ font-size:22px; }
       .pill{
         font-size:12px;
         padding:5px 8px;
@@ -537,19 +559,19 @@
         border-radius:14px;
       }
       .player-name{
-        font-size:17px;
+        font-size:16px;
+        max-width:130px;
       }
-      .score-mini{
-        gap:8px;
-        font-size:11px;
-      }
+      .player-points{ font-size:16px; }
+      .victory-inline{ font-size:11px; }
       .board-layout{
-        grid-template-rows:minmax(0,1fr) 150px minmax(0,1fr);
+        grid-template-rows:minmax(0,0.88fr) 138px minmax(0,0.82fr);
       }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
         font-size:13px;
+        line-height:1.1;
       }
     }
   </style>
@@ -615,72 +637,52 @@
 
           <div class="board-layout">
             <section id="opponentSide" class="player-side">
-              <div class="player-header">
-                <div>
-                  <div class="player-name" id="opponentNameLarge">-</div>
-                  <div class="score-mini">
-                    <span>Totalpoäng: <strong id="opponentScoreBig">0</strong></span>
-                    <span>Segerpoäng: <strong id="opponentVictoryInline">0</strong></span>
-                  </div>
+              <div class="single-line-header">
+                <div class="player-line">
+                  <span class="player-name" id="opponentNameLarge">-</span>
+                  <span class="player-points"><strong id="opponentScoreBig">0</strong></span>
                 </div>
+                <div class="victory-inline">VP <strong id="opponentVictoryInline">0</strong></div>
               </div>
 
               <div class="separator"></div>
-              <div class="section-title">Motståndarens hand</div>
               <div id="opponentHand" class="cards small-row"></div>
 
               <div class="separator"></div>
-              <div class="section-title">Motståndarens utlagda kort</div>
               <div id="opponentExposed" class="cards small-row"></div>
             </section>
 
             <section class="table-center">
-              <div class="status-box" id="matchStatusLabel">-</div>
-
               <div class="center-top">
-                <div>
-                  <div class="label" style="text-align:center;margin-bottom:4px;">Kortstapel</div>
-                  <div class="stack-wrap">
-                    <div id="trumpUnderBox" class="trump-under"></div>
-                    <div id="drawPileBox" class="deck-base"></div>
-                  </div>
+                <div class="stack-wrap">
+                  <div id="trumpUnderBox" class="trump-under"></div>
+                  <div id="drawPileBox" class="deck-base"></div>
                 </div>
               </div>
 
-              <div class="trick-row">
-                <div class="trick-slot">
-                  <div class="label" id="leadPlayerLabel">Första kort</div>
-                  <div id="leadCardBox"></div>
-                </div>
-                <div class="trick-slot">
-                  <div class="label" id="replyPlayerLabel">Andra kort</div>
-                  <div id="replyCardBox"></div>
-                </div>
+              <div class="trick-stage">
+                <div id="leadCardBox" class="trick-card lead-pos"></div>
+                <div id="replyCardBox" class="trick-card reply-pos"></div>
               </div>
 
-              <div class="status-box">
-                <div class="label">Valda kort</div>
+              <div class="status-box compact-status">
                 <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
               </div>
             </section>
 
             <section id="mySide" class="player-side">
-              <div class="player-header">
-                <div>
-                  <div class="player-name" id="myNameLarge">-</div>
-                  <div class="score-mini">
-                    <span>Totalpoäng: <strong id="myScoreBig">0</strong></span>
-                    <span>Segerpoäng: <strong id="myVictoryInline">0</strong></span>
-                  </div>
+              <div class="single-line-header">
+                <div class="player-line">
+                  <span class="player-name" id="myNameLarge">-</span>
+                  <span class="player-points"><strong id="myScoreBig">0</strong></span>
                 </div>
+                <div class="victory-inline">VP <strong id="myVictoryInline">0</strong></div>
               </div>
 
               <div class="separator"></div>
-              <div class="section-title">Dina utlagda kort</div>
               <div id="myExposed" class="cards"></div>
 
               <div class="separator"></div>
-              <div class="section-title">Din hand</div>
               <div id="myHand" class="cards"></div>
 
               <div class="my-actions">
@@ -785,7 +787,6 @@
     const myVictoryInline = document.getElementById("myVictoryInline");
     const opponentVictoryInline = document.getElementById("opponentVictoryInline");
 
-    const matchStatusLabelEl = document.getElementById("matchStatusLabel");
     const trumpLabelEl = document.getElementById("trumpLabel");
     const drawCountLabelEl = document.getElementById("drawCountLabel");
 
@@ -797,8 +798,6 @@
     const trumpUnderBox = document.getElementById("trumpUnderBox");
     const leadCardBoxEl = document.getElementById("leadCardBox");
     const replyCardBoxEl = document.getElementById("replyCardBox");
-    const leadPlayerLabelEl = document.getElementById("leadPlayerLabel");
-    const replyPlayerLabelEl = document.getElementById("replyPlayerLabel");
     const selectedInfoEl = document.getElementById("selectedInfo");
 
     const declareMeldBtn = document.getElementById("declareMeldBtn");
@@ -837,6 +836,7 @@
     let selectedCards = [];
     let disconnectTimer = null;
     let disconnectRemaining = 60;
+    let lastVisualSignature = "";
 
     displayNameInput.value = meName;
 
@@ -938,8 +938,36 @@
     function renderBackCard(small = false){
       const el = document.createElement("div");
       el.className = `card back ${small ? "small" : ""}`;
-      el.textContent = "🂠";
+      el.textContent = "😊";
       return el;
+    }
+
+    function animateCardEntry(container){
+      const card = container?.firstElementChild;
+      if (!card) return;
+      card.classList.add("entering");
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          card.classList.remove("entering");
+          card.classList.add("dealing");
+          setTimeout(() => card.classList.remove("dealing"), 350);
+        });
+      });
+    }
+
+    function maybeAnimateVisuals(match){
+      const sig = JSON.stringify({
+        trick: ensureArray(match.trick).map(t => t.card?.id),
+        draw: ensureArray(match.drawPile).length,
+        myHand: ensureArray(match.hands?.[me?.uid]).length,
+        oppHand: ensureArray(match.hands?.[getOpponentUid(match)]).length
+      });
+      if (sig !== lastVisualSignature) {
+        animateCardEntry(leadCardBoxEl);
+        animateCardEntry(replyCardBoxEl);
+        animateCardEntry(drawPileBox);
+      }
+      lastVisualSignature = sig;
     }
 
     function getOpponentUid(match){
@@ -1127,11 +1155,8 @@
           updatedAt: serverTimestamp()
         };
 
-        if (isDisconnected) {
-          payload.disconnectSince = Date.now();
-        } else {
-          payload.reconnectedAfterDisconnect = true;
-        }
+        if (isDisconnected) payload.disconnectSince = Date.now();
+        else payload.reconnectedAfterDisconnect = true;
 
         await updateDoc(ref, payload);
       } catch (e) {
@@ -1224,6 +1249,7 @@
       gameBox.classList.add("hidden");
       noMatchBox.classList.remove("hidden");
     }
+
     function startDisconnectCountdown(){
       if (!currentMatchId || disconnectTimer) return;
       disconnectRemaining = 60;
@@ -1277,14 +1303,13 @@
       stopDisconnectCountdown();
       leaveConfirmOverlay.classList.remove("show");
       selectedCards = [];
-      currentMatchId = null;
-      localStorage.removeItem("pete_bezique_matchId");
 
       if (currentMatchUnsub) {
         currentMatchUnsub();
         currentMatchUnsub = null;
       }
       enterLobbyView();
+      subscribeHistory();
     }
 
     function subscribePlayers(){
@@ -1557,7 +1582,7 @@
             <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
             <div class="tiny">
               Poäng: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
-              · Segerpoäng: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
+              · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
             </div>
           `;
           div.onclick = () => {
@@ -1625,25 +1650,6 @@
       mySide.classList.toggle("active-turn", match.turn === me.uid);
       opponentSide.classList.toggle("active-turn", match.turn === opponentUid);
 
-      let status = "";
-      if (match.winnerUid) {
-        status = `${getPlayerName(match, match.winnerUid)} har vunnit matchen.`;
-      } else if (match.pendingWinnerActionUid === me.uid) {
-        if (match.swappedTrumpThisWin) status = "Du har bytt trumfsjua. Klicka nu på högen för att dra kort.";
-        else if (match.declaredThisWin) status = "Du har lagt ut en kombination. Klicka nu på högen för att dra kort.";
-        else status = "Du vann sticket. Markera kort för kombination, byt trumf eller klicka på högen för att dra.";
-      } else if (match.pendingWinnerActionUid === opponentUid) {
-        status = `${getPlayerName(match, opponentUid)} vann sticket och måste lägga ut, byta trumf eller dra.`;
-      } else if (match.turn === me.uid) {
-        status = "Dubbelklicka på ett handkort för att spela.";
-      } else {
-        status = `${getPlayerName(match, opponentUid)} spelar.`;
-      }
-      if (ensureArray(match.drawPile).length === 0) {
-        status += " Slutfas: följ färg, annars trumf om möjligt.";
-      }
-      matchStatusLabelEl.textContent = status;
-
       trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
       drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
       selectedInfoEl.textContent = selectedSummary(match);
@@ -1667,6 +1673,10 @@
           };
         } else if (playable) {
           el.ondblclick = () => playCard(match, card.id);
+          el.onclick = () => {
+            selectedCards = [{ id: card.id, source: "hand" }];
+            selectedInfoEl.textContent = selectedSummary(match);
+          };
         }
 
         myHandEl.appendChild(el);
@@ -1718,21 +1728,16 @@
       replyCardBoxEl.innerHTML = "";
 
       if (match.trick?.[0]) {
-        leadPlayerLabelEl.textContent = getPlayerName(match, match.trick[0].uid);
         leadCardBoxEl.appendChild(renderSpriteCard(match.trick[0].card));
-      } else {
-        leadPlayerLabelEl.textContent = "Första kort";
       }
-
       if (match.trick?.[1]) {
-        replyPlayerLabelEl.textContent = getPlayerName(match, match.trick[1].uid);
         replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
-      } else {
-        replyPlayerLabelEl.textContent = "Andra kort";
       }
 
       declareMeldBtn.disabled = !(match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
       swapTrumpBtn.disabled = !canSwapTrump(match, me.uid);
+
+      maybeAnimateVisuals(match);
     }
 
     function canSwapTrump(match, uid){
@@ -2028,4 +2033,3 @@
   </script>
 </body>
 </html>
-    
