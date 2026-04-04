@@ -226,7 +226,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,0.95fr) 150px minmax(0,0.78fr);
+      grid-template-rows:minmax(0,0.96fr) 148px minmax(0,0.76fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -291,8 +291,6 @@
       white-space:nowrap;
     }
 
-    .score-mini{ display:none; }
-
     .cards{
       display:flex;
       align-items:flex-end;
@@ -318,6 +316,11 @@
 
     .cards .card:last-child{ margin-right:0; }
 
+    #opponentExposed{
+      min-height:calc(var(--card-small-h) + 2px);
+      max-height:calc(var(--card-small-h) + 6px);
+    }
+
     .table-center{
       display:grid;
       grid-template-rows:auto 1fr auto;
@@ -329,12 +332,10 @@
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
       border-radius:12px;
-      padding:7px 9px;
+      padding:6px 8px;
       font-size:12px;
       min-height:0;
     }
-
-    .compact-status{ padding:5px 8px; }
 
     .center-top{
       display:flex;
@@ -346,7 +347,7 @@
     .stack-wrap{
       position:relative;
       width:calc(var(--card-w) + 38px);
-      height:calc(var(--card-h) + 14px);
+      height:calc(var(--card-h) + 18px);
       display:flex;
       align-items:center;
       justify-content:center;
@@ -354,7 +355,7 @@
 
     .deck-base{
       position:relative;
-      z-index:2;
+      z-index:3;
     }
 
     .trump-under{
@@ -362,7 +363,7 @@
       z-index:1;
       left:50%;
       top:50%;
-      transform:translate(8%, -50%) rotate(90deg);
+      transform:translate(10%, -50%) rotate(90deg);
       transform-origin:center center;
       pointer-events:none;
       opacity:.98;
@@ -370,7 +371,7 @@
 
     .trick-stage{
       position:relative;
-      min-height:86px;
+      min-height:88px;
       border:1px dashed rgba(255,255,255,.12);
       border-radius:12px;
       background:rgba(255,255,255,.02);
@@ -378,20 +379,33 @@
 
     .trick-card{
       position:absolute;
-      top:50%;
-      transform:translateY(-50%);
-      transition:all .28s ease;
+      transition:left .55s ease, top .55s ease, transform .55s ease, opacity .55s ease;
       min-width:var(--card-w);
       min-height:var(--card-h);
+      pointer-events:none;
     }
 
-    .lead-pos{
-      left:calc(50% - 36px);
+    .trick-card.upper{
+      top:8px;
+      left:calc(50% - 34px);
       z-index:2;
     }
 
-    .reply-pos{
-      left:calc(50% - 6px);
+    .trick-card.lower{
+      top:34px;
+      left:calc(50% - 34px);
+      z-index:2;
+    }
+
+    .trick-card.upper.overlap{
+      top:16px;
+      left:calc(50% - 8px);
+      z-index:3;
+    }
+
+    .trick-card.lower.overlap{
+      top:26px;
+      left:calc(50% - 8px);
       z-index:3;
     }
 
@@ -407,7 +421,7 @@
       overflow:hidden;
       cursor:default;
       user-select:none;
-      transition:transform .22s ease, box-shadow .22s ease, opacity .22s ease;
+      transition:transform .28s ease, box-shadow .28s ease, opacity .28s ease, filter .28s ease;
     }
 
     .card.small{
@@ -419,29 +433,37 @@
     .card.black{ color:#111; }
 
     .card.playable,
-    .card.selectable{
-      cursor:pointer;
-    }
+    .card.selectable{ cursor:pointer; }
 
     .card.playable:hover,
     .card.selectable:hover{
-      transform:translateY(-2px);
+      transform:translateY(-3px) scale(1.02);
     }
 
     .card.selected{
       border-color:var(--select);
       box-shadow:0 0 0 2px rgba(255,211,77,.35),0 3px 10px rgba(0,0,0,.24);
-      transform:translateY(-3px);
+      transform:translateY(-4px) scale(1.03);
     }
 
     .card.back{
-      background:linear-gradient(180deg,#2954a3 0%,#18335f 100%);
       color:#fff;
       display:flex;
       align-items:center;
       justify-content:center;
       font-size:20px;
-      border-color:rgba(255,255,255,.18);
+      border-color:rgba(255,255,255,.25);
+      text-shadow:0 1px 2px rgba(0,0,0,.25);
+    }
+
+    .back-inner{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      height:100%;
+      font-size:1em;
+      filter:saturate(1.05);
     }
 
     .card-corner{
@@ -461,9 +483,7 @@
       font-size:10px;
     }
 
-    .card:not(.small) .card-corner{
-      font-size:12px;
-    }
+    .card:not(.small) .card-corner{ font-size:12px; }
 
     .card-center{
       position:absolute;
@@ -478,17 +498,29 @@
     .card.small .card-center{ font-size:18px; }
 
     .card.entering{
-      transform:translateY(10px);
-      opacity:.2;
+      transform:translateY(18px) scale(.9) rotate(-6deg);
+      opacity:.1;
+      filter:blur(1px);
     }
 
     .card.dealing{
-      animation:dealPulse .35s ease;
+      animation:dealPulse .65s cubic-bezier(.18,.85,.25,1);
+    }
+
+    .pile-bounce{
+      animation:pileBounce .7s cubic-bezier(.18,.85,.25,1);
     }
 
     @keyframes dealPulse{
-      0%{ transform:translateY(-8px) scale(.96); opacity:.4; }
-      100%{ transform:translateY(0) scale(1); opacity:1; }
+      0%{ transform:translateY(-18px) scale(.86) rotate(-8deg); opacity:.2; filter:blur(1px); }
+      45%{ transform:translateY(4px) scale(1.05) rotate(2deg); opacity:1; filter:blur(0); }
+      100%{ transform:translateY(0) scale(1) rotate(0); opacity:1; filter:blur(0); }
+    }
+
+    @keyframes pileBounce{
+      0%{ transform:translateY(-10px) scale(.95); }
+      45%{ transform:translateY(3px) scale(1.03); }
+      100%{ transform:translateY(0) scale(1); }
     }
 
     .my-actions{
@@ -501,10 +533,8 @@
       flex:0 0 auto;
     }
 
-    #mySide{ justify-content:flex-start; }
-    #myHand{ margin-top:-6px; }
+    #myHand{ margin-top:-8px; }
     #myExposed{ min-height:calc(var(--card-h) + 2px); margin-bottom:-2px; }
-    #opponentExposed{ min-height:calc(var(--card-small-h) + 2px); }
 
     .overlay{
       position:fixed;
@@ -546,33 +576,23 @@
       }
       .topbar{ gap:6px; }
       .brand h1{ font-size:22px; }
-      .pill{
-        font-size:12px;
-        padding:5px 8px;
-      }
-      .panel{
-        padding:6px;
-        border-radius:14px;
-      }
-      .player-side,.table-center{
-        padding:6px;
-        border-radius:14px;
-      }
-      .player-name{
-        font-size:16px;
-        max-width:130px;
-      }
+      .pill{ font-size:12px; padding:5px 8px; }
+      .panel{ padding:6px; border-radius:14px; }
+      .player-side,.table-center{ padding:6px; border-radius:14px; }
+      .player-name{ font-size:16px; max-width:130px; }
       .player-points{ font-size:16px; }
       .victory-inline{ font-size:11px; }
-      .board-layout{
-        grid-template-rows:minmax(0,0.88fr) 138px minmax(0,0.82fr);
-      }
+      .board-layout{ grid-template-rows:minmax(0,0.9fr) 134px minmax(0,0.84fr); }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
         font-size:13px;
         line-height:1.1;
       }
+      .trick-card.upper{ top:6px; }
+      .trick-card.lower{ top:30px; }
+      .trick-card.upper.overlap{ top:14px; }
+      .trick-card.lower.overlap{ top:22px; }
     }
   </style>
 </head>
@@ -661,11 +681,11 @@
               </div>
 
               <div class="trick-stage">
-                <div id="leadCardBox" class="trick-card lead-pos"></div>
-                <div id="replyCardBox" class="trick-card reply-pos"></div>
+                <div id="leadCardBox" class="trick-card"></div>
+                <div id="replyCardBox" class="trick-card"></div>
               </div>
 
-              <div class="status-box compact-status">
+              <div class="status-box">
                 <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
               </div>
             </section>
@@ -729,6 +749,7 @@
   </div>
 
   <script type="module">
+    
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getAuth,
@@ -762,6 +783,20 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
+    const BACK_EMOJIS = ["😊","😄","😍","🥰","🤗","😺","🐶","🐱","🐼","🐸","🦊","🐻","🐹","🐯","🦄","🌸","🌼","💖","💛","💚"];
+    const BACK_COLORS = [
+      ["#5aa9ff","#6a7cff"],
+      ["#6dc4b0","#4f9d8f"],
+      ["#ff9ac6","#ff7eb3"],
+      ["#f7b267","#f79d65"],
+      ["#8fd694","#62b06f"],
+      ["#b8a1ff","#8b7dff"],
+      ["#ffb3a7","#ff8e7f"],
+      ["#7fd3ff","#56a3ff"],
+      ["#ffd166","#ffb703"],
+      ["#9ad1d4","#6fb1c7"]
+    ];
 
     const authStateEl = document.getElementById("authState");
     const uidLabelEl = document.getElementById("uidLabel");
@@ -820,7 +855,7 @@
 
     let me = null;
     let meName = localStorage.getItem("pete_bezique_name") || "";
-    let currentMatchId = localStorage.getItem("pete_bezique_matchId") || null;
+    let currentMatchId = null;
     let currentMatchUnsub = null;
     let playersUnsub = null;
     let challengesUnsub = null;
@@ -869,6 +904,11 @@
     function cardText(c){ return `${c.rank}${SUIT_LABEL[c.suit]}`; }
     function cardDisplayName(c){ return `${RANK_NAME[c.rank] || c.rank} ${SUIT_NAME[c.suit]}`; }
     function cardColorClass(suit){ return suit === "H" || suit === "D" ? "red" : "black"; }
+    function hashNum(str){
+      let h = 0;
+      for (let i=0; i<str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+      return Math.abs(h);
+    }
 
     function shuffle(arr){
       const a = [...arr];
@@ -935,10 +975,14 @@
       return el;
     }
 
-    function renderBackCard(small = false){
+    function renderBackCard(small = false, seed = "0"){
       const el = document.createElement("div");
       el.className = `card back ${small ? "small" : ""}`;
-      el.textContent = "😊";
+      const num = hashNum(String(seed));
+      const emoji = BACK_EMOJIS[num % BACK_EMOJIS.length];
+      const colors = BACK_COLORS[num % BACK_COLORS.length];
+      el.style.background = `linear-gradient(180deg, ${colors[0]} 0%, ${colors[1]} 100%)`;
+      el.innerHTML = `<div class="back-inner">${emoji}</div>`;
       return el;
     }
 
@@ -950,9 +994,18 @@
         requestAnimationFrame(() => {
           card.classList.remove("entering");
           card.classList.add("dealing");
-          setTimeout(() => card.classList.remove("dealing"), 350);
+          setTimeout(() => card.classList.remove("dealing"), 650);
         });
       });
+    }
+
+    function animatePile(){
+      const card = drawPileBox?.firstElementChild;
+      if (!card) return;
+      card.classList.remove("pile-bounce");
+      void card.offsetWidth;
+      card.classList.add("pile-bounce");
+      setTimeout(() => card.classList.remove("pile-bounce"), 700);
     }
 
     function maybeAnimateVisuals(match){
@@ -960,12 +1013,13 @@
         trick: ensureArray(match.trick).map(t => t.card?.id),
         draw: ensureArray(match.drawPile).length,
         myHand: ensureArray(match.hands?.[me?.uid]).length,
-        oppHand: ensureArray(match.hands?.[getOpponentUid(match)]).length
+        oppHand: ensureArray(match.hands?.[getOpponentUid(match)]).length,
+        pendingLoserDrawUid: match.pendingLoserDrawUid || null
       });
       if (sig !== lastVisualSignature) {
         animateCardEntry(leadCardBoxEl);
         animateCardEntry(replyCardBoxEl);
-        animateCardEntry(drawPileBox);
+        animatePile();
       }
       lastVisualSignature = sig;
     }
@@ -1067,7 +1121,10 @@
     }
 
     function selectedSummary(currentMatch){
-      if (!selectedCards.length) return "Inga kort markerade.";
+      if (!selectedCards.length) {
+        if (currentMatch?.pendingLoserDrawUid === me?.uid) return "Du måste klicka på högen för att dra ditt kort.";
+        return "Inga kort markerade.";
+      }
       const allMine = getAllMyAvailableCards(currentMatch);
       const chosen = selectedCards.map(sel => allMine.find(c => c.id === sel.id)).filter(Boolean);
       const names = chosen.map(cardText).join(", ");
@@ -1088,7 +1145,7 @@
       else selectedCards.push({id:card.id, source});
     }
 
-    function makeInitialRound(matchId, playerA, playerB, victoryPoints = null, scores = null){
+    function makeInitialRound(matchId, playerA, playerB, victoryPoints = null){
       const deck = createDeck();
       const dealer = Math.random() < 0.5 ? playerA.uid : playerB.uid;
       const nonDealer = dealer === playerA.uid ? playerB.uid : playerA.uid;
@@ -1121,11 +1178,12 @@
           [playerA.uid]: [],
           [playerB.uid]: []
         },
-        scores: scores || { [playerA.uid]:0, [playerB.uid]:0 },
+        scores: { [playerA.uid]:0, [playerB.uid]:0 },
         victoryPoints: victoryPoints || { [playerA.uid]:0, [playerB.uid]:0 },
         meldUsage: { [playerA.uid]: {}, [playerB.uid]: {} },
         meldCounts: { [playerA.uid]: {}, [playerB.uid]: {} },
         pendingWinnerActionUid: null,
+        pendingLoserDrawUid: null,
         swappedTrumpThisWin: false,
         declaredThisWin: false,
         lastTrickWinner: null,
@@ -1133,6 +1191,15 @@
         reconnectedAfterDisconnect: false,
         disconnectSince: null
       };
+    }
+
+    async function createFreshMatchWithPreservedVictoryPoints(playerA, playerB, id){
+      const matchRef = doc(db, "matches", id);
+      const existing = await getDoc(matchRef);
+      let victoryPoints = null;
+      if (existing.exists()) victoryPoints = existing.data().victoryPoints || null;
+      const fresh = makeInitialRound(id, playerA, playerB, victoryPoints);
+      await setDoc(matchRef, fresh, { merge:false });
     }
 
     async function markDisconnectState(isDisconnected){
@@ -1167,44 +1234,6 @@
     function targetHandSize(match, uid){
       const exposedCount = ensureArray(match.exposed?.[uid]).length;
       return Math.max(0, 8 - exposedCount);
-    }
-
-    function refillAfterWin(match){
-      const winnerUid = match.pendingWinnerActionUid;
-      if (!winnerUid) return;
-      const otherUid = Object.keys(match.players).find(uid => uid !== winnerUid);
-
-      function drawToTarget(uid){
-        while (ensureArray(match.hands[uid]).length < targetHandSize(match, uid) && ensureArray(match.drawPile).length > 0) {
-          match.hands[uid].push(match.drawPile.shift());
-        }
-      }
-
-      drawToTarget(winnerUid);
-      drawToTarget(otherUid);
-
-      match.pendingWinnerActionUid = null;
-      match.turn = winnerUid;
-      match.leader = winnerUid;
-      match.swappedTrumpThisWin = false;
-      match.declaredThisWin = false;
-      match.trick = [];
-    }
-
-    function endRoundIfNeeded(match){
-      const uids = Object.keys(match.players);
-      const handsEmpty = uids.every(uid => ensureArray(match.hands[uid]).length === 0);
-      if (ensureArray(match.drawPile).length === 0 && handsEmpty && ensureArray(match.trick).length === 0) {
-        if (match.lastTrickWinner) {
-          match.scores[match.lastTrickWinner] = (match.scores[match.lastTrickWinner] || 0) + 10;
-          match.lastTrickWinner = null;
-        }
-        const maybeWinner = uids.find(uid => (match.scores[uid] || 0) >= 1000);
-        if (maybeWinner && !match.winnerUid) {
-          match.winnerUid = maybeWinner;
-          match.victoryPoints[maybeWinner] = (match.victoryPoints[maybeWinner] || 0) + 1;
-        }
-      }
     }
 
     async function ensureSignedIn(){
@@ -1277,39 +1306,15 @@
     }
 
     async function abortRoundAndReturnToLobby(){
-      if (!currentMatchId) {
-        enterLobbyView();
-        return;
-      }
-
-      try {
-        const snap = await getDoc(doc(db, "matches", currentMatchId));
-        if (snap.exists()) {
-          const match = { id:snap.id, ...snap.data() };
-          const uids = Object.keys(match.players);
-          const reset = makeInitialRound(
-            match.id,
-            { uid: uids[0], name: match.players[uids[0]].name },
-            { uid: uids[1], name: match.players[uids[1]].name },
-            match.victoryPoints,
-            match.scores
-          );
-          await setDoc(doc(db, "matches", currentMatchId), reset, { merge:false });
-        }
-      } catch (e) {
-        console.error("abortRoundAndReturnToLobby failed:", e);
-      }
-
       stopDisconnectCountdown();
       leaveConfirmOverlay.classList.remove("show");
       selectedCards = [];
-
+      currentMatchId = null;
       if (currentMatchUnsub) {
         currentMatchUnsub();
         currentMatchUnsub = null;
       }
       enterLobbyView();
-      subscribeHistory();
     }
 
     function subscribePlayers(){
@@ -1420,17 +1425,11 @@
         const opponentName = pendingChallenge.fromName;
         const id = matchIdFor(me.uid, opponentUid);
 
-        const matchRef = doc(db, "matches", id);
-        const existing = await getDoc(matchRef);
-
-        if (!existing.exists()) {
-          const match = makeInitialRound(
-            id,
-            { uid: me.uid, name: meName },
-            { uid: opponentUid, name: opponentName }
-          );
-          await setDoc(matchRef, match);
-        }
+        await createFreshMatchWithPreservedVictoryPoints(
+          { uid: me.uid, name: meName },
+          { uid: opponentUid, name: opponentName },
+          id
+        );
 
         await updateDoc(doc(db, "challenges", pendingChallengeId), {
           status: "accepted",
@@ -1446,7 +1445,6 @@
         cancelChallengeBtn.style.display = "none";
 
         currentMatchId = id;
-        localStorage.setItem("pete_bezique_matchId", currentMatchId);
         openMatch(currentMatchId);
       } catch (err) {
         console.error("acceptChallenge failed:", err);
@@ -1524,7 +1522,6 @@
           declineChallengeBtn.style.display = "inline-block";
           cancelChallengeBtn.style.display = "none";
           currentMatchId = latest.matchId;
-          localStorage.setItem("pete_bezique_matchId", currentMatchId);
           openMatch(currentMatchId);
         }
 
@@ -1577,19 +1574,13 @@
           const opp = Object.values(m.players).find(p => p.uid !== me.uid);
           const div = document.createElement("div");
           div.className = "history-item";
-          div.style.cursor = "pointer";
           div.innerHTML = `
             <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
             <div class="tiny">
-              Poäng: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
+              Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0}
               · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}
             </div>
           `;
-          div.onclick = () => {
-            currentMatchId = m.id;
-            localStorage.setItem("pete_bezique_matchId", currentMatchId);
-            openMatch(currentMatchId);
-          };
           historyBoxEl.appendChild(div);
         });
       });
@@ -1628,10 +1619,24 @@
       );
     }
 
+    function placeTrickCards(match){
+      leadCardBoxEl.className = "trick-card";
+      replyCardBoxEl.className = "trick-card";
+
+      const oppUid = getOpponentUid(match);
+      if (match.trick?.[0]) {
+        const leadUpper = match.trick[0].uid === oppUid;
+        leadCardBoxEl.classList.add(leadUpper ? "upper" : "lower");
+      }
+      if (match.trick?.[1]) {
+        const replyUpper = match.trick[1].uid === oppUid;
+        replyCardBoxEl.classList.add(replyUpper ? "upper" : "lower", "overlap");
+      }
+    }
+
     function renderMatch(match){
       enterMatchView();
       currentMatchId = match.id;
-      localStorage.setItem("pete_bezique_matchId", currentMatchId);
 
       const opponentUid = getOpponentUid(match);
       const myHand = ensureArray(match.hands?.[me.uid]);
@@ -1647,8 +1652,8 @@
       myVictoryInline.textContent = match.victoryPoints?.[me.uid] || 0;
       opponentVictoryInline.textContent = match.victoryPoints?.[opponentUid] || 0;
 
-      mySide.classList.toggle("active-turn", match.turn === me.uid);
-      opponentSide.classList.toggle("active-turn", match.turn === opponentUid);
+      mySide.classList.toggle("active-turn", match.turn === me.uid || match.pendingLoserDrawUid === me.uid);
+      opponentSide.classList.toggle("active-turn", match.turn === opponentUid || match.pendingLoserDrawUid === opponentUid);
 
       trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
       drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
@@ -1656,8 +1661,8 @@
 
       myHandEl.innerHTML = "";
       myHand.slice().sort(sortCardsForUi).forEach(card => {
-        const selectable = match.pendingWinnerActionUid === me.uid;
-        const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.winnerUid;
+        const selectable = match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid;
+        const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "hand");
 
         const el = renderSpriteCard(card, {
@@ -1683,13 +1688,13 @@
       });
 
       opponentHandEl.innerHTML = "";
-      oppHand.slice().sort(sortCardsForUi).forEach(() => {
-        opponentHandEl.appendChild(renderBackCard(true));
+      oppHand.slice().sort(sortCardsForUi).forEach((_, i) => {
+        opponentHandEl.appendChild(renderBackCard(true, `opp-${oppHand.length}-${i}-${match.id}`));
       });
 
       myExposedEl.innerHTML = "";
       myExposed.slice().sort(sortCardsForUi).forEach(card => {
-        const selectable = match.pendingWinnerActionUid === me.uid;
+        const selectable = match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "exposed");
         const el = renderSpriteCard(card, {
           selectable,
@@ -1710,9 +1715,9 @@
       });
 
       drawPileBox.innerHTML = "";
-      const drawEl = renderBackCard(false);
+      const drawEl = renderBackCard(false, `pile-${ensureArray(match.drawPile).length}-${match.id}`);
       if (ensureArray(match.drawPile).length === 0) drawEl.style.opacity = "0.35";
-      if (match.pendingWinnerActionUid === me.uid && !match.winnerUid) {
+      if ((match.pendingWinnerActionUid === me.uid || match.pendingLoserDrawUid === me.uid) && !match.winnerUid) {
         drawEl.classList.add("playable");
         drawEl.title = "Dra kort";
         drawEl.onclick = () => drawFromPile(match);
@@ -1720,19 +1725,14 @@
       drawPileBox.appendChild(drawEl);
 
       trumpUnderBox.innerHTML = "";
-      if (match.trumpCard) {
-        trumpUnderBox.appendChild(renderSpriteCard(match.trumpCard));
-      }
+      if (match.trumpCard) trumpUnderBox.appendChild(renderSpriteCard(match.trumpCard));
 
       leadCardBoxEl.innerHTML = "";
       replyCardBoxEl.innerHTML = "";
 
-      if (match.trick?.[0]) {
-        leadCardBoxEl.appendChild(renderSpriteCard(match.trick[0].card));
-      }
-      if (match.trick?.[1]) {
-        replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
-      }
+      if (match.trick?.[0]) leadCardBoxEl.appendChild(renderSpriteCard(match.trick[0].card));
+      if (match.trick?.[1]) replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
+      placeTrickCards(match);
 
       declareMeldBtn.disabled = !(match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
       swapTrumpBtn.disabled = !canSwapTrump(match, me.uid);
@@ -1752,7 +1752,7 @@
 
     async function playCard(match, cardId){
       if (match.turn !== me.uid) return;
-      if (match.pendingWinnerActionUid) return;
+      if (match.pendingWinnerActionUid || match.pendingLoserDrawUid) return;
       if (match.winnerUid) return;
 
       selectedCards = [];
@@ -1801,6 +1801,7 @@
       next.turn = winnerUid;
       next.leader = winnerUid;
       next.pendingWinnerActionUid = winnerUid;
+      next.pendingLoserDrawUid = null;
       next.swappedTrumpThisWin = false;
       next.declaredThisWin = false;
 
@@ -1809,7 +1810,19 @@
       if (ensureArray(next.drawPile).length === 0 && handsEmpty) {
         next.pendingWinnerActionUid = null;
         next.trick = [];
-        endRoundIfNeeded(next);
+        const uids = Object.keys(next.players);
+        const allEmpty = uids.every(uid => ensureArray(next.hands[uid]).length === 0);
+        if (allEmpty) {
+          if (next.lastTrickWinner) {
+            next.scores[next.lastTrickWinner] = (next.scores[next.lastTrickWinner] || 0) + 10;
+            next.lastTrickWinner = null;
+          }
+          const maybeWinner = uids.find(uid => (next.scores[uid] || 0) >= 1000);
+          if (maybeWinner && !next.winnerUid) {
+            next.winnerUid = maybeWinner;
+            next.victoryPoints[maybeWinner] = (next.victoryPoints[maybeWinner] || 0) + 1;
+          }
+        }
       }
 
       await updateDoc(doc(db, "matches", next.id), {
@@ -1818,6 +1831,7 @@
         turn: next.turn,
         leader: next.leader,
         pendingWinnerActionUid: next.pendingWinnerActionUid,
+        pendingLoserDrawUid: next.pendingLoserDrawUid,
         swappedTrumpThisWin: next.swappedTrumpThisWin,
         declaredThisWin: next.declaredThisWin,
         scores: next.scores,
@@ -1932,13 +1946,34 @@
     }
 
     async function drawFromPile(match){
-      if (match.pendingWinnerActionUid !== me.uid) return;
-
-      selectedCards = [];
-
+      if (!currentMatchId) return;
       const next = deepClone(match);
-      refillAfterWin(next);
-      endRoundIfNeeded(next);
+      const oppUid = getOpponentUid(next);
+
+      if (next.pendingWinnerActionUid === me.uid) {
+        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[me.uid]).length < targetHandSize(next, me.uid)) {
+          next.hands[me.uid].push(next.drawPile.shift());
+        }
+        next.pendingWinnerActionUid = null;
+
+        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[oppUid]).length < targetHandSize(next, oppUid)) {
+          next.pendingLoserDrawUid = oppUid;
+          next.turn = oppUid;
+        } else {
+          next.pendingLoserDrawUid = null;
+          next.turn = next.leader;
+          next.trick = [];
+        }
+      } else if (next.pendingLoserDrawUid === me.uid) {
+        if (ensureArray(next.drawPile).length > 0 && ensureArray(next.hands[me.uid]).length < targetHandSize(next, me.uid)) {
+          next.hands[me.uid].push(next.drawPile.shift());
+        }
+        next.pendingLoserDrawUid = null;
+        next.turn = next.leader;
+        next.trick = [];
+      } else {
+        return;
+      }
 
       await updateDoc(doc(db, "matches", next.id), {
         hands: next.hands,
@@ -1947,6 +1982,7 @@
         turn: next.turn,
         leader: next.leader,
         pendingWinnerActionUid: next.pendingWinnerActionUid,
+        pendingLoserDrawUid: next.pendingLoserDrawUid,
         swappedTrumpThisWin: next.swappedTrumpThisWin,
         declaredThisWin: next.declaredThisWin,
         scores: next.scores,
@@ -2019,7 +2055,7 @@
         subscribeHistory();
         subscribeOutgoingChallenges();
 
-        if (currentMatchId) openMatch(currentMatchId);
+        currentMatchId = null;
       } else {
         authStateEl.textContent = "Loggar in…";
       }
@@ -2030,6 +2066,7 @@
       authStateEl.textContent = "Kunde inte logga in";
       alert("Firebase-inloggning misslyckades. Kontrollera config, Firestore och Anonymous Auth.");
     });
+
   </script>
 </body>
 </html>
