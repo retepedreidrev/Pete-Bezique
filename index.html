@@ -19,20 +19,20 @@
       --select:#ffd34d;
       --turnGlow:rgba(255,235,150,.92);
 
-      --card-w:54px;
-      --card-h:76px;
-      --card-small-w:46px;
-      --card-small-h:66px;
+      --card-w:58px;
+      --card-h:82px;
+      --card-small-w:48px;
+      --card-small-h:69px;
       --overlap:-12px;
       --overlap-small:-8px;
     }
 
     @media (min-width: 700px){
       :root{
-        --card-w:64px;
-        --card-h:88px;
-        --card-small-w:46px;
-        --card-small-h:66px;
+        --card-w:70px;
+        --card-h:96px;
+        --card-small-w:48px;
+        --card-small-h:69px;
         --overlap:-16px;
         --overlap-small:-10px;
       }
@@ -226,7 +226,7 @@
 
     .board-layout{
       display:grid;
-      grid-template-rows:minmax(0,0.96fr) 148px minmax(0,0.76fr);
+      grid-template-rows:minmax(0,0.72fr) 158px minmax(0,0.88fr);
       gap:6px;
       min-height:0;
       flex:1 1 auto;
@@ -341,7 +341,8 @@
       display:flex;
       justify-content:center;
       align-items:center;
-      min-height:78px;
+      gap:14px;
+      min-height:96px;
     }
 
     .stack-wrap{
@@ -371,10 +372,12 @@
 
     .trick-stage{
       position:relative;
-      min-height:88px;
+      width:190px;
+      min-height:110px;
       border:1px dashed rgba(255,255,255,.12);
       border-radius:12px;
       background:rgba(255,255,255,.02);
+      flex:0 0 auto;
     }
 
     .trick-card{
@@ -386,26 +389,26 @@
     }
 
     .trick-card.upper{
-      top:8px;
-      left:calc(50% - 34px);
+      top:14px;
+      left:34px;
       z-index:2;
     }
 
     .trick-card.lower{
-      top:34px;
-      left:calc(50% - 34px);
+      top:42px;
+      left:56px;
       z-index:2;
     }
 
     .trick-card.upper.overlap{
-      top:16px;
-      left:calc(50% - 8px);
+      top:18px;
+      left:86px;
       z-index:3;
     }
 
     .trick-card.lower.overlap{
-      top:26px;
-      left:calc(50% - 8px);
+      top:52px;
+      left:100px;
       z-index:3;
     }
 
@@ -517,18 +520,19 @@
 
     .stack-wrap.draw-attention .deck-base .card,
     .stack-wrap.draw-attention .trump-under .card{
-      box-shadow:0 0 0 2px rgba(255,235,150,.28), 0 0 22px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
+      box-shadow:0 0 0 4px rgba(255,235,150,.34), 0 0 26px rgba(255,235,150,.24), 0 3px 10px rgba(0,0,0,.24);
     }
 
-    .stack-wrap.draw-attention .deck-base .card{
+    .stack-wrap.draw-attention .deck-base .card,
+    .stack-wrap.draw-attention .trump-under .card{
       animation:drawPromptHop 3s ease-in-out infinite;
     }
 
     @keyframes drawPromptHop{
       0%, 78%, 100%{ transform:translateY(0) scale(1); }
-      84%{ transform:translateY(-7px) scale(1.03); }
+      84%{ transform:translateY(-10px) scale(1.04); }
       90%{ transform:translateY(0) scale(1); }
-      95%{ transform:translateY(-3px) scale(1.01); }
+      95%{ transform:translateY(-4px) scale(1.015); }
     }
 
     @keyframes dealPulse{
@@ -541,6 +545,23 @@
       0%{ transform:translateY(-10px) scale(.95); }
       45%{ transform:translateY(3px) scale(1.03); }
       100%{ transform:translateY(0) scale(1); }
+    }
+
+
+    .card.new-drawn{
+      animation:newDrawSettle 2s ease forwards;
+      transform-origin:center bottom;
+    }
+
+    @keyframes newDrawSettle{
+      0%{ transform:scale(1.3); }
+      100%{ transform:scale(1); }
+    }
+
+    .next-trick-wrap{
+      display:flex;
+      justify-content:center;
+      padding-top:6px;
     }
 
     .my-actions{
@@ -623,17 +644,17 @@
       .player-name{ font-size:16px; max-width:130px; }
       .player-points{ font-size:16px; }
       .victory-inline{ font-size:11px; }
-      .board-layout{ grid-template-rows:minmax(0,0.9fr) 142px minmax(0,0.84fr); }
+      .board-layout{ grid-template-rows:minmax(0,0.68fr) 148px minmax(0,0.92fr); }
       .top-actions button,
       .my-actions button{
         padding:7px 10px;
         font-size:13px;
         line-height:1.1;
       }
-      .trick-card.upper{ top:6px; }
-      .trick-card.lower{ top:30px; }
-      .trick-card.upper.overlap{ top:14px; }
-      .trick-card.lower.overlap{ top:22px; }
+      .trick-card.upper{ top:12px; left:28px; }
+      .trick-card.lower{ top:40px; left:50px; }
+      .trick-card.upper.overlap{ top:18px; left:76px; }
+      .trick-card.lower.overlap{ top:50px; left:90px; }
     }
   </style>
 </head>
@@ -728,6 +749,10 @@
 
               <div class="status-box">
                 <div id="selectedInfo" class="tiny">Inga kort markerade.</div>
+              </div>
+
+              <div class="next-trick-wrap">
+                <button id="nextTrickBtn" class="primary hidden">Nästa</button>
               </div>
             </section>
 
@@ -874,6 +899,7 @@
     const leadCardBoxEl = document.getElementById("leadCardBox");
     const replyCardBoxEl = document.getElementById("replyCardBox");
     const selectedInfoEl = document.getElementById("selectedInfo");
+    const nextTrickBtn = document.getElementById("nextTrickBtn");
 
     const declareMeldBtn = document.getElementById("declareMeldBtn");
     const swapTrumpBtn = document.getElementById("swapTrumpBtn");
@@ -912,6 +938,7 @@
     let disconnectTimer = null;
     let disconnectRemaining = 60;
     let lastVisualSignature = "";
+    let previousMyHandIds = [];
 
     displayNameInput.value = meName;
 
@@ -1006,6 +1033,11 @@
 
     function canTakeAnyStockCard(match, uid){
       return !match.winnerUid && (match.pendingWinnerActionUid === uid || match.pendingLoserDrawUid === uid);
+    }
+
+
+    function isEndgameTrickPhase(match){
+      return isStockClosed(match);
     }
 
     function renderSpriteCard(card, opts = {}){
@@ -1707,8 +1739,10 @@
       opponentSide.classList.toggle("active-turn", match.turn === opponentUid || match.pendingLoserDrawUid === opponentUid);
 
       trumpLabelEl.textContent = SUIT_NAME[match.trumpSuit];
-      drawCountLabelEl.textContent = ensureArray(match.drawPile).length;
+      drawCountLabelEl.textContent = ensureArray(match.drawPile).length + (match.trumpCard ? 1 : 0);
       selectedInfoEl.textContent = selectedSummary(match);
+
+      const newMyCardIds = myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id));
 
       myHandEl.innerHTML = "";
       myHand.slice().sort(sortCardsForUi).forEach(card => {
@@ -1721,6 +1755,8 @@
           playable,
           selected: isSelected
         });
+
+        if (newMyCardIds.includes(card.id)) el.classList.add("new-drawn");
 
         if (selectable) {
           el.onclick = () => {
@@ -1737,6 +1773,7 @@
 
         myHandEl.appendChild(el);
       });
+      previousMyHandIds = myHand.map(c => c.id);
 
       opponentHandEl.innerHTML = "";
       oppHand.slice().sort(sortCardsForUi).forEach((_, i) => {
@@ -1791,17 +1828,7 @@
         }
         drawPileBox.appendChild(drawEl);
       } else {
-        const placeholder = renderBackCard(false, `pile-empty-${match.id}`);
-        placeholder.style.opacity = match.trumpCard ? "0.22" : "0.12";
-        if (canDrawNow && match.trumpCard) {
-          placeholder.classList.add("playable");
-          placeholder.title = "Ta upp trumfkortet";
-          placeholder.onclick = () => drawFromPile(match);
-          drawPileBox.parentElement.classList.add("draw-attention");
-        } else {
-          drawPileBox.parentElement.classList.remove("draw-attention");
-        }
-        drawPileBox.appendChild(placeholder);
+        drawPileBox.parentElement.classList.toggle("draw-attention", !!(canDrawNow && match.trumpCard));
       }
 
       if (match.trumpCard) {
@@ -1823,10 +1850,61 @@
       if (match.trick?.[1]) replyCardBoxEl.appendChild(renderSpriteCard(match.trick[1].card));
       placeTrickCards(match);
 
-      declareMeldBtn.disabled = !(match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
-      swapTrumpBtn.disabled = !canSwapTrump(match, me.uid);
+      const canMeldNow = !isEndgameTrickPhase(match) && (match.pendingWinnerActionUid === me.uid && !match.swappedTrumpThisWin && !match.declaredThisWin);
+      const canSwapNow = !isEndgameTrickPhase(match) && canSwapTrump(match, me.uid);
+      declareMeldBtn.disabled = !canMeldNow;
+      swapTrumpBtn.disabled = !canSwapNow;
+      declareMeldBtn.classList.toggle("hidden", isEndgameTrickPhase(match));
+      swapTrumpBtn.classList.toggle("hidden", isEndgameTrickPhase(match));
+
+      const showNextButton = isEndgameTrickPhase(match) && match.pendingWinnerActionUid === me.uid && ensureArray(match.trick).length === 2 && !match.winnerUid;
+      nextTrickBtn.classList.toggle("hidden", !showNextButton);
 
       maybeAnimateVisuals(match);
+    }
+
+
+    async function advanceAfterEndgameTrick(){
+      if (!currentMatchId) return;
+      const snap = await getDoc(doc(db, "matches", currentMatchId));
+      if (!snap.exists()) return;
+      const match = { id:snap.id, ...snap.data() };
+      if (!isEndgameTrickPhase(match)) return;
+      if (match.pendingWinnerActionUid !== me.uid) return;
+      if (ensureArray(match.trick).length !== 2) return;
+
+      const next = deepClone(match);
+      const uids = Object.keys(next.players);
+      const allEmpty = uids.every(uid => ensureArray(next.hands[uid]).length === 0 && ensureArray(next.exposed[uid]).length === 0);
+
+      next.trick = [];
+      next.pendingWinnerActionUid = null;
+      next.pendingLoserDrawUid = null;
+      next.turn = next.leader;
+
+      if (allEmpty) {
+        if (next.lastTrickWinner) {
+          next.scores[next.lastTrickWinner] = (next.scores[next.lastTrickWinner] || 0) + 10;
+          next.lastTrickWinner = null;
+        }
+        const maybeWinner = uids.find(uid => (next.scores[uid] || 0) >= 1000);
+        if (maybeWinner && !next.winnerUid) {
+          next.winnerUid = maybeWinner;
+          next.victoryPoints[maybeWinner] = (next.victoryPoints[maybeWinner] || 0) + 1;
+        }
+      }
+
+      await updateDoc(doc(db, "matches", next.id), {
+        trick: next.trick,
+        pendingWinnerActionUid: next.pendingWinnerActionUid,
+        pendingLoserDrawUid: next.pendingLoserDrawUid,
+        turn: next.turn,
+        scores: next.scores,
+        lastTrickWinner: next.lastTrickWinner,
+        winnerUid: next.winnerUid || null,
+        victoryPoints: next.victoryPoints,
+        updatedAt: serverTimestamp()
+      });
     }
 
     function canSwapTrump(match, uid){
@@ -1897,27 +1975,16 @@
       next.swappedTrumpThisWin = false;
       next.declaredThisWin = false;
 
-      const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
-      const handsEmpty =
-        ensureArray(next.hands[winnerUid]).length === 0 &&
-        ensureArray(next.hands[otherUid]).length === 0 &&
-        ensureArray(next.exposed[winnerUid]).length === 0 &&
-        ensureArray(next.exposed[otherUid]).length === 0;
-      if (isStockClosed(next) && handsEmpty) {
-        next.pendingWinnerActionUid = null;
-        next.trick = [];
-        const uids = Object.keys(next.players);
-        const allEmpty = uids.every(uid => ensureArray(next.hands[uid]).length === 0 && ensureArray(next.exposed[uid]).length === 0);
-        if (allEmpty) {
-          if (next.lastTrickWinner) {
-            next.scores[next.lastTrickWinner] = (next.scores[next.lastTrickWinner] || 0) + 10;
-            next.lastTrickWinner = null;
-          }
-          const maybeWinner = uids.find(uid => (next.scores[uid] || 0) >= 1000);
-          if (maybeWinner && !next.winnerUid) {
-            next.winnerUid = maybeWinner;
-            next.victoryPoints[maybeWinner] = (next.victoryPoints[maybeWinner] || 0) + 1;
-          }
+      if (!isStockClosed(next)) {
+        const otherUid = Object.keys(next.players).find(uid => uid !== winnerUid);
+        const handsEmpty =
+          ensureArray(next.hands[winnerUid]).length === 0 &&
+          ensureArray(next.hands[otherUid]).length === 0 &&
+          ensureArray(next.exposed[winnerUid]).length === 0 &&
+          ensureArray(next.exposed[otherUid]).length === 0;
+        if (handsEmpty) {
+          next.pendingWinnerActionUid = null;
+          next.trick = [];
         }
       }
 
@@ -2106,6 +2173,7 @@
     cancelChallengeBtn.addEventListener("click", cancelOutgoingChallenge);
     declareMeldBtn.addEventListener("click", declareSelectedMeld);
     swapTrumpBtn.addEventListener("click", swapTrump);
+    nextTrickBtn.addEventListener("click", advanceAfterEndgameTrick);
 
     leaveMatchBtn.addEventListener("click", () => {
       leaveConfirmOverlay.classList.add("show");
