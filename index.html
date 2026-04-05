@@ -559,7 +559,7 @@
     }
     .card.preview-drawn{
       animation:drawPromptHop 3s ease-in-out infinite;
-      transform:translateY(-50%);
+      transform:translateY(-62%);
       transform-origin:center bottom;
       z-index:12;
       box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
@@ -625,7 +625,7 @@
     }
 
     #mySide{
-      margin-top:24px;
+      margin-top:16px;
       justify-content:flex-start;
     }
 
@@ -633,14 +633,14 @@
     #myExposed{ min-height:calc(var(--card-h) + 2px); margin-bottom:-2px; }
 
     .draw-preview-lane{
-      min-height:calc(var(--card-h) * 0.62);
+      min-height:calc(var(--card-h) * 0.48);
       display:flex;
       align-items:flex-start;
       justify-content:flex-end;
       overflow:visible;
       padding:0 4px;
-      margin-top:-2px;
-      margin-bottom:-2px;
+      margin-top:-12px;
+      margin-bottom:-6px;
     }
 
     .draw-preview-lane .card.preview-drawn{
@@ -1886,9 +1886,13 @@
       drawPreviewLaneEl.innerHTML = "";
       const previewCards = previewDrawnCardId ? myHand.filter(card => card.id === previewDrawnCardId) : [];
       previewCards.forEach(card => {
-        const el = renderSpriteCard(card);
+        const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
+        const el = renderSpriteCard(card, { playable });
         el.classList.add("preview-drawn");
         el.title = `${cardDisplayName(card)} (nytt kort)`;
+        if (playable) {
+          el.ondblclick = () => playCard(match, card.id);
+        }
         drawPreviewLaneEl.appendChild(el);
       });
 
