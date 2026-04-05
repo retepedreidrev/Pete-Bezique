@@ -558,12 +558,14 @@
       100%{ transform:translateY(0) scale(1); }
     }
     .card.preview-drawn{
-      animation:drawPromptHop 3s ease-in-out infinite;
-      transform:translateY(-62%);
+      animation:drawPromptWiggle 3s ease-in-out infinite;
+      transform:translateY(-38%);
       transform-origin:center bottom;
       z-index:12;
-      box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
-      will-change:transform, box-shadow;
+      opacity:.58;
+      box-shadow:0 0 0 1.5px rgba(255,235,150,.28), 0 0 12px rgba(255,235,150,.14), 0 3px 10px rgba(0,0,0,.24);
+      will-change:transform, box-shadow, opacity;
+      pointer-events:none;
     }
 
 
@@ -1845,7 +1847,6 @@
       if (newMyCardIds.length) registerNewDrawnCards(newMyCardIds);
 
       const visibleMyHand = myHand
-        .filter(card => card.id !== previewDrawnCardId)
         .slice()
         .sort(sortCardsForUi);
       myHandEl.innerHTML = "";
@@ -1886,39 +1887,9 @@
       drawPreviewLaneEl.innerHTML = "";
       const previewCards = previewDrawnCardId ? myHand.filter(card => card.id === previewDrawnCardId) : [];
       previewCards.forEach(card => {
-        const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
-        const el = renderSpriteCard(card, { playable });
+        const el = renderSpriteCard(card);
         el.classList.add("preview-drawn");
-        el.title = `${cardDisplayName(card)} (nytt kort)`;
-        if (playable) {
-          let lastPreviewTapAt = 0;
-          const playPreviewCard = (event) => {
-            if (event) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-            playCard(match, card.id);
-          };
-          el.ondblclick = playPreviewCard;
-          el.onclick = (event) => {
-            const now = Date.now();
-            if (now - lastPreviewTapAt < 380) {
-              playPreviewCard(event);
-              lastPreviewTapAt = 0;
-            } else {
-              lastPreviewTapAt = now;
-            }
-          };
-          el.ontouchend = (event) => {
-            const now = Date.now();
-            if (now - lastPreviewTapAt < 420) {
-              playPreviewCard(event);
-              lastPreviewTapAt = 0;
-            } else {
-              lastPreviewTapAt = now;
-            }
-          };
-        }
+        el.title = `${cardDisplayName(card)} (senast draget)`;
         drawPreviewLaneEl.appendChild(el);
       });
 
