@@ -1017,7 +1017,7 @@
     let previousMyHandIds = [];
     let opponentLeftNoticeShown = false;
     let latestRenderedMatch = null;
-    let previewDrawnCardIds = new Set();
+    let previewDrawnCardId = null;
     let transientStatusTimer = null;
     let endgameAdvanceTimer = null;
     let endgameAdvanceKey = "";
@@ -1160,22 +1160,17 @@
     function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
 
     function registerNewDrawnCards(cardIds){
-      let added = false;
-      for (const id of cardIds){
-        if (!previewDrawnCardIds.has(id)) {
-          previewDrawnCardIds.add(id);
-          added = true;
-        }
-      }
-      if (added && latestRenderedMatch && currentMatchId === latestRenderedMatch.id) {
+      if (!cardIds.length) return false;
+      previewDrawnCardId = cardIds[cardIds.length - 1];
+      if (latestRenderedMatch && currentMatchId === latestRenderedMatch.id) {
         renderMatch(latestRenderedMatch);
       }
-      return added;
+      return true;
     }
 
     function clearPreviewDrawnCards(shouldRerender = true){
-      if (!previewDrawnCardIds.size) return;
-      previewDrawnCardIds.clear();
+      if (!previewDrawnCardId) return;
+      previewDrawnCardId = null;
       if (shouldRerender && latestRenderedMatch && currentMatchId === latestRenderedMatch.id) {
         renderMatch(latestRenderedMatch);
       }
@@ -1832,7 +1827,7 @@
       const newMyCardIds = !isStockClosed(match) ? myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id)) : [];
       if (newMyCardIds.length) registerNewDrawnCards(newMyCardIds);
 
-      const visibleMyHand = myHand.slice().sort(sortCardsForUi).filter(card => !previewDrawnCardIds.has(card.id));
+      const visibleMyHand = myHand.slice().sort(sortCardsForUi);
       myHandEl.innerHTML = "";
       window.__lastRenderedMyHand = visibleMyHand;
       visibleMyHand.forEach(card => {
@@ -1868,7 +1863,7 @@
         myExposedEl.appendChild(el);
       });
 
-      const previewCards = myHand.filter(card => previewDrawnCardIds.has(card.id));
+      const previewCards = previewDrawnCardId ? myHand.filter(card => card.id === previewDrawnCardId) : [];
       previewCards.forEach(card => {
         const el = renderSpriteCard(card);
         el.classList.add("preview-drawn");
