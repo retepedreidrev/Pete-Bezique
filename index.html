@@ -559,13 +559,11 @@
     }
     .card.preview-drawn{
       animation:drawPromptHop 3s ease-in-out infinite;
-      transform:translateY(-14%);
+      transform:translateY(-50%);
       transform-origin:center bottom;
       z-index:12;
       box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
       will-change:transform, box-shadow;
-      margin-left:14px;
-      margin-right:6px;
     }
 
 
@@ -633,6 +631,21 @@
 
     #myHand{ margin-top:-4px; }
     #myExposed{ min-height:calc(var(--card-h) + 2px); margin-bottom:-2px; }
+
+    .draw-preview-lane{
+      min-height:calc(var(--card-h) * 0.62);
+      display:flex;
+      align-items:flex-start;
+      justify-content:flex-end;
+      overflow:visible;
+      padding:0 4px;
+      margin-top:-2px;
+      margin-bottom:-2px;
+    }
+
+    .draw-preview-lane .card.preview-drawn{
+      margin-right:0;
+    }
 
     .overlay{
       position:fixed;
@@ -797,6 +810,7 @@
 
             <section id="mySide" class="player-side">
               <div id="myExposed" class="cards"></div>
+              <div id="drawPreviewLane" class="draw-preview-lane"></div>
 
               <div class="separator"></div>
               <div id="myHand" class="cards"></div>
@@ -960,6 +974,7 @@
     const myHandEl = document.getElementById("myHand");
     const opponentHandEl = document.getElementById("opponentHand");
     const myExposedEl = document.getElementById("myExposed");
+    const drawPreviewLaneEl = document.getElementById("drawPreviewLane");
     const opponentExposedEl = document.getElementById("opponentExposed");
     const drawPileBox = document.getElementById("drawPileBox");
     const trumpUnderBox = document.getElementById("trumpUnderBox");
@@ -1824,10 +1839,15 @@
         backToLobbyBtn.disabled = false;
       }
 
-      const newMyCardIds = !isStockClosed(match) ? myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id)) : [];
+      const newMyCardIds = previousMyHandIds.length > 0 && !isStockClosed(match)
+        ? myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id))
+        : [];
       if (newMyCardIds.length) registerNewDrawnCards(newMyCardIds);
 
-      const visibleMyHand = myHand.slice().sort(sortCardsForUi);
+      const visibleMyHand = myHand
+        .filter(card => card.id !== previewDrawnCardId)
+        .slice()
+        .sort(sortCardsForUi);
       myHandEl.innerHTML = "";
       window.__lastRenderedMyHand = visibleMyHand;
       visibleMyHand.forEach(card => {
@@ -1863,12 +1883,13 @@
         myExposedEl.appendChild(el);
       });
 
+      drawPreviewLaneEl.innerHTML = "";
       const previewCards = previewDrawnCardId ? myHand.filter(card => card.id === previewDrawnCardId) : [];
       previewCards.forEach(card => {
         const el = renderSpriteCard(card);
         el.classList.add("preview-drawn");
         el.title = `${cardDisplayName(card)} (nytt kort)`;
-        myExposedEl.appendChild(el);
+        drawPreviewLaneEl.appendChild(el);
       });
 
       opponentExposedEl.innerHTML = "";
