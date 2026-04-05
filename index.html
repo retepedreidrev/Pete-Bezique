@@ -557,23 +557,16 @@
     }
 
     .card.new-drawn{
-      animation:newDrawSettle 5s ease forwards;
+      animation:newDrawSettle 4s ease forwards;
       transform-origin:center bottom;
       z-index:9;
-      box-shadow:0 0 0 3px rgba(255,235,150,.35), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
+      box-shadow:0 0 0 3px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24);
     }
 
     @keyframes newDrawSettle{
-      0%{ transform:scale(1.28) rotate(-7deg); box-shadow:0 0 0 3px rgba(255,235,150,.42), 0 0 22px rgba(255,235,150,.28), 0 3px 10px rgba(0,0,0,.24); }
-      8%{ transform:scale(1.23) rotate(7deg); }
-      16%{ transform:scale(1.20) rotate(-6deg); }
-      24%{ transform:scale(1.17) rotate(5deg); }
-      34%{ transform:scale(1.13) rotate(-4deg); }
-      46%{ transform:scale(1.10) rotate(3deg); box-shadow:0 0 0 3px rgba(255,235,150,.36), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24); }
-      60%{ transform:scale(1.07) rotate(-2deg); }
-      74%{ transform:scale(1.04) rotate(1.6deg); }
-      88%{ transform:scale(1.01) rotate(-0.8deg); }
-      100%{ transform:scale(1) rotate(0deg); box-shadow:0 3px 10px rgba(0,0,0,.24); }
+      0%{ transform:translateY(-20%) scale(1.04); box-shadow:0 0 0 3px rgba(255,235,150,.40), 0 0 20px rgba(255,235,150,.24), 0 3px 10px rgba(0,0,0,.24); }
+      50%{ transform:translateY(-10%) scale(1.02); box-shadow:0 0 0 2px rgba(255,235,150,.24), 0 0 12px rgba(255,235,150,.14), 0 3px 10px rgba(0,0,0,.24); }
+      100%{ transform:translateY(0) scale(1); box-shadow:0 3px 10px rgba(0,0,0,.24); }
     }
 
     .next-trick-wrap{
@@ -876,6 +869,17 @@
     </div>
   </div>
 
+  <div id="roundOverOverlay" class="overlay">
+    <div class="modal">
+      <h2>Omgången är slut</h2>
+      <p id="roundOverText">Resultat</p>
+      <div class="row">
+        <button id="newRoundBtn" class="good">Ny omgång</button>
+        <button id="backToLobbyBtn" class="ghost">Tillbaka till lobbyn</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
@@ -986,6 +990,10 @@
     const statusOverlay = document.getElementById("statusOverlay");
     const statusOverlayTitle = document.getElementById("statusOverlayTitle");
     const statusOverlayText = document.getElementById("statusOverlayText");
+    const roundOverOverlay = document.getElementById("roundOverOverlay");
+    const roundOverText = document.getElementById("roundOverText");
+    const newRoundBtn = document.getElementById("newRoundBtn");
+    const backToLobbyBtn = document.getElementById("backToLobbyBtn");
 
     let me = null;
     let meName = localStorage.getItem("pete_bezique_name") || "";
@@ -1009,6 +1017,8 @@
     let previousMyHandIds = [];
     let opponentLeftNoticeShown = false;
     let transientStatusTimer = null;
+    let endgameAdvanceTimer = null;
+    let endgameAdvanceKey = "";
     const APP_START_MS = Date.now();
 
     displayNameInput.value = meName;
@@ -1304,6 +1314,39 @@
       else selectedCards.push({id:card.id, source});
     }
 
+    function getRoundWinnerUid(match){
+      const uids = Object.keys(match.players || {});
+      if (uids.length < 2) return null;
+      const [a,b] = uids;
+      const scoreA = match.scores?.[a] || 0;
+      const scoreB = match.scores?.[b] || 0;
+      if (scoreA === scoreB) return null;
+      return scoreA > scoreB ? a : b;
+    }
+
+    function buildRoundResult(match){
+      const winnerUid = getRoundWinnerUid(match);
+      return {
+        winnerUid,
+        scores: deepClone(match.scores || {}),
+        victoryPoints: deepClone(match.victoryPoints || {}),
+        finishedAtMs: Date.now()
+      };
+    }
+
+    function formatRoundOverText(match){
+      const oppUid = getOpponentUid(match);
+      const myScore = match.scores?.[me.uid] || 0;
+      const oppScore = match.scores?.[oppUid] || 0;
+      const myVp = match.victoryPoints?.[me.uid] || 0;
+      const oppVp = match.victoryPoints?.[oppUid] || 0;
+      const winnerUid = match.roundResult?.winnerUid ?? getRoundWinnerUid(match);
+      const winnerText = winnerUid ? `${getPlayerName(match, winnerUid)} vann omgången.` : 'Omgången slutade oavgjort.';
+      const myChoice = match.nextRoundChoices?.[me.uid] || null;
+      const waitText = myChoice === 'new_round' ? ' Du har valt ny omgång och väntar på motståndaren.' : '';
+      return `${winnerText} Resultat: ${getPlayerName(match, me.uid)} ${myScore} – ${getPlayerName(match, oppUid)} ${oppScore}. Totala segerpoäng: ${myVp} – ${oppVp}.${waitText}`;
+    }
+
     function makeInitialRound(matchId, playerA, playerB, victoryPoints = null){
       const deck = createDeck();
       const dealer = Math.random() < 0.5 ? playerA.uid : playerB.uid;
@@ -1349,7 +1392,10 @@
         disconnectSince: null,
         backThemeSeed: `${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
         abandonedByUid: null,
-        abandonedAtMs: null
+        abandonedAtMs: null,
+        roundEnded: false,
+        roundResult: null,
+        nextRoundChoices: {}
       };
     }
 
@@ -1438,6 +1484,12 @@
       stopDisconnectCountdown();
       leaveConfirmOverlay.classList.remove("show");
       opponentLeftOverlay.classList.remove("show");
+      roundOverOverlay.classList.remove("show");
+      if (endgameAdvanceTimer) {
+        clearTimeout(endgameAdvanceTimer);
+        endgameAdvanceTimer = null;
+        endgameAdvanceKey = "";
+      }
       selectedCards = [];
       currentMatchId = null;
       if (currentMatchUnsub) { currentMatchUnsub(); currentMatchUnsub = null; }
@@ -1459,6 +1511,44 @@
 
     async function acknowledgeOpponentLeft(){
       opponentLeftOverlay.classList.remove("show");
+      await abortRoundAndReturnToLobby();
+    }
+
+    async function chooseNewRound(){
+      if (!currentMatchId || !me) return;
+      const ref = doc(db, "matches", currentMatchId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return;
+      const match = { id:snap.id, ...snap.data() };
+      if (!match.roundEnded) return;
+
+      const nextChoices = { ...(match.nextRoundChoices || {}), [me.uid]: "new_round" };
+      const opponentUid = getOpponentUid(match);
+      await updateDoc(ref, {
+        nextRoundChoices: nextChoices,
+        updatedAt: serverTimestamp()
+      });
+
+      if (nextChoices[opponentUid] === "new_round") {
+        const fresh = makeInitialRound(match.id, match.players[me.uid], match.players[opponentUid], match.victoryPoints || null);
+        await setDoc(ref, fresh, { merge:false });
+      }
+    }
+
+    async function chooseBackToLobby(){
+      if (!currentMatchId || !me) {
+        await abortRoundAndReturnToLobby();
+        return;
+      }
+      try {
+        await updateDoc(doc(db, "matches", currentMatchId), {
+          abandonedByUid: me.uid,
+          abandonedAtMs: Date.now(),
+          updatedAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.error("chooseBackToLobby failed:", err);
+      }
       await abortRoundAndReturnToLobby();
     }
 
@@ -1692,7 +1782,19 @@
       drawCountLabelEl.textContent = ensureArray(match.drawPile).length + (match.trumpCard ? 1 : 0);
       selectedInfoEl.textContent = instructionText(match);
 
-      const newMyCardIds = myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id));
+      if (match.roundEnded) {
+        roundOverText.textContent = formatRoundOverText(match);
+        roundOverOverlay.classList.add("show");
+        const myChoice = match.nextRoundChoices?.[me.uid] || null;
+        newRoundBtn.disabled = myChoice === "new_round";
+        backToLobbyBtn.disabled = false;
+      } else {
+        roundOverOverlay.classList.remove("show");
+        newRoundBtn.disabled = false;
+        backToLobbyBtn.disabled = false;
+      }
+
+      const newMyCardIds = !isStockClosed(match) ? myHand.map(c => c.id).filter(id => !previousMyHandIds.includes(id)) : [];
 
       myHandEl.innerHTML = "";
       window.__lastRenderedMyHand = myHand.slice().sort(sortCardsForUi);
@@ -1779,8 +1881,25 @@
       declareMeldBtn.classList.toggle("hidden", isEndgameTrickPhase(match));
       swapTrumpBtn.classList.toggle("hidden", isEndgameTrickPhase(match));
 
-      const showNextButton = isEndgameTrickPhase(match) && match.pendingWinnerActionUid === me.uid && ensureArray(match.trick).length === 2 && !match.winnerUid;
-      nextTrickBtn.classList.toggle("hidden", !showNextButton);
+      const showNextButton = false;
+      nextTrickBtn.classList.add("hidden");
+
+      const shouldAutoAdvance = isEndgameTrickPhase(match) && !match.roundEnded && match.pendingWinnerActionUid === me.uid && ensureArray(match.trick).length === 2 && !match.winnerUid;
+      const autoAdvanceKey = shouldAutoAdvance ? `${match.id}_${ensureArray(match.trick).map(t => t.card?.id).join("_")}` : "";
+      if (shouldAutoAdvance) {
+        if (endgameAdvanceKey !== autoAdvanceKey) {
+          if (endgameAdvanceTimer) clearTimeout(endgameAdvanceTimer);
+          endgameAdvanceKey = autoAdvanceKey;
+          endgameAdvanceTimer = setTimeout(() => {
+            endgameAdvanceTimer = null;
+            advanceAfterEndgameTrick();
+          }, 3000);
+        }
+      } else {
+        if (endgameAdvanceTimer) clearTimeout(endgameAdvanceTimer);
+        endgameAdvanceTimer = null;
+        endgameAdvanceKey = "";
+      }
 
       maybeAnimateVisuals(match);
     }
@@ -2011,6 +2130,8 @@
     confirmLeaveBtn.addEventListener("click", leaveCurrentMatch);
     cancelLeaveBtn.addEventListener("click", () => leaveConfirmOverlay.classList.remove("show"));
     opponentLeftOkBtn.addEventListener("click", acknowledgeOpponentLeft);
+    newRoundBtn.addEventListener("click", chooseNewRound);
+    backToLobbyBtn.addEventListener("click", chooseBackToLobby);
 
     window.addEventListener("offline", async () => {
       if (currentMatchId) { await markDisconnectState(true); startDisconnectCountdown(); }
