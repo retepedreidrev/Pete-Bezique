@@ -1891,7 +1891,33 @@
         el.classList.add("preview-drawn");
         el.title = `${cardDisplayName(card)} (nytt kort)`;
         if (playable) {
-          el.ondblclick = () => playCard(match, card.id);
+          let lastPreviewTapAt = 0;
+          const playPreviewCard = (event) => {
+            if (event) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            playCard(match, card.id);
+          };
+          el.ondblclick = playPreviewCard;
+          el.onclick = (event) => {
+            const now = Date.now();
+            if (now - lastPreviewTapAt < 380) {
+              playPreviewCard(event);
+              lastPreviewTapAt = 0;
+            } else {
+              lastPreviewTapAt = now;
+            }
+          };
+          el.ontouchend = (event) => {
+            const now = Date.now();
+            if (now - lastPreviewTapAt < 420) {
+              playPreviewCard(event);
+              lastPreviewTapAt = 0;
+            } else {
+              lastPreviewTapAt = now;
+            }
+          };
         }
         drawPreviewLaneEl.appendChild(el);
       });
