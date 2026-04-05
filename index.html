@@ -559,20 +559,21 @@
     }
     .card.new-drawn{
       animation:newDrawWiggle 2.7s ease-in-out infinite;
-      transform:translateY(-50%);
+      transform:translateY(-55%);
       transform-origin:center bottom;
-      z-index:9;
-      box-shadow:0 0 0 1.5px rgba(255,235,150,.30), 0 0 14px rgba(255,235,150,.16), 0 3px 10px rgba(0,0,0,.24);
+      z-index:12;
+      box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24);
       will-change:transform, box-shadow;
-      margin-left:10px;
+      margin-left:14px;
+      margin-right:14px;
     }
 
     @keyframes newDrawWiggle{
-      0%, 76%, 100%{ transform:translateY(-50%) rotate(0deg) scale(1); }
-      81%{ transform:translateY(calc(-50% - 9px)) rotate(-5deg) scale(1.02); }
-      86%{ transform:translateY(calc(-50% - 2px)) rotate(4deg) scale(1.01); }
-      91%{ transform:translateY(calc(-50% - 7px)) rotate(-3deg) scale(1.02); }
-      96%{ transform:translateY(-50%) rotate(0deg) scale(1); }
+      0%, 76%, 100%{ transform:translateY(-55%) rotate(0deg) scale(1); }
+      81%{ transform:translateY(calc(-55% - 9px)) rotate(-5deg) scale(1.02); }
+      86%{ transform:translateY(calc(-55% - 2px)) rotate(4deg) scale(1.01); }
+      91%{ transform:translateY(calc(-55% - 7px)) rotate(-3deg) scale(1.02); }
+      96%{ transform:translateY(-55%) rotate(0deg) scale(1); }
     }
 
     .card.new-drawn-settle{
@@ -580,7 +581,7 @@
     }
 
     @keyframes newDrawInsert{
-      0%{ transform:translateY(-50%); box-shadow:0 0 0 1.5px rgba(255,235,150,.30), 0 0 14px rgba(255,235,150,.16), 0 3px 10px rgba(0,0,0,.24); }
+      0%{ transform:translateY(-55%); box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.22), 0 3px 10px rgba(0,0,0,.24); }
       100%{ transform:translateY(0); box-shadow:0 3px 10px rgba(0,0,0,.24); }
     }
 
@@ -1188,7 +1189,7 @@
               highlightedNewCardIds.delete(id);
               settleNewCardIds.delete(id);
               if (latestRenderedMatch && currentMatchId === latestRenderedMatch.id) renderMatch(latestRenderedMatch);
-            }, 500);
+            }, 800);
             if (latestRenderedMatch && currentMatchId === latestRenderedMatch.id) renderMatch(latestRenderedMatch);
           }, 3000);
         }
@@ -1967,17 +1968,21 @@
           next.scores[next.lastTrickWinner] = (next.scores[next.lastTrickWinner] || 0) + 10;
           next.lastTrickWinner = null;
         }
-        const maybeWinner = uids.find(uid => (next.scores[uid] || 0) >= 1000);
-        if (maybeWinner && !next.winnerUid) {
-          next.winnerUid = maybeWinner;
-          next.victoryPoints[maybeWinner] = (next.victoryPoints[maybeWinner] || 0) + 1;
+        const roundWinnerUid = getRoundWinnerUid(next);
+        if (roundWinnerUid) {
+          next.victoryPoints[roundWinnerUid] = (next.victoryPoints[roundWinnerUid] || 0) + 1;
         }
+        next.winnerUid = roundWinnerUid || null;
+        next.roundEnded = true;
+        next.roundResult = buildRoundResult(next);
+        next.nextRoundChoices = {};
       }
 
       await updateDoc(doc(db, "matches", next.id), {
         trick: next.trick, pendingWinnerActionUid: next.pendingWinnerActionUid, pendingLoserDrawUid: next.pendingLoserDrawUid,
         turn: next.turn, scores: next.scores, lastTrickWinner: next.lastTrickWinner, winnerUid: next.winnerUid || null,
-        victoryPoints: next.victoryPoints, updatedAt: serverTimestamp()
+        victoryPoints: next.victoryPoints, roundEnded: !!next.roundEnded, roundResult: next.roundResult || null,
+        nextRoundChoices: next.nextRoundChoices || {}, updatedAt: serverTimestamp()
       });
     }
 
