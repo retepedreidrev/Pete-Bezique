@@ -6,10 +6,10 @@
   <title>Pete Bezique</title>
   <style>
     :root{
-      --bg:#6f4aa1;
-      --panel:#7a56ad;
-      --panel2:#6b489b;
-      --panel3:#5f3f8e;
+      --bg:#5e3b8a;
+      --panel:#6a4798;
+      --panel2:#5f418a;
+      --panel3:#54387d;
       --line:rgba(255,255,255,.12);
       --text:#eef3ff;
       --muted:#aab7df;
@@ -557,27 +557,30 @@
       45%{ transform:translateY(3px) scale(1.03); }
       100%{ transform:translateY(0) scale(1); }
     }
-
     .card.new-drawn{
-      animation:newDrawPending 3s ease forwards;
+      animation:newDrawWiggle 2.7s ease-in-out infinite;
+      transform:translateY(-50%);
       transform-origin:center bottom;
       z-index:9;
-      box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 16px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24);
+      box-shadow:0 0 0 1.5px rgba(255,235,150,.30), 0 0 14px rgba(255,235,150,.16), 0 3px 10px rgba(0,0,0,.24);
       will-change:transform, box-shadow;
       margin-left:10px;
     }
 
-    @keyframes newDrawPending{
-      0%, 100%{ transform:translateY(-50%); box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 16px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24); }
-      50%{ transform:translateY(-50%) scale(1.02); box-shadow:0 0 0 2px rgba(255,235,150,.40), 0 0 20px rgba(255,235,150,.26), 0 3px 10px rgba(0,0,0,.24); }
+    @keyframes newDrawWiggle{
+      0%, 76%, 100%{ transform:translateY(-50%) rotate(0deg) scale(1); }
+      81%{ transform:translateY(calc(-50% - 9px)) rotate(-5deg) scale(1.02); }
+      86%{ transform:translateY(calc(-50% - 2px)) rotate(4deg) scale(1.01); }
+      91%{ transform:translateY(calc(-50% - 7px)) rotate(-3deg) scale(1.02); }
+      96%{ transform:translateY(-50%) rotate(0deg) scale(1); }
     }
 
     .card.new-drawn-settle{
-      animation:newDrawInsert .36s ease forwards;
+      animation:newDrawInsert .5s ease forwards;
     }
 
     @keyframes newDrawInsert{
-      0%{ transform:translateY(-50%); box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 16px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24); }
+      0%{ transform:translateY(-50%); box-shadow:0 0 0 1.5px rgba(255,235,150,.30), 0 0 14px rgba(255,235,150,.16), 0 3px 10px rgba(0,0,0,.24); }
       100%{ transform:translateY(0); box-shadow:0 3px 10px rgba(0,0,0,.24); }
     }
 
@@ -1185,7 +1188,7 @@
               highlightedNewCardIds.delete(id);
               settleNewCardIds.delete(id);
               if (latestRenderedMatch && currentMatchId === latestRenderedMatch.id) renderMatch(latestRenderedMatch);
-            }, 380);
+            }, 500);
             if (latestRenderedMatch && currentMatchId === latestRenderedMatch.id) renderMatch(latestRenderedMatch);
           }, 3000);
         }
