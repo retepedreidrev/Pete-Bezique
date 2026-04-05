@@ -558,7 +558,6 @@
       100%{ transform:translateY(0) scale(1); }
     }
     .card.preview-drawn{
-      animation:drawPromptWiggle 3s ease-in-out infinite;
       transform:translateY(-38%);
       transform-origin:center bottom;
       z-index:12;
@@ -717,7 +716,7 @@
         <h1>Pete Bezique</h1>
       </div>
       <div class="row">
-        <span class="pill"><span class="dot"></span><span id="authState">Startar…</span></span>
+        <span class="pill"><span class="dot"></span><span id="authState">StartarâŚ</span></span>
         <span class="pill">UID: <span id="uidLabel">-</span></span>
       </div>
     </div>
@@ -755,7 +754,7 @@
 
       <main class="panel main-stage">
         <div id="noMatchBox" class="notice">
-          Välj en spelare i lobbyn och tryck <strong>Utmana</strong>.
+          VĂ¤lj en spelare i lobbyn och tryck <strong>Utmana</strong>.
         </div>
 
         <div id="gameBox" class="match-shell hidden">
@@ -765,7 +764,7 @@
               <span class="pill">Kort kvar: <strong id="drawCountLabel">0</strong></span>
             </div>
             <div class="row">
-              <button id="leaveMatchBtn" class="ghost">Lämna spelet</button>
+              <button id="leaveMatchBtn" class="ghost">LĂ¤mna spelet</button>
             </div>
           </div>
 
@@ -806,7 +805,7 @@
               </div>
 
               <div class="next-trick-wrap">
-                <button id="nextTrickBtn" class="primary hidden">Nästa</button>
+                <button id="nextTrickBtn" class="primary hidden">NĂ¤sta</button>
               </div>
             </section>
 
@@ -818,7 +817,7 @@
               <div id="myHand" class="cards"></div>
 
               <div class="my-actions">
-                <button id="declareMeldBtn" class="good">Lägg ut kombination</button>
+                <button id="declareMeldBtn" class="good">LĂ¤gg ut kombination</button>
                 <button id="swapTrumpBtn" class="warn">Byt trumfsjua</button>
               </div>
 
@@ -850,19 +849,19 @@
 
   <div id="disconnectOverlay" class="overlay">
     <div class="modal">
-      <h2>Anslutningen bröts</h2>
-      <p>Försöker återansluta. Om anslutningen inte kommer tillbaka avbryts given och du återgår till lobbyn.</p>
+      <h2>Anslutningen brĂśts</h2>
+      <p>FĂśrsĂśker ĂĽteransluta. Om anslutningen inte kommer tillbaka avbryts given och du ĂĽtergĂĽr till lobbyn.</p>
       <div class="countdown-big" id="disconnectCountdown">60</div>
-      <div class="tiny" id="disconnectStatusText">Väntar på kontakt…</div>
+      <div class="tiny" id="disconnectStatusText">VĂ¤ntar pĂĽ kontaktâŚ</div>
     </div>
   </div>
 
   <div id="leaveConfirmOverlay" class="overlay">
     <div class="modal">
-      <h2>Lämna spelet?</h2>
-      <p>Den pågående given avbryts och du återgår till lobbyn.</p>
+      <h2>LĂ¤mna spelet?</h2>
+      <p>Den pĂĽgĂĽende given avbryts och du ĂĽtergĂĽr till lobbyn.</p>
       <div class="row">
-        <button id="confirmLeaveBtn" class="danger">Ja, lämna</button>
+        <button id="confirmLeaveBtn" class="danger">Ja, lĂ¤mna</button>
         <button id="cancelLeaveBtn" class="ghost">Avbryt</button>
       </div>
     </div>
@@ -870,8 +869,8 @@
 
   <div id="opponentLeftOverlay" class="overlay">
     <div class="modal">
-      <h2>Motståndaren lämnade</h2>
-      <p>Omgången avbryts och du går tillbaka till lobbyn.</p>
+      <h2>MotstĂĽndaren lĂ¤mnade</h2>
+      <p>OmgĂĽngen avbryts och du gĂĽr tillbaka till lobbyn.</p>
       <div class="row">
         <button id="opponentLeftOkBtn" class="primary">OK</button>
       </div>
@@ -887,10 +886,10 @@
 
   <div id="roundOverOverlay" class="overlay">
     <div class="modal">
-      <h2>Omgången är slut</h2>
+      <h2>OmgĂĽngen Ă¤r slut</h2>
       <p id="roundOverText">Resultat</p>
       <div class="row">
-        <button id="newRoundBtn" class="good">Ny omgång</button>
+        <button id="newRoundBtn" class="good">Ny omgĂĽng</button>
         <button id="backToLobbyBtn" class="ghost">Tillbaka till lobbyn</button>
       </div>
     </div>
@@ -932,7 +931,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const BACK_EMOJIS = ["😊","😄","😍","🥰","🤗","😺","🐶","🐱","🐼","🐸","🦊","🐻","🐹","🐯","🦄","🌸","🌼","💖","💛","💚"];
+    const BACK_EMOJIS = ["đ","đ","đ","đĽ°","đ¤","đş","đś","đą","đź","đ¸","đŚ","đť","đš","đŻ","đŚ","đ¸","đź","đ","đ","đ"];
     const BACK_COLORS = [
       ["#5aa9ff","#6a7cff"],
       ["#6dc4b0","#4f9d8f"],
@@ -1044,8 +1043,8 @@
 
     const SUITS = ["S","H","D","C"];
     const RANKS = ["7","8","9","10","J","Q","K","A"];
-    const SUIT_LABEL = { S:"♠", H:"♥", D:"♦", C:"♣" };
-    const SUIT_NAME = { S:"Spader", H:"Hjärter", D:"Ruter", C:"Klöver" };
+    const SUIT_LABEL = { S:"â ", H:"âĽ", D:"âŚ", C:"âŁ" };
+    const SUIT_NAME = { S:"Spader", H:"HjĂ¤rter", D:"Ruter", C:"KlĂśver" };
     const RANK_NAME = { J:"Knekt", Q:"Dam", K:"Kung", A:"Ess" };
     const CARD_POINTS_IN_TRICK = new Set(["A","10"]);
     const RECONNECT_ABORT_MS = 15000;
@@ -1160,16 +1159,16 @@
 
     function instructionText(currentMatch){
       if (!currentMatch) return "";
-      if (currentMatch.winnerUid) return "Omgång slut.";
+      if (currentMatch.winnerUid) return "OmgĂĽng slut.";
       if (currentMatch.pendingWinnerActionUid === me?.uid || currentMatch.pendingLoserDrawUid === me?.uid) {
         return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0 ? "Ta trumfkortet." : "Dra ett kort.";
       }
-      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) return "Motståndaren drar.";
+      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) return "MotstĂĽndaren drar.";
       if (currentMatch.turn === me?.uid) {
         if (isEndgameTrickPhase(currentMatch)) return "Spela ett kort.";
         return "Markera, byt eller spela.";
       }
-      return "Vänta på motståndaren.";
+      return "VĂ¤nta pĂĽ motstĂĽndaren.";
     }
 
     function clearSelections(){ selectedCards = []; }
@@ -1341,6 +1340,31 @@
       return null;
     }
 
+    function findBeziqueUpgradeCards(match, uid, chosen){
+      const chosenIds = new Set(chosen.map(card => card.id));
+      const availableExposed = ensureArray(match.exposed?.[uid]).filter(card => !chosenIds.has(card.id));
+      const queenSpades = availableExposed.find(card => card.rank === "Q" && card.suit === "S");
+      const jackDiamonds = availableExposed.find(card => card.rank === "J" && card.suit === "D");
+      if (!queenSpades || !jackDiamonds) return null;
+      return [queenSpades, jackDiamonds];
+    }
+
+    function resolveDeclaredMeld(match, uid, chosen){
+      const baseMeld = detectMeld(match, chosen);
+      if (!baseMeld) return null;
+      if (baseMeld.typeKey !== "bezique") {
+        return { meld: baseMeld, usageCards: chosen };
+      }
+      const upgradeCards = findBeziqueUpgradeCards(match, uid, chosen);
+      if (!upgradeCards) {
+        return { meld: baseMeld, usageCards: chosen };
+      }
+      return {
+        meld: { typeKey:"doubleBezique", label:"Dubbel Bezique", points:500 },
+        usageCards: [...chosen, ...upgradeCards]
+      };
+    }
+
     function sortCardsForUi(a,b){
       const suitOrder = { S:0,H:1,D:2,C:3 };
       const rankOrder = { A:8,"10":7,K:6,Q:5,J:4,"9":3,"8":2,"7":1 };
@@ -1387,10 +1411,10 @@
       const myVp = match.victoryPoints?.[me.uid] || 0;
       const oppVp = match.victoryPoints?.[oppUid] || 0;
       const winnerUid = match.roundResult?.winnerUid ?? getRoundWinnerUid(match);
-      const winnerText = winnerUid ? `${getPlayerName(match, winnerUid)} vann omgången.` : 'Omgången slutade oavgjort.';
+      const winnerText = winnerUid ? `${getPlayerName(match, winnerUid)} vann omgĂĽngen.` : 'OmgĂĽngen slutade oavgjort.';
       const myChoice = match.nextRoundChoices?.[me.uid] || null;
-      const waitText = myChoice === 'new_round' ? ' Du har valt ny omgång och väntar på motståndaren.' : '';
-      return `${winnerText} Resultat: ${getPlayerName(match, me.uid)} ${myScore} – ${getPlayerName(match, oppUid)} ${oppScore}. Totala segerpoäng: ${myVp} – ${oppVp}.${waitText}`;
+      const waitText = myChoice === 'new_round' ? ' Du har valt ny omgĂĽng och vĂ¤ntar pĂĽ motstĂĽndaren.' : '';
+      return `${winnerText} Resultat: ${getPlayerName(match, me.uid)} ${myScore} â ${getPlayerName(match, oppUid)} ${oppScore}. Totala segerpoĂ¤ng: ${myVp} â ${oppVp}.${waitText}`;
     }
 
     function makeInitialRound(matchId, playerA, playerB, victoryPoints = null){
@@ -1508,7 +1532,7 @@
       if (!currentMatchId || disconnectTimer) return;
       disconnectRemaining = 60;
       disconnectCountdownEl.textContent = String(disconnectRemaining);
-      disconnectStatusText.textContent = "Väntar på kontakt…";
+      disconnectStatusText.textContent = "VĂ¤ntar pĂĽ kontaktâŚ";
       disconnectOverlay.classList.add("show");
       disconnectTimer = setInterval(async () => {
         disconnectRemaining -= 1;
@@ -1619,7 +1643,7 @@
           row.className = "player";
           row.innerHTML = `
             <div>
-              <div><strong>${escapeHtml(player.name || "Okänd")}</strong></div>
+              <div><strong>${escapeHtml(player.name || "OkĂ¤nd")}</strong></div>
               <div class="tiny">Aktiv ${shortTimeAgo(player.lastSeen || Date.now())}</div>
             </div>`;
           const btn = document.createElement("button");
@@ -1633,7 +1657,7 @@
     }
 
     async function challengePlayer(player){
-      if (!meName) { alert("Spara ditt namn först."); return; }
+      if (!meName) { alert("Spara ditt namn fĂśrst."); return; }
       const matchId = matchIdFor(me.uid, player.uid);
       const ref = await addDoc(collection(db, "challenges"), {
         fromUid: me.uid, fromName: meName, toUid: player.uid, toName: player.name || "Spelare",
@@ -1641,7 +1665,7 @@
       });
       outgoingChallengeId = ref.id;
       outgoingChallenge = { id: ref.id, fromUid: me.uid, fromName: meName, toUid: player.uid, toName: player.name || "Spelare", status: "pending", matchId };
-      challengeText.textContent = `Väntar på att ${(player.name || "spelaren")} ska acceptera utmaningen.`;
+      challengeText.textContent = `VĂ¤ntar pĂĽ att ${(player.name || "spelaren")} ska acceptera utmaningen.`;
       acceptChallengeBtn.style.display = "none";
       declineChallengeBtn.style.display = "none";
       cancelChallengeBtn.style.display = "inline-block";
@@ -1689,7 +1713,7 @@
         openMatch(currentMatchId);
       } catch (err) {
         console.error("acceptChallenge failed:", err);
-        alert("Kunde inte öppna matchen. Kontrollera console/loggar.");
+        alert("Kunde inte Ăśppna matchen. Kontrollera console/loggar.");
       }
     }
 
@@ -1718,7 +1742,7 @@
         if (!latest) return;
         if (latest.status === "pending") {
           outgoingChallenge = latest; outgoingChallengeId = latest.id;
-          challengeText.textContent = `Väntar på att ${latest.toName} ska acceptera utmaningen.`;
+          challengeText.textContent = `VĂ¤ntar pĂĽ att ${latest.toName} ska acceptera utmaningen.`;
           acceptChallengeBtn.style.display = "none"; declineChallengeBtn.style.display = "none"; cancelChallengeBtn.style.display = "inline-block";
           challengeOverlay.classList.add("show");
         }
@@ -1752,7 +1776,7 @@
         snap.forEach(d => { const data = d.data(); if (data.players && data.players[me.uid]) matches.push({id:d.id, ...data}); });
         matches.sort((a,b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
         historyBoxEl.innerHTML = "";
-        if (!matches.length) { historyBoxEl.innerHTML = `<div class="muted">Ingen historik ännu.</div>`; return; }
+        if (!matches.length) { historyBoxEl.innerHTML = `<div class="muted">Ingen historik Ă¤nnu.</div>`; return; }
         matches.forEach(m => {
           const opp = Object.values(m.players).find(p => p.uid !== me.uid);
           const div = document.createElement("div");
@@ -1760,12 +1784,12 @@
           div.innerHTML = `
             <div class="split">
               <div>
-                <div><strong>${escapeHtml(opp?.name || "Okänd")}</strong></div>
-                <div class="tiny">Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0} · VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}</div>
+                <div><strong>${escapeHtml(opp?.name || "OkĂ¤nd")}</strong></div>
+                <div class="tiny">Senast: ${m.scores?.[me.uid] || 0} - ${m.scores?.[opp?.uid] || 0} Âˇ VP: ${m.victoryPoints?.[me.uid] || 0} - ${m.victoryPoints?.[opp?.uid] || 0}</div>
               </div>
             </div>`;
           const deleteBtn = document.createElement("button");
-          deleteBtn.className = "ghost"; deleteBtn.textContent = "🗑️"; deleteBtn.title = "Ta bort matchhistorik";
+          deleteBtn.className = "ghost"; deleteBtn.textContent = "đď¸"; deleteBtn.title = "Ta bort matchhistorik";
           deleteBtn.onclick = async () => {
             if (!confirm("Ta bort matchen ur historiken?")) return;
             try { await deleteDoc(doc(db, "matches", m.id)); } catch (err) { console.error("delete match failed:", err); alert("Kunde inte ta bort matchen."); }
@@ -2031,7 +2055,7 @@
         const leadCard = next.trick[0].card;
         const responsePool = [...hand, ...exposed];
         if (!isLegalResponse(responsePool, leadCard, card, next.trumpSuit)) {
-          alert("Du måste följa färg. Kan du inte det måste du trumfa. Är utspelet trumf måste du trumfa över om möjligt.");
+          alert("Du mĂĽste fĂślja fĂ¤rg. Kan du inte det mĂĽste du trumfa. Ăr utspelet trumf mĂĽste du trumfa Ăśver om mĂśjligt.");
           return;
         }
       }
@@ -2090,19 +2114,20 @@
       if (!snap.exists()) return;
       const match = { id:snap.id, ...snap.data() };
       if (isEndgameTrickPhase(match)) return;
-      if (match.pendingWinnerActionUid !== me.uid) { alert("Du kan bara lägga ut efter att du vunnit ett stick och innan du dragit."); return; }
-      if (match.swappedTrumpThisWin) { alert("Du har redan bytt trumfsjua i detta läge och får då inte lägga ut kombination."); return; }
-      if (match.declaredThisWin) { alert("Du har redan lagt ut en kombination i detta läge. Klicka på högen för att dra."); return; }
-      if (!selectedCards.length) { showTimedPopup("Markera kort först."); return; }
-      if (!selectedCards.some(x => x.source === "hand")) { showTimedPopup("Minst ett av de markerade korten måste komma från handen."); return; }
+      if (match.pendingWinnerActionUid !== me.uid) { alert("Du kan bara lĂ¤gga ut efter att du vunnit ett stick och innan du dragit."); return; }
+      if (match.swappedTrumpThisWin) { alert("Du har redan bytt trumfsjua i detta lĂ¤ge och fĂĽr dĂĽ inte lĂ¤gga ut kombination."); return; }
+      if (match.declaredThisWin) { alert("Du har redan lagt ut en kombination i detta lĂ¤ge. Klicka pĂĽ hĂśgen fĂśr att dra."); return; }
+      if (!selectedCards.length) { showTimedPopup("Markera kort fĂśrst."); return; }
+      if (!selectedCards.some(x => x.source === "hand")) { showTimedPopup("Minst ett av de markerade korten mĂĽste komma frĂĽn handen."); return; }
 
       const allMy = getAllMyAvailableCards(match);
       const chosen = selectedCards.map(s => allMy.find(c => c.id === s.id)).filter(Boolean);
       if (chosen.length !== selectedCards.length) { showTimedPopup("Kunde inte hitta alla markerade kort."); return; }
 
-      const meld = detectMeld(match, chosen);
-      if (!meld) { showTimedPopup("De markerade korten bildar ingen giltig kombination."); return; }
-      if (hasTypeUsage(match, me.uid, chosen, meld.typeKey)) { showTimedPopup("De markerade korten kan inte användas i den kombinationen igen."); return; }
+      const resolvedMeld = resolveDeclaredMeld(match, me.uid, chosen);
+      if (!resolvedMeld) { showTimedPopup("De markerade korten bildar ingen giltig kombination."); return; }
+      const { meld, usageCards } = resolvedMeld;
+      if (hasTypeUsage(match, me.uid, usageCards, meld.typeKey)) { showTimedPopup("De markerade korten kan inte anvĂ¤ndas i den kombinationen igen."); return; }
 
       const next = deepClone(match);
       const handIds = new Set(selectedCards.filter(x => x.source === "hand").map(x => x.id));
@@ -2112,7 +2137,7 @@
       next.hands[me.uid] = handCards.filter(c => !handIds.has(c.id));
       next.exposed[me.uid] = [...exposedCards, ...moveFromHand];
 
-      chosen.forEach(card => markUsage(next, me.uid, card.id, meld.typeKey));
+      usageCards.forEach(card => markUsage(next, me.uid, card.id, meld.typeKey));
       incMeldCount(next, me.uid, meld.typeKey);
       next.scores[me.uid] = (next.scores[me.uid] || 0) + meld.points;
       next.declaredThisWin = true;
@@ -2211,57 +2236,4 @@
     backToLobbyBtn.addEventListener("click", chooseBackToLobby);
 
     window.addEventListener("offline", async () => {
-      if (currentMatchId) { await markDisconnectState(true); startDisconnectCountdown(); }
-    });
-
-    window.addEventListener("online", async () => {
-      stopDisconnectCountdown();
-      disconnectStatusText.textContent = "Kontakten är tillbaka.";
-      await heartbeat();
-      await markDisconnectState(false);
-    });
-
-    window.addEventListener("beforeunload", async () => {
-      try {
-        if (me) await updateDoc(doc(db, "players", me.uid), { online: false, lastSeen: Date.now() });
-        if (currentMatchId) await markDisconnectState(true);
-      } catch (e) {}
-    });
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        me = user;
-        uidLabelEl.textContent = user.uid.slice(0,8);
-        authStateEl.textContent = "Inloggad";
-        meNameEl.textContent = meName || `Spelare-${user.uid.slice(0,4)}`;
-
-        if (currentMatchUnsub) { currentMatchUnsub(); currentMatchUnsub = null; }
-        currentMatchId = null;
-        selectedCards = [];
-        enterLobbyView();
-
-        await saveMyProfile();
-        await heartbeat();
-
-        if (heartbeatTimer) clearInterval(heartbeatTimer);
-        heartbeatTimer = setInterval(heartbeat, 30000);
-
-        subscribePlayers();
-        subscribeChallenges();
-        subscribeHistory();
-        subscribeOutgoingChallenges();
-
-        currentMatchId = null;
-      } else {
-        authStateEl.textContent = "Loggar in…";
-      }
-    });
-
-    ensureSignedIn().catch(err => {
-      console.error(err);
-      authStateEl.textContent = "Kunde inte logga in";
-      alert("Firebase-inloggning misslyckades. Kontrollera config, Firestore och Anonymous Auth.");
-    });
-  </script>
-</body>
-</html>
+      if (currentMatchId) { awa
