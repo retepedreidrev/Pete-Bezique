@@ -6,10 +6,10 @@
   <title>Pete Bezique</title>
   <style>
     :root{
-      --bg:#221538;
-      --panel:#121c3d;
-      --panel2:#0d1735;
-      --panel3:#0a1430;
+      --bg:#6f4aa1;
+      --panel:#7a56ad;
+      --panel2:#6b489b;
+      --panel3:#5f3f8e;
       --line:rgba(255,255,255,.12);
       --text:#eef3ff;
       --muted:#aab7df;
@@ -559,17 +559,26 @@
     }
 
     .card.new-drawn{
-      animation:newDrawSettle 4s cubic-bezier(.22,.65,.2,1) forwards;
+      animation:newDrawPending 3s ease forwards;
       transform-origin:center bottom;
       z-index:9;
-      box-shadow:0 0 0 3px rgba(255,235,150,.34), 0 0 18px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24);
+      box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 16px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24);
       will-change:transform, box-shadow;
+      margin-left:10px;
     }
 
-    @keyframes newDrawSettle{
-      0%{ transform:translateY(-20%) scale(1.04); box-shadow:0 0 0 3px rgba(255,235,150,.40), 0 0 20px rgba(255,235,150,.24), 0 3px 10px rgba(0,0,0,.24); }
-      65%{ transform:translateY(-14%) scale(1.03); box-shadow:0 0 0 3px rgba(255,235,150,.28), 0 0 14px rgba(255,235,150,.16), 0 3px 10px rgba(0,0,0,.24); }
-      100%{ transform:translateY(0) scale(1); box-shadow:0 3px 10px rgba(0,0,0,.24); }
+    @keyframes newDrawPending{
+      0%, 100%{ transform:translateY(-50%); box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 16px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24); }
+      50%{ transform:translateY(-50%) scale(1.02); box-shadow:0 0 0 2px rgba(255,235,150,.40), 0 0 20px rgba(255,235,150,.26), 0 3px 10px rgba(0,0,0,.24); }
+    }
+
+    .card.new-drawn-settle{
+      animation:newDrawInsert .36s ease forwards;
+    }
+
+    @keyframes newDrawInsert{
+      0%{ transform:translateY(-50%); box-shadow:0 0 0 2px rgba(255,235,150,.34), 0 0 16px rgba(255,235,150,.20), 0 3px 10px rgba(0,0,0,.24); }
+      100%{ transform:translateY(0); box-shadow:0 3px 10px rgba(0,0,0,.24); }
     }
 
     .next-trick-wrap{
@@ -830,7 +839,7 @@
       <div class="row">
         <button id="acceptChallengeBtn" class="good">Acceptera</button>
         <button id="declineChallengeBtn" class="danger">Tacka nej</button>
-        <button id="cancelChallengeBtn" class="ghost" style="display:none;">Avbryt utmaning</button>
+        <button id="cancelChallengeBtn" class="danger" style="display:none;">Avbryt utmaning</button>
       </div>
     </div>
   </div>
@@ -1019,6 +1028,9 @@
     let lastVisualSignature = "";
     let previousMyHandIds = [];
     let opponentLeftNoticeShown = false;
+    let latestRenderedMatch = null;
+    let highlightedNewCardIds = new Map();
+    let settleNewCardIds = new Set();
     let transientStatusTimer = null;
     let endgameAdvanceTimer = null;
     let endgameAdvanceKey = "";
@@ -1144,14 +1156,14 @@
 
     function instructionText(currentMatch){
       if (!currentMatch) return "";
-      if (currentMatch.winnerUid) return "Omgången är slut.";
+      if (currentMatch.winnerUid) return "Omgång slut.";
       if (currentMatch.pendingWinnerActionUid === me?.uid || currentMatch.pendingLoserDrawUid === me?.uid) {
-        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0 ? "Ta upp det uppvända trumfkortet." : "Ta upp ett kort från högen.";
+        return currentMatch.trumpCard && ensureArray(currentMatch.drawPile).length === 0 ? "Ta trumfkortet." : "Dra ett kort.";
       }
-      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) return "Vänta på att nästa kort tas upp.";
+      if (currentMatch.pendingWinnerActionUid || currentMatch.pendingLoserDrawUid) return "Motståndaren drar.";
       if (currentMatch.turn === me?.uid) {
         if (isEndgameTrickPhase(currentMatch)) return "Spela ett kort.";
-        return "Markera kort för att visa en kombination, byt trumfsjua eller spela ett kort.";
+        return "Markera, byt eller spela.";
       }
       return "Vänta på motståndaren.";
     }
@@ -1159,6 +1171,27 @@
     function clearSelections(){ selectedCards = []; }
 
     function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
+
+    function registerNewDrawnCards(cardIds){
+      const now = Date.now();
+      let added = false;
+      for (const id of cardIds){
+        if (!highlightedNewCardIds.has(id)) {
+          highlightedNewCardIds.set(id, now + 3000);
+          added = true;
+          setTimeout(() => {
+            settleNewCardIds.add(id);
+            setTimeout(() => {
+              highlightedNewCardIds.delete(id);
+              settleNewCardIds.delete(id);
+              if (latestRenderedMatch && currentMatchId === latestRenderedMatch.id) renderMatch(latestRenderedMatch);
+            }, 380);
+            if (latestRenderedMatch && currentMatchId === latestRenderedMatch.id) renderMatch(latestRenderedMatch);
+          }, 3000);
+        }
+      }
+      return added;
+    }
 
     function showTimedPopup(message, title = "Ogiltigt drag", duration = 1200){
       statusOverlayTitle.textContent = title;
@@ -1806,7 +1839,8 @@
         const playable = match.turn === me.uid && !match.pendingWinnerActionUid && !match.pendingLoserDrawUid && !match.winnerUid;
         const isSelected = selectedCards.some(x => x.id === card.id && x.source === "hand");
         const el = renderSpriteCard(card, { selectable, playable, selected: isSelected });
-        if (newMyCardIds.includes(card.id)) el.classList.add("new-drawn");
+        if (highlightedNewCardIds.has(card.id)) el.classList.add("new-drawn");
+        if (settleNewCardIds.has(card.id)) el.classList.add("new-drawn-settle");
         if (selectable) {
           el.onclick = () => { toggleSelected(card, "hand"); renderMatch(match); };
         } else if (playable) {
